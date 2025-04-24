@@ -10,5 +10,5 @@
 <!-- badges: end -->
 ## Overview
 <p style="font-family: Arial, sans-serif; font-size: 14px;">
-Package **cube4health** is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination.
+Package <b>cube4health</b> is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination.
 </p>
