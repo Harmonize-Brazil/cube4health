@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cube4health"
+version = "0.0.1"
+description = "Package cube4health is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination."
+readme = "README.rst"
+authors = [
+  {name = "Marcos Lima Rodrigues", email = "marcos.rodrigues@inpe.br"}
+]
+maintainers = [
+  {name = "Marcos Lima Rodrigues", email = "marcos.rodrigues@inpe.br"}
+]
+classifiers = [
+
+]
+license = {text = "GNU General Public License v3"}
+dependencies = [
+  
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage",  # testing
+    "mypy",  # linting
+    "pytest",  # testing
+    "ruff"  # linting
+]
+
+[project.urls]
+
+bugs = "https://github.com/marcosmlr/cube4health/issues"
+changelog = "https://github.com/marcosmlr/cube4health/blob/master/changelog.md"
+homepage = "https://github.com/marcosmlr/cube4health"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+
+
+
+# Mypy
+# ----
+
+[tool.mypy]
+files = "."
+
+# Use strict defaults
+strict = true
+warn_unreachable = true
+warn_no_return = true
+
+[[tool.mypy.overrides]]
+# Don't require test functions to include types
+module = "tests.*"
+allow_untyped_defs = true
+disable_error_code = "attr-defined"
+
