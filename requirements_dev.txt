@@ -8,4 +8,19 @@ Sphinx==7.2.6
 twine==5.0.0
 ruff==0.3.5
 
+requests
+geobr
+pandas
+geopandas
+tqdm
+python-dateutil
+GDAL==3.8.4
+fiona
+shapely
+numpy
+psutil
+fastparquet
+pyarrow
+geoserver-rest @ git+https://github.com/YuriDomaradzki/geoserver-rest.git@dev
+edpu @ git+https://github.com/Harmonize-Brazil/edpu.git@dev
 
