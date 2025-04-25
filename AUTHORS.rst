@@ -2,12 +2,15 @@
 Credits
 =======
 
-Development Lead
+Development Leaders
 ----------------
 
-* Marcos Lima Rodrigues <marcos.rodrigues@inpe.br>
+* Adeline Maciel <adelinemaciel22@gmail.com>
+* Marcos Lima Rodrigues <marcos.mlr@gmail.com>
+* Yuri Domaradzki <yuridomaradzki@gmail.com>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Luana Becker <luanabeckerdaluz@gmail.com>
+* Gabriel Sansigolo <gabrielsansigolo@gmail.com>
