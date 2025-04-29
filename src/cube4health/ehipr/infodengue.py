@@ -97,6 +97,7 @@ def compose_url(disease: str,
     else:
         filters = f"disease={disease}&start={start_date}&end={end_date}"
 
+    print( ROUTE + pagination + filters)
     return ROUTE + pagination + filters
 
 
@@ -115,7 +116,7 @@ def fetch_data(session: requests.Session, url: str) -> dict:
     -------
     The response from the API in JSON format.
     """
-    response = session.get(url)
+    response = session.get(url, headers={"X-UID-Key": "YuriDomaradzki:f74115af-8335-4b13-b3f4-6766d06e366c"})
     return response.json()
 
 

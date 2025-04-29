@@ -22,7 +22,7 @@ from concurrent.futures import (
 
 # custom functions
 from ..utils import chunk_list
-from edpu.utils import (
+from src.cube4health.edpu.utils import (
     get_ip_container_db,
     get_ports_container_db
 )

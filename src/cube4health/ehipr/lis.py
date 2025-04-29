@@ -17,7 +17,7 @@ from tqdm import tqdm
 from dateutil.relativedelta import relativedelta
 
 # custom functions
-from edpu.utils import _check_existence_dirs
+from src.cube4health.edpu.utils import _check_existence_dirs
 
 
 # Root path of the project
