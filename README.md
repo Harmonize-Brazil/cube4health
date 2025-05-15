@@ -1,4 +1,4 @@
-# cube4health <a href='https://www.harmonize-tools.org/'><img src='./docs/figures/cube4health_logo.jpeg' align="right" height="139" /></a>
+# cube4health <a href='https://www.harmonize-tools.org/'><img src='./docs/figures/cube4health_logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
