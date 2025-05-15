@@ -8,12 +8,20 @@ version = "0.0.1"
 description = "Package cube4health is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination."
 readme = "README.rst"
 authors = [
-  {name = "Marcos Lima Rodrigues", email = "marcos.rodrigues@inpe.br"}
+  {name = "Adeline Maciel", email = "adelinemaciel22@gmail.com"},
+  {name = "Marcos Lima Rodrigues", email = "marcos.mlr@gmail.com"},
+  {name = "Yuri Domaradzki", email = "yuridomaradzki@gmail.com"}
 ]
 maintainers = [
-  {name = "Marcos Lima Rodrigues", email = "marcos.rodrigues@inpe.br"}
+  {name = "Adeline Maciel", email = "adelinemaciel22@gmail.com"},
+  {name = "Gabriel Sansigolo", email = "gabrielsansigolo@gmail.com"},
+  {name = "Luana Becker", email = "luanabeckerdaluz@gmail.com"},
+  {name = "Marcos Lima Rodrigues", email = "marcos.mlr@gmail.com"},
+  {name = "Yuri Domaradzki", email = "yuridomaradzki@gmail.com"}
 ]
 classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: Linux Ubuntu",
 
 ]
 license = {text = "GNU General Public License v3"}
@@ -31,9 +39,9 @@ dev = [
 
 [project.urls]
 
-bugs = "https://github.com/marcosmlr/cube4health/issues"
-changelog = "https://github.com/marcosmlr/cube4health/blob/master/changelog.md"
-homepage = "https://github.com/marcosmlr/cube4health"
+bugs = "https://github.com/Harmonize-Brazil/cube4health/issues"
+changelog = "https://github.com/Harmonize-Brazil/cube4health/blob/master/changelog.md"
+homepage = "https://github.com/Harmonize-Brazil/cube4health"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

@@ -37,3 +37,16 @@ geoalchemy2
 flask
 docker
 
+# EDDPR
+
+python==3.10
+numpy<2.0
+matplotlib
+affine
+geopy
+jsonpath_rw_ext
+timezonefinder[pytz]
+defusedxml
+opencv-python
+tqdm
+
