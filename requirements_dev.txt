@@ -8,4 +8,32 @@ Sphinx==7.2.6
 twine==5.0.0
 ruff==0.3.5
 
+# EHIPR
+requests
+geobr
+pandas
+geopandas
+tqdm
+python-dateutil
+GDAL==3.8.4
+fiona
+shapely
+numpy
+psutil
+fastparquet
+pyarrow
+
+# EDPU
+
+bdc-catalog @ git+https://github.com/Harmonize-Brazil/bdc-catalog.git@master
+bdc-db @ git+https://github.com/brazil-data-cube/bdc-db@v0.6.3
+geoserver-rest @ git+https://github.com/YuriDomaradzki/geoserver-rest.git@dev
+geoserver-restconfig @ git+https://github.com/Harmonize-Brazil/geoserver-restconfig
+paramiko
+jsonpath_rw
+psycopg2
+rasterio
+geoalchemy2
+flask
+docker
 

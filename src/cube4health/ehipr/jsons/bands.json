@@ -1,0 +1,60 @@
+{
+    "bands": [
+        {
+            "name": "TABULAR",
+            "common_name": "tabular",
+            "description": "This is the <title> in a tabular format",
+            "data_type": "uint8",
+            "mime_type": "application/octet-stream",
+            "min_value": 0,
+            "max_value": 0,
+            "nodata": null,
+            "resolution_x": null,
+            "resolution_y": null,
+            "center_wavelength": null,
+            "full_width_half_max": null
+        },
+        {
+            "name": "THUMBNAIL",
+            "common_name": "thumbnail",
+            "description": "This is the quicklook of <title>",
+            "data_type": "uint8",
+            "mime_type": "image/png",
+            "min_value": 0,
+            "max_value": 0,
+            "nodata": null,
+            "resolution_x": null,
+            "resolution_y": null,
+            "center_wavelength": null,
+            "full_width_half_max": null
+        },
+        {
+            "name": "GEOJSON",
+            "common_name": "geojson",
+            "description": "This is the <title> in a geospatial format",
+            "data_type": "uint8",
+            "mime_type": "application/geo+json",
+            "min_value": 0,
+            "max_value": 0,
+            "nodata": null,
+            "resolution_x": null,
+            "resolution_y": null,
+            "center_wavelength": null,
+            "full_width_half_max": null
+        },
+        {
+            "name": "SHAPEFILE",
+            "common_name": "shapefile",
+            "description": "This is the <title> in a shapefile format",
+            "data_type": "uint8",
+            "mime_type": "application/zip",
+            "min_value": 0,
+            "max_value": 0,
+            "nodata": null,
+            "resolution_x": null,
+            "resolution_y": null,
+            "center_wavelength": null,
+            "full_width_half_max": null
+        }
+    ]
+}
