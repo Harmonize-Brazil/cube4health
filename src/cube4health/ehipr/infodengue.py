@@ -97,11 +97,10 @@ def compose_url(disease: str,
     else:
         filters = f"disease={disease}&start={start_date}&end={end_date}"
 
-    print( ROUTE + pagination + filters)
     return ROUTE + pagination + filters
 
 
-def fetch_data(session: requests.Session, url: str) -> dict:
+def fetch_data(session: requests.Session, url: str, headers: dict) -> dict:
     """
     Uses ClientSession to create the async call to the API
 
@@ -116,11 +115,11 @@ def fetch_data(session: requests.Session, url: str) -> dict:
     -------
     The response from the API in JSON format.
     """
-    response = session.get(url, headers={"X-UID-Key": "YuriDomaradzki:f74115af-8335-4b13-b3f4-6766d06e366c"})
+    response = session.get(url, headers=headers)
     return response.json()
 
 
-def attempt_delay(session: requests.Session, url: str) -> dict:
+def attempt_delay(session: requests.Session, url: str, headers: dict) -> dict:
     """
     The request may fail. This method adds a delay to the failing requests
 
@@ -136,10 +135,10 @@ def attempt_delay(session: requests.Session, url: str) -> dict:
     The response from the API in JSON format or calls the function again if it fails.
     """
     try:
-        return fetch_data(session=session, url=url)
+        return fetch_data(session=session, url=url, headers=headers)
     except Exception as e:
         time.sleep(0.2)
-        return attempt_delay(session=session, url=url)
+        return attempt_delay(session=session, url=url, headers=headers)
 
 
 def __save_to_csv(data: pd.DataFrame, 
@@ -182,6 +181,7 @@ def __save_to_csv(data: pd.DataFrame,
 def __request_data(disease: str, 
                    start_date: str, 
                    end_date: str, 
+                   token: str,
                    geocode: Optional[Union[str, int]]=[None]) -> Union[list, str]:
     """
     Fetch infoDengue indicator data from the API.
@@ -207,7 +207,8 @@ def __request_data(disease: str,
 
     # Checking if the dates are in the correct format
     if not check_date_format(date=start_date) and not check_date_format(date=end_date):
-        return "Error: The start_date and end_date is not in the correct format (YYYY-MM-DD)."
+        return "Error: The start_date and end_date is not in the correct format (YYYY-MM-DD)."    
+
     #Checking if the geocode is an instance of a dict. If yes, open the shapefile to get the geocodes
     if geocode and isinstance(geocode, dict):
         try:
@@ -217,14 +218,14 @@ def __request_data(disease: str,
 
     # Requesting data in parallel
     result = []
+    headers = {"X-UID-Key": token}
     with requests.Session() as session:
         for code in tqdm(geocode, desc="Processing geocode"):
             url = compose_url(disease=disease,
                                 start_date=start_date,
                                 end_date=end_date, 
                                 code=code)
-
-            data = attempt_delay(session, url)
+            data = attempt_delay(session, url, headers)
             try:
                 total_pages = data["pagination"]["total_pages"]
                 result.extend(data["items"])
@@ -240,7 +241,7 @@ def __request_data(disease: str,
                                     end_date=end_date, 
                                     code=code,
                                     page=page)
-                        futures[executor.submit(attempt_delay, session,url)] = url
+                        futures[executor.submit(attempt_delay, session,url, headers)] = url
                     for future in tqdm(as_completed(futures), 
                                         total=len(futures), 
                                         desc="Processing results..."):
@@ -257,6 +258,7 @@ def __request_data(disease: str,
 def get_infodengue_indicator(indicator: str, 
                              start_date: str, 
                              end_date: str, 
+                             mosqlimate_token: str,
                              output_path: Optional[str]=None,
                              geocode: Optional[Union[str, int]]=[None],
                              overwrite: Optional[bool]=False) -> Union[bool, str]:
@@ -303,27 +305,49 @@ def get_infodengue_indicator(indicator: str,
         df['agg_time'] = 'week'
         df['agg'] =  'municipality' if all(spt_agg) else 'state'
         df['name'] = indicator
+        pd.set_option('future.no_silent_downcasting', True)
         df.fillna(0, inplace=True)
         return df[['name', 'data_iniSE', 'agg', 'agg_time', 'municipio_geocodigo', field_name]]
 
     # Checking if the disease is in the allowed list
     try:
         indicator_info = _get_indicator_info(provider='infodengue', id=indicator)
-        if not indicator_info.get('status'): 
-            raise Exception(indicator_info.get('message'))
-        indicator_info = indicator_info.get('indicator')
+        
+        if not indicator_info.get("status"):
+            return indicator_info.get("message")
+
+        indicator_info = indicator_info.get("indicator")
 
         field_name = indicator_info.get('field_name')
+
         disease = indicator_info.get('disease')
         disease_id = DISEASE_IDS[disease.lower()]
     except Exception as e:
         return "Error: The disease must be one of the "\
                "following: %s." % ', '.join(DISEASE_IDS.keys())
+    
+    try:
+        if not isinstance(mosqlimate_token, str) or not mosqlimate_token:
+            raise Exception("The 'token' is empty or is not a string.")
+
+        try:
+            _, token = mosqlimate_token.split(':')
+            _ = re.match(r"^[a-f0-9\-]{36}[a-z]?$", token) is not None
+        except ValueError:
+            raise Exception("The 'token' is invalid.")
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
+    
     try:
         data = __request_data(disease=disease_id,
                             start_date=start_date,
                             end_date=end_date,
+                            token=mosqlimate_token,
                             geocode=geocode)
+        
+        if isinstance(data, str):
+            raise Exception(data)
 
         # Defining if the spatial aggregation is by state or by municipality. If the geocode
         # is None or if the length of the geocode is not 2, the aggregation is by municipality.
@@ -331,8 +355,8 @@ def get_infodengue_indicator(indicator: str,
         spt_agg = [True if code is None or len(code) != 2 else False for code in geocode]
         all_items = []
 
-    except Exception as err:
-        return f"Error: Something went wrong when obtain indicator"
+    except Exception as e:
+        return f"Error: {str(e)}"
 
     try:
         # Setting the output path to save the data in the csv format
@@ -353,13 +377,12 @@ def get_infodengue_indicator(indicator: str,
                 df = adjust_df().drop_duplicates()
                 saved = __save_to_csv(data=df, filename=filepath)
                 all_items = []
-        print('saving remaining data')
+
         # Saving the remaining data
         if all_items:
             df = adjust_df().drop_duplicates()
             saved = __save_to_csv(data=df, filename=filepath)
             all_items = []
-            print(saved)
             return output_path
         raise Exception("Cannot save the indicator!") 
     except KeyError as e:

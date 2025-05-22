@@ -1050,8 +1050,11 @@ def spatialize_data(indicators: List[str],
             try:
                 # CREATING THE LAYER INFORMATION
                 if style_file:
-                    description = f"This is the {df_indi['info']['description'].lower()} "\
-                                f"aggregated by {agg_spt} and {agg_time} to {region_crop}"
+                    description = (
+                        f"This is the {df_indi['info']['title'].lower()} "
+                        f"aggregated by {agg_spt} and {agg_time} to {region_crop}. "
+                        f"This indicator {df_indi['info']['description'].lower()}"
+                    )
 
                     if region_crop.lower() in list(REGION_ABBR.keys()):
                         region_crop = REGION_ABBR[region_crop.lower()]
