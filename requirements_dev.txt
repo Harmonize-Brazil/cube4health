@@ -15,7 +15,7 @@ pandas
 geopandas
 tqdm
 python-dateutil
-GDAL==3.8.4
+GDAL==3.4.1
 fiona
 shapely
 numpy
@@ -31,6 +31,7 @@ geoserver-rest @ git+https://github.com/YuriDomaradzki/geoserver-rest.git@dev
 geoserver-restconfig @ git+https://github.com/Harmonize-Brazil/geoserver-restconfig
 paramiko
 jsonpath_rw
+psycopg2-binary
 psycopg2
 rasterio
 geoalchemy2
@@ -39,7 +40,6 @@ docker
 
 # EDDPR
 
-python==3.10
 numpy<2.0
 matplotlib
 affine
