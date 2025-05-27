@@ -16,8 +16,14 @@
     along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 
+.. image:: ./docs/figures/cube4health_logo.png
+   :height: 139px
+   :loading: embed
+   :alt: toolkit logo
+   :align: right
+
 =====================================
-cube4health <a href='https://www.harmonize-tools.org/'><img src='./docs/figures/cube4health_logo.png' align="right" height="139" /></a>
+cube4health 
 =====================================
 
 
@@ -43,15 +49,16 @@ cube4health <a href='https://www.harmonize-tools.org/'><img src='./docs/figures/
 
 About
 =====
-<p style="font-family: Arial, sans-serif; font-size: 14px;">
-Package <b>cube4health</b> is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination.
-</p>
+
+Package **cube4health** is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination.
+
 
 
 Installation
 ============
 
 Source code from Github:
+
 .. code-block:: shell
 
         pip install git+https://github.com/Harmonize-Brazil/cube4health.git@dev
