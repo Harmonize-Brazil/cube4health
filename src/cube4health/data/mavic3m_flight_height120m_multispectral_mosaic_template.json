@@ -1,0 +1,145 @@
+{
+    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
+    "title": "Mavic3M_120m_MS_Mosaic",
+    "description": "Collection of mosaics from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) images produced with OpenDroneMap.",
+    "temporal_composition_schema": null,
+    "composition_function": null,
+    "grid_ref_sys": null,
+    "collection_type": "mosaic",
+    "summaries": {
+        "gsd": [0.05547021676053935], 
+        "sensor_dim_x_mm": [5.2],
+        "sensor_dim_y_mm": [3.9],
+        "focal_length_mm": [4.34]
+    },
+    "metadata": {
+        "platform": {
+            "code": "DJI Mavic 3 M",
+            "instruments": ["M3M"]
+          },
+        "contributors": [{"name": "National Institute for Space Research (INPE)",
+                        "nameType": "Organizational",
+                        "contributorType": "HostingInstitution"},
+                        {"name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
+                        "contributorType": "ResearchGroup"}                      
+                        ],
+        "fundingReferences": [{
+                            "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+                            }
+                            ],
+        "processor": {
+                    "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
+                    "name": "Drone STAC",
+                    "version": "0.0.1"
+                    },
+        "wms": {
+                "url": "http://localhost:10190/geoserver/mosaics/wms",
+                "layerName": "mosaics:Mavic3M_FlightHeight120m_MS_Mosaic"
+                },
+        "sources": [{
+                    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
+                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS_Mosaic-1",
+                    "descriptionUri": null
+                    }
+                ]
+    },
+    "is_public": true,
+    "is_available": true,
+    "version": 1,
+    "version_predecessor": null,
+    "version_successor": null,
+    "bdc:type": "mosaic",
+    "category": "eo",
+    "properties": {
+        "bdc:visual": {
+            "rgb": [
+                "RED",
+                "NIR",
+                "GREEN"
+                ]
+                    }
+    },
+    "bands": [
+        {
+            "name": "GREEN",
+            "common_name": "green",
+            "description": "Green band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint32",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.56,
+                    "full_width_half_max": 0.032,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        },
+        {
+            "name": "RED",
+            "common_name": "red",
+            "description": "Red band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint32",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.65,
+                    "full_width_half_max": 0.032,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        },
+        {
+            "name": "RED EDGE",
+            "common_name": "rededge",
+            "description": "Red Edge band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint32",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.73,
+                    "full_width_half_max": 0.032,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        },
+        {
+            "name": "NIR",
+            "common_name": "nir",
+            "description": "Near Infrared band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint32",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.86,
+                    "full_width_half_max": 0.052,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        }
+    ]    
+}
+        

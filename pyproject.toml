@@ -25,8 +25,48 @@ classifiers = [
 
 ]
 license = {text = "GNU General Public License v3"}
+requires-python = ">= 3.10"
 dependencies = [
-  
+  # EHIPR
+
+  requests
+  geobr
+  pandas
+  geopandas
+  tqdm
+  python-dateutil
+  pygdal
+  fiona
+  shapely
+  numpy<2.0
+  psutil
+  fastparquet
+  pyarrow
+
+  # EDPU
+
+  bdc-catalog @ git+https://github.com/Harmonize-Brazil/bdc-catalog.git@master
+  bdc-db @ git+https://github.com/brazil-data-cube/bdc-db@v0.6.3
+  geoserver-rest @ git+https://github.com/YuriDomaradzki/geoserver-rest.git@dev
+  geoserver-restconfig @ git+https://github.com/Harmonize-Brazil/geoserver-restconfig
+  paramiko
+  jsonpath_rw
+  psycopg2-binary
+  psycopg2
+  rasterio
+  geoalchemy2
+  flask
+  docker
+
+  # EDDPR
+
+  matplotlib
+  affine
+  geopy
+  jsonpath_rw_ext
+  timezonefinder[pytz]
+  defusedxml
+  opencv-python  
 ]
 
 [project.optional-dependencies]
@@ -35,6 +75,12 @@ dev = [
     "mypy",  # linting
     "pytest",  # testing
     "ruff"  # linting
+]
+docs = [
+    "Sphinx>=7.0",
+    "sphinx_rtd_theme",
+    "sphinx-copybutton",
+    "sphinx-tabs",
 ]
 
 [project.urls]
