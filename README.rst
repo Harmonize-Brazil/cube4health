@@ -57,12 +57,60 @@ Package **cube4health** is a data acquisition, processing, and publishing toolki
 Installation
 ============
 
+Install GDAL library and its header files on your system (Ubuntu):
+
+.. code-block:: shell
+
+        sudo apt-get update && sudo apt-get upgrade
+        sudo apt-get install -y g++ && sudo apt-get install -y libgdal-dev
+
 Source code from Github:
 
 .. code-block:: shell
 
         pip install git+https://github.com/Harmonize-Brazil/cube4health.git@dev
 
+Alternative using *Python Virtual Environment*:
+
+1. Clone the software repository:
+
+.. code-block:: shell
+
+        git clone https://github.com/Harmonize-Brazil/cube4health.git@dev
+
+2. Go to the source code folder:
+
+.. code-block:: shell
+
+        cd cube4health
+
+3. Create a new virtual environment linked to Python 3.10:
+
+.. code-block:: shell
+
+        python3.10 -m venv venv
+
+4. Activate the new environment:
+
+.. code-block:: shell
+
+        source venv/bin/activate
+
+5. Update pip and setuptools:
+
+.. code-block:: shell
+
+        pip3 install --upgrade pip wheel setuptools
+
+6. Install in development mode `-e (option)`:
+
+.. code-block:: shell
+
+        pip3 install -e .[all]
+
+**Obs.:** The development mode allows you to modify the code without having to rebuild the package.
+
+Problems with GDAL import, please see these `related issues and solutions <ISSUES.rst>`_!
 
 
 
