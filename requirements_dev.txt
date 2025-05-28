@@ -17,10 +17,10 @@ pandas
 geopandas
 tqdm
 python-dateutil
+numpy
 gdal[numpy]
 fiona
 shapely
-numpy
 psutil
 fastparquet
 pyarrow
@@ -42,7 +42,6 @@ docker
 
 # EDDPR
 
-#numpy<2.0
 matplotlib
 affine
 geopy

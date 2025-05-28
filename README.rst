@@ -76,7 +76,7 @@ Alternative using *Python Virtual Environment*:
 
 .. code-block:: shell
 
-        git clone https://github.com/Harmonize-Brazil/cube4health.git@dev
+        git clone --single-branch --branch dev https://github.com/Harmonize-Brazil/cube4health.git
 
 2. Go to the source code folder:
 
