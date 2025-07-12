@@ -32,14 +32,13 @@
 # --------------------------
 import os
 import sys
+import subprocess
 from PIL import Image, ExifTags, TiffTags #required version >= 9.5
 from pathlib import Path
 import json
 import rasterio
 from pyproj import Transformer
 from datetime import datetime
-from drone_projection_warp import main as drone_projection_warp
-from drone_correction_projection_warp import main as drone_correction_projection_warp
 from types import SimpleNamespace
 from decimal import Decimal, InvalidOperation
 import numpy as np
@@ -50,8 +49,17 @@ from pytz import timezone, utc
 from multiprocessing import cpu_count
 from tqdm import tqdm
 import tempfile
+from argparse import ArgumentParser, SUPPRESS
+if __name__ !=  "__main__":
+    from .drone_projection_warp import main as drone_projection_warp
+    from .drone_correction_projection_warp import main as drone_correction_projection_warp
+    from .arghelper import is_valid_file, is_valid_directory, is_valid_namefile
+    from .publish_drone_data import main as publish_drone_data 
 
+local_path = os.path.dirname(os.path.abspath(__file__))
+parent_path = Path(local_path).parent.absolute()
 
+gdal.UseExceptions()  # this allows GDAL to throw Python Exceptions
 Image.MAX_IMAGE_PIXELS = None #to prevent the problem of size image
 num_workers = int(cpu_count() - (cpu_count() * 0.20)) # using about 80% of cores
 tf = TimezoneFinder()  # reuse
@@ -329,6 +337,8 @@ def write_cogtiff_v2(fname, out_fname,type=None):
     # Set up transformers, EPSG:3395 is metric
     crs_dst = 'EPSG:3395'
 
+    block_size_output = 256 #Sets the tile width and height in pixels. Must be divisible by 16. https://gdal.org/drivers/raster/cog.html#general-creation-options
+
     # Create a COG file:
     if os.path.exists(out_fname) == False:
         src_ds = gdal.Open(str(fname), gdal.GA_ReadOnly)
@@ -370,20 +380,20 @@ def write_cogtiff_v2(fname, out_fname,type=None):
         if alpha_channel:
             if type == 'RGB':
                 gdal.Warp(out_fname, dst_filename,
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -ot Byte  -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
+                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -ot Byte  -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
             elif type == 'MS':
                 gdal.Warp(out_fname, dst_filename,
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
+                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
 
             os.remove(dst_filename)    #delete temporary file        
         else:
-            if type == 'RGB':
+            if type == 'RGB' or 'Thermal':
                 gdal.Warp(out_fname, str(fname),
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -ot Byte  -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
+                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -ot Byte  -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
             elif type == 'MS':
                 gdal.Warp(out_fname, str(fname),
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
-
+                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
+           
 
 def calc_ndvi(out_fname, fname):
     """ 
@@ -452,19 +462,23 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
     Processing drone data to produce COGs to publish using Geoserver/Titiler and JSON files used for STAC catalog creation. 
 
        :param flights_path: List with path names containing drone data for each flight.
-       :type argv.server_type: Path
+       :type flights_path: Path
 
        :param collections_template: A dictionary of dictionaries containing template information from different collections of scenes/mosaics (RGB, Multispectral, NDVI, and Thermal) 
                                     for supported drone models. Attention: To include support for a new device, it's required to create template JSON files with the required information 
                                     for the drone and the collection wanted. See file example for Mavic 3M Multispectral data (mavic3m_flight_height120m_multispectral_template.json).
-       :type argv.root_path: Dict
+       :type collections_template: Dict
 
        :param catalog_path: Path name for output files (COGs and thumbnails).
        :type catalog_path: String
 
        :param prefix_geoserver_data: String with the parent path name for the data that will be published with Geoserver. For example, our address for Geoserver 
                                      is <https://brazildatacube.dpi.inpe.br/harmonize/dev/geoserver> by default, the service points toa  path containing data using the prefix "dev".
-       :type catalog_path: String
+       :type prefix_geoserver_data: String
+
+       :param argv: String with the parent path name for the data that will be published with Geoserver. For example, our address for Geoserver 
+                                     is <https://brazildatacube.dpi.inpe.br/harmonize/dev/geoserver> by default, the service points toa  path containing data using the prefix "dev".
+       :type prefix_geoserver_data: String
     """
     flights_path = sorted(flights_path)
 
@@ -665,7 +679,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             if os.path.exists(tiff_file) != True:
                 os.makedirs(os.path.dirname(tiff_file), exist_ok=True)
                 print('Coverting mosaic GeoTIFF to COG file...')
-                write_cogtiff_v2(file,tiff_file)
+                write_cogtiff_v2(file,tiff_file,type='Thermal')
                 print('The conversion to the COG file was finished!')
 
             #Create thumbnail
@@ -678,7 +692,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                 
                 tmp_file = tiff_file.replace('.tif','_scalled.tif')
                 gdal.Translate(tmp_file, str(file), options="-a_nodata "+str(nodata)+" -ot Byte -outsize 10% 10%")
-                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file='temperature-color.txt')
+                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file=os.path.join(os.path.join(parent_path,'data','temperature-color.txt')))
                 os.remove(tmp_file)
                 print('Finished thumbnail creation!')
 
@@ -846,7 +860,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                 os.environ['GDAL_PAM_ENABLED']='NO' #avoid .xml file creation             
                 tmp_file = tiff_file.replace('.tif','_scalled.tif')                
                 gdal.Translate(tmp_file, str(tiff_file), options="-ot Float32 -outsize 10% 10%")
-                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file='ndvi-color.txt')
+                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file=os.path.join(os.path.join(parent_path,'data','ndvi-color.txt')))
                 os.remove(tmp_file)
                 print('Finished thumbnail creation!')
 
@@ -1020,15 +1034,16 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
     # Store JSON files to created catalogs of collections:
     for key,value in collections_template.items():
          if len(collections_template[key]['items']) > 0:
-            fname_drone_collection = key + '_collection.json'
+            path_output = os.path.join(local_path,'output')
+            os.makedirs(path_output, exist_ok=True)
+            fname_drone_collection = os.path.join(path_output,key + '_collection.json')
             with open(fname_drone_collection, 'w') as outfile:
                 json.dump(collections_template[key], outfile, indent=4)
 
-            print('\nJSON file for collection creation saved:\n',fname_drone_collection) 
-
-             
-     
-
+            if argv.publish_data == 'True':
+                ddsd
+            else:
+                print('\nJSON file for collection creation saved:\n',fname_drone_collection) 
 
 
 def main(argv):
@@ -1047,10 +1062,49 @@ def main(argv):
 
        :param argv.data_path_output: path filename to output files processed (COGs and thumbnails).
        :type argv.data_path_output: String
-    """
+    """ 
+    
+    class CustomArgumentParser(ArgumentParser):
+        def error(self, message):
+            sys.stderr.write(f'Error: {message}\n\n')
+            self.print_help(sys.stderr)  # Print help to stderr
+            sys.exit(2)  # Exit with a non-zero status code
+
+    # Add custom program name with parameters from click and disable default help:
+    parser = CustomArgumentParser(prog=' '.join(argv),
+                             description='Convert raw images and mosaics to Cloud Optimized GeoTIFF (COG) and create JSON files to build \
+                             catalogs using SpatioTemporal Asset Catalog (STAC) specification',
+                             add_help=False)
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
+
+    # Add back help
+    optional.add_argument('-h',action='help',default=SUPPRESS,help='show this help message and exit')
+    required.add_argument('--server_type',
+                    help='Required server target type localhost or remote',
+                        choices=('localhost', 'remote'), required=True)
+    required.add_argument('--root_path', type=lambda x: is_valid_directory(parser, x), 
+                        required=True, help='Required path to raw and mosaic images from drone. Example /home/user/Desktop/HARMONIZE-Br_Project/src/FieldWorkCampaigns')
+    required.add_argument('--data_path_output', type=lambda x: is_valid_directory(parser, x),
+                        required=True, help='Required path to save Cloud Optimized GeoTIFF (COG) files. Example /home/user/Docker-Compose/geoserver/data')
+    required.add_argument('--publish_data', help='Required parameter to specify a supplementary processing step for automatically publishing data via the BDC STAC service and Geoserver. Note: Additional parameters will be requested after data processing.',
+     choices=('True', 'False'), required=True)
+    #optional.add_argument('--optional_arg')
+
+    # Check required parameters:
+    argv, unknown = parser.parse_known_args()
+    print(argv)
+    print(type(argv))
+    quit()
+
+    if argv.publish_data == 'True':
+        option = None
+        while(option != 'new' or option != 'update'):
+            option = input('Please type the required option new (to create) or update (to add new items) to a collection(s)')
+
     templates = {}
-    # Reading templates information about collections of drones:
-    for fname_rpa_template in Path('.').rglob('*_template.json'):
+    # Reading templates information about collections of drones: 
+    for fname_rpa_template in Path(os.path.join(parent_path,'data')).rglob('*_template.json'):
         with open(fname_rpa_template, 'r') as f:
             templates[os.path.basename(fname_rpa_template).replace('_template.json','')] = json.load(f)
 
@@ -1079,11 +1133,10 @@ def main(argv):
 
 if __name__ == "__main__":
 
-    # Prompt user for (optional) command line arguments, when run from IDLE:
-    if 'idlelib' in sys.modules: sys.argv.extend(input("Args: ").split())
+    from drone_projection_warp import main as drone_projection_warp
+    from drone_correction_projection_warp import main as drone_correction_projection_warp
 
     # Process the arguments
-    from argparse import ArgumentParser, SUPPRESS
     import arghelper
 
     # Disable default help
@@ -1101,7 +1154,9 @@ if __name__ == "__main__":
     required.add_argument('--root_path', type=lambda x: arghelper.is_valid_directory(parser, x), 
                         required=True, help='Required path to raw and mosaic images from drone. Example /home/user/Desktop/HARMONIZE-Br_Project/src/FieldWorkCampaigns')
     required.add_argument('--data_path_output', type=lambda x: arghelper.is_valid_directory(parser, x),
-                        required=True, help='Required path to save Cloud Optimized GeoTIFF (COG) files. Example /home/user/Docker-Compose/geoserver/data') 
+                        required=True, help='Required path to save Cloud Optimized GeoTIFF (COG) files. Example /home/user/Docker-Compose/geoserver/data')
+    required.add_argument('--publish_data', help='Required parameter to specify a supplementary processing step for automatically publishing data via the BDC STAC service and Geoserver. Note: Additional parameters will be requested after data processing.',
+     choices=('True', 'False'), required=True) 
     #optional.add_argument('--optional_arg')
     
     if len(sys.argv) == 1:

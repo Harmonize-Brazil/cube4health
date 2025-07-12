@@ -44,16 +44,13 @@ import tempfile
 from multiprocessing import cpu_count
 from decimal import Decimal, InvalidOperation
 
-result = subprocess.run(['gdal-config','--datadir'], capture_output=True, text=True)
-os.environ['GDAL_DATA'] = result.stdout.replace('\n','') #set gdal data path
-os.environ['PROJ_LIB'] = result.stdout.replace('\n','').replace('gdal','proj') #set proj path
-
+local_path = os.path.dirname(os.path.abspath(__file__))
 gdal.UseExceptions()  # this allows GDAL to throw Python Exceptions
 Image.MAX_IMAGE_PIXELS = None #to prevent the problem of size image
 num_workers = int(cpu_count() - (cpu_count() * 0.20)) # using about 80% of cores
 
 
-logging.basicConfig(filename='drone_projection_warp.log',\
+logging.basicConfig(filename=os.path.join(local_path,'drone_projection_warp.log'),\
                         format='%(asctime)s %(levelname)s:%(message)s', datefmt='%d/%m/%Y %I:%M:%S %p',\
                         level=logging.INFO, \
                         filemode = 'w')

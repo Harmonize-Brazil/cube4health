@@ -54,10 +54,10 @@
             "common_name": "thermal",
             "description": "",
             "min_value": 0,
-            "max_value": 300.0,
-            "nodata": -9999.0,
+            "max_value": 255,
+            "nodata": 0,
             "scale": 1,
-            "data_type": "float32",
+            "data_type": "byte",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {

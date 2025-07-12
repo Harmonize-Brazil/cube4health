@@ -30,7 +30,6 @@ import os
 import subprocess
 import json
 from PIL import Image, TiffTags #required version >= 9.5
-from drone_projection_warp import get_exif_info
 from pathlib import Path
 import geopandas as gpd
 from osgeo import osr, gdal
@@ -46,6 +45,7 @@ from multiprocessing import Pool, cpu_count
 import shutil
 from itertools import repeat
 import tempfile
+from .drone_projection_warp import get_exif_info
 
 
 """ Settings """
@@ -53,10 +53,7 @@ import tempfile
 number_of_iterations = 100
 termination_eps = 1e-6
 
-result = subprocess.run(['gdal-config','--datadir'], capture_output=True, text=True)
-os.environ['GDAL_DATA'] = result.stdout.replace('\n','') #set gdal data path
-os.environ['PROJ_LIB'] = result.stdout.replace('\n','').replace('gdal','proj') #set proj path
-
+local_path = os.path.dirname(os.path.abspath(__file__))
 gdal.UseExceptions()  # this allows GDAL to throw Python Exceptions
 Image.MAX_IMAGE_PIXELS = None #to prevent the problem of size image
 num_workers = int(cpu_count() - (cpu_count() * 0.20)) # using about 80% of cores
@@ -64,6 +61,7 @@ num_workers = int(cpu_count() - (cpu_count() * 0.20)) # using about 80% of cores
 bands_definition = {'NIR':'Near Infrared', 'RE':'Red Edge', 'R':'Red','G':'Green','NDVI':'Normalized Difference Vegetation Index'}
 bands_nodata = {'NIR':0, 'RE':0, 'R':0,'G':0,'NDVI':-9999}
 bands_gdal_type = {'NIR':gdal.GDT_UInt32, 'RE':gdal.GDT_UInt32, 'R':gdal.GDT_UInt32,'G':gdal.GDT_UInt32,'NDVI':gdal.GDT_Int16}
+
 # GDAL colour interpretation values - source https://gdal.org/java/org/gdal/gdalconst/gdalconstConstants.html:
 # GCI_BlueBand(5) : Blue band of RGBA image (color interpretation) GCI_GrayIndex(1) : greyscale (color interpretation)
 # GCI_GreenBand(4) : Green band of RGBA image (color interpretation) GCI_RedBand(3) : Red band of RGBA image (color interpretation)
@@ -72,7 +70,7 @@ bands_colour_interpretation = {'NIR':1, 'RE':1, 'R':3,'G':4,'NDVI':1}
 bands_colour_definition = {1:'Gray', 3:'Red', 4:'Green'}
 default_scale = 10000  
 
-logging.basicConfig(filename='drone_correction_projection_warp.log',\
+logging.basicConfig(filename=os.path.join(local_path,'drone_correction_projection_warp.log'),\
                         format='%(asctime)s %(levelname)s:%(message)s', datefmt='%d/%m/%Y %I:%M:%S %p',\
                         level=logging.INFO, \
                         filemode = 'w')
@@ -1106,9 +1104,7 @@ def main(argv):
 
 
 if __name__ == "__main__":
-
-    # Prompt user for (optional) command line arguments, when run from IDLE:
-    if 'idlelib' in sys.modules: sys.argv.extend(input("Args: ").split())
+    from drone_projection_warp import get_exif_info
 
     # Process the arguments
     from argparse import ArgumentParser, SUPPRESS

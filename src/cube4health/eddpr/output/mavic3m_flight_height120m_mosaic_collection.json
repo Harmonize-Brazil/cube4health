@@ -1,0 +1,605 @@
+{
+    "name": "Mavic3M_FlightHeight120m_Mosaic",
+    "title": "Mavic3M_120m_RGB",
+    "description": "Collection of mosaics from drone DJI Mavic 3M based on Visual Lens (RGB) images produced with OpenDroneMap.",
+    "temporal_composition_schema": null,
+    "composition_function": null,
+    "grid_ref_sys": null,
+    "collection_type": "mosaic",
+    "summaries": {
+        "sensor_dim_x_mm": [
+            17.4
+        ],
+        "sensor_dim_y_mm": [
+            13
+        ],
+        "focal_length_mm": [
+            12.29
+        ]
+    },
+    "metadata": {
+        "platform": {
+            "code": "DJI Mavic 3 M",
+            "instruments": [
+                "M3M"
+            ]
+        },
+        "contributors": [
+            {
+                "name": "National Institute for Space Research (INPE)",
+                "nameType": "Organizational",
+                "contributorType": "HostingInstitution"
+            },
+            {
+                "name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
+                "contributorType": "ResearchGroup"
+            }
+        ],
+        "fundingReferences": [
+            {
+                "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+            }
+        ],
+        "processor": {
+            "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
+            "name": "Drone STAC",
+            "version": "0.0.1"
+        },
+        "wms": {
+            "url": "http://localhost:10190/geoserver/mosaics/wms",
+            "layerName": "mosaics:Mavic3M_FlightHeight120m_Mosaic"
+        },
+        "sources": [
+            {
+                "name": "Mavic3M_FlightHeight120m_Mosaic",
+                "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_Mosaic-1",
+                "descriptionUri": null
+            }
+        ]
+    },
+    "is_public": true,
+    "is_available": true,
+    "version": 1,
+    "version_predecessor": null,
+    "version_successor": null,
+    "bdc:type": "mosaic",
+    "category": "eo",
+    "bands": [
+        {
+            "name": "BLUE",
+            "common_name": "blue",
+            "description": "",
+            "min_value": 0,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "int8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.030955138921981,
+                    "resolution_y": 0.030955138921981,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }
+        },
+        {
+            "name": "GREEN",
+            "common_name": "green",
+            "description": "",
+            "min_value": 0,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "int8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.030955138921981,
+                    "resolution_y": 0.030955138921981,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }
+        },
+        {
+            "name": "RED",
+            "common_name": "red",
+            "description": "",
+            "min_value": 0,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "int8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.030955138921981,
+                    "resolution_y": 0.030955138921981,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }
+        }
+    ],
+    "items": [
+        {
+            "name": "Mavic3M_120m_Mosaic_Cameta_ContraMare_20231114",
+            "start_date": "2023-11-14T00:00:00",
+            "end_date": "2023-11-14T00:00:00",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.436209808166524,
+                            -2.1027166475934647
+                        ],
+                        [
+                            -49.428994448949425,
+                            -2.1027166475934647
+                        ],
+                        [
+                            -49.428994448949425,
+                            -2.0940815764556944
+                        ],
+                        [
+                            -49.436209808166524,
+                            -2.0940815764556944
+                        ],
+                        [
+                            -49.436209808166524,
+                            -2.1027166475934647
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.436209808166524,
+                            -2.1027166475934647
+                        ],
+                        [
+                            -49.428994448949425,
+                            -2.1027166475934647
+                        ],
+                        [
+                            -49.428994448949425,
+                            -2.0940815764556944
+                        ],
+                        [
+                            -49.436209808166524,
+                            -2.0940815764556944
+                        ],
+                        [
+                            -49.436209808166524,
+                            -2.1027166475934647
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 32722,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                673916.9452758348,
+                                9767497.680672256
+                            ],
+                            [
+                                674718.6441904778,
+                                9767497.680672256
+                            ],
+                            [
+                                674718.6441904778,
+                                9768453.291228997
+                            ],
+                            [
+                                673916.9452758348,
+                                9768453.291228997
+                            ],
+                            [
+                                673916.9452758348,
+                                9767497.680672256
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                673916.9452758348,
+                                9767497.680672256
+                            ],
+                            [
+                                674718.6441904778,
+                                9767497.680672256
+                            ],
+                            [
+                                674718.6441904778,
+                                9768453.291228997
+                            ],
+                            [
+                                673916.9452758348,
+                                9768453.291228997
+                            ],
+                            [
+                                673916.9452758348,
+                                9767497.680672256
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.028186,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "mission": "Cameta_ContraMare_20231114"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m_Mosaic/2023/11/Cameta_ContraMare_20231114_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-11T15:17:19",
+                    "updated": "2025-07-11T15:17:19",
+                    "bdc:size": 2138685053,
+                    "bdc:chunk_size": {
+                        "x": 256,
+                        "y": 256
+                    },
+                    "bdc:raster_size": {
+                        "x": 28443,
+                        "y": 33903
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m_Mosaic/2023/11/Cameta_ContraMare_20231114_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-11T15:17:19",
+                    "updated": "2025-07-11T15:17:19",
+                    "bdc:size": 14858321,
+                    "checksum:multihash": ""
+                }
+            }
+        },
+        {
+            "name": "Mavic3M_120m_Mosaic_Iquitos_Llanchama_20230515",
+            "start_date": "2023-05-15T00:00:00",
+            "end_date": "2023-05-15T00:00:00",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -73.41752371569673,
+                            -3.8642054392513576
+                        ],
+                        [
+                            -73.40649851467586,
+                            -3.8642054392513576
+                        ],
+                        [
+                            -73.40649851467586,
+                            -3.8522737855265126
+                        ],
+                        [
+                            -73.41752371569673,
+                            -3.8522737855265126
+                        ],
+                        [
+                            -73.41752371569673,
+                            -3.8642054392513576
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -73.41752371569673,
+                            -3.8642054392513576
+                        ],
+                        [
+                            -73.40649851467586,
+                            -3.8642054392513576
+                        ],
+                        [
+                            -73.40649851467586,
+                            -3.8522737855265126
+                        ],
+                        [
+                            -73.41752371569673,
+                            -3.8522737855265126
+                        ],
+                        [
+                            -73.41752371569673,
+                            -3.8642054392513576
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 32718,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                675717.074,
+                                9572716.8470169
+                            ],
+                            [
+                                676939.1488686,
+                                9572716.8470169
+                            ],
+                            [
+                                676939.1488686,
+                                9574038.503
+                            ],
+                            [
+                                675717.074,
+                                9574038.503
+                            ],
+                            [
+                                675717.074,
+                                9572716.8470169
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                675717.074,
+                                9572716.8470169
+                            ],
+                            [
+                                676939.1488686,
+                                9572716.8470169
+                            ],
+                            [
+                                676939.1488686,
+                                9574038.503
+                            ],
+                            [
+                                675717.074,
+                                9574038.503
+                            ],
+                            [
+                                675717.074,
+                                9572716.8470169
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.048223,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "mission": "Iquitos_Llanchama_20230515"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m_Mosaic/2023/05/Iquitos_Llanchama_20230515_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-11T15:16:51",
+                    "updated": "2025-07-11T15:16:51",
+                    "bdc:size": 2391511310,
+                    "bdc:chunk_size": {
+                        "x": 25342,
+                        "y": 25342
+                    },
+                    "bdc:raster_size": {
+                        "x": 25342,
+                        "y": 27407
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m_Mosaic/2023/05/Iquitos_Llanchama_20230515_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-11T15:16:51",
+                    "updated": "2025-07-11T15:16:51",
+                    "bdc:size": 13739034,
+                    "checksum:multihash": ""
+                }
+            }
+        },
+        {
+            "name": "Mavic3M_120m_Mosaic_Mocajuba_BairroNovo_20231107",
+            "start_date": "2023-11-07T00:00:00",
+            "end_date": "2023-11-07T00:00:00",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.49865191772988,
+                            -2.575056021073355
+                        ],
+                        [
+                            -49.49006266893534,
+                            -2.575056021073355
+                        ],
+                        [
+                            -49.49006266893534,
+                            -2.567952819171104
+                        ],
+                        [
+                            -49.49865191772988,
+                            -2.567952819171104
+                        ],
+                        [
+                            -49.49865191772988,
+                            -2.575056021073355
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.49865191772988,
+                            -2.575056021073355
+                        ],
+                        [
+                            -49.49006266893534,
+                            -2.575056021073355
+                        ],
+                        [
+                            -49.49006266893534,
+                            -2.567952819171104
+                        ],
+                        [
+                            -49.49865191772988,
+                            -2.567952819171104
+                        ],
+                        [
+                            -49.49865191772988,
+                            -2.575056021073355
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 32722,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                666914.9611906108,
+                                9715277.619082624
+                            ],
+                            [
+                                667869.1779503901,
+                                9715277.619082624
+                            ],
+                            [
+                                667869.1779503901,
+                                9716064.15047396
+                            ],
+                            [
+                                666914.9611906108,
+                                9716064.15047396
+                            ],
+                            [
+                                666914.9611906108,
+                                9715277.619082624
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                666914.9611906108,
+                                9715277.619082624
+                            ],
+                            [
+                                667869.1779503901,
+                                9715277.619082624
+                            ],
+                            [
+                                667869.1779503901,
+                                9716064.15047396
+                            ],
+                            [
+                                666914.9611906108,
+                                9716064.15047396
+                            ],
+                            [
+                                666914.9611906108,
+                                9715277.619082624
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.031139,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "mission": "Mocajuba_BairroNovo_20231107"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m_Mosaic/2023/11/Mocajuba_BairroNovo_20231107_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-11T15:16:51",
+                    "updated": "2025-07-11T15:16:51",
+                    "bdc:size": 2733103305,
+                    "bdc:chunk_size": {
+                        "x": 256,
+                        "y": 256
+                    },
+                    "bdc:raster_size": {
+                        "x": 30644,
+                        "y": 25259
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m_Mosaic/2023/11/Mocajuba_BairroNovo_20231107_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-11T15:16:51",
+                    "updated": "2025-07-11T15:16:51",
+                    "bdc:size": 18979036,
+                    "checksum:multihash": ""
+                }
+            }
+        }
+    ]
+}

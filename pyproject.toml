@@ -1,5 +1,5 @@
 [build-system]
-requires = ["wheel","setuptools>=67"]
+requires = ["wheel","setuptools (>=67,<70)"] # setuptools limited for use of pkg_resources API
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -34,7 +34,7 @@ dependencies = [
   "tqdm",
   "python-dateutil",
   "numpy",
-  "gdal[numpy] (>=3.4.11,<=3.8.5)",
+  "gdal[numpy] <= 3.4.1",
   "fiona",
   "shapely",
   "psutil",
@@ -60,7 +60,8 @@ dependencies = [
   "timezonefinder[pytz]",
   "defusedxml",
   "opencv-python",
-  "tqdm"
+  "tqdm",
+  "click"
 ]
 
 # Extras Dependencies
@@ -91,7 +92,6 @@ all = ["cube4health[docs,tests]"]
 ## End extras dependencies
 
 [project.urls]
-
 bugs = "https://github.com/Harmonize-Brazil/cube4health/issues"
 changelog = "https://github.com/Harmonize-Brazil/cube4health/blob/master/changelog.md"
 homepage = "https://github.com/Harmonize-Brazil/cube4health"
@@ -103,6 +103,8 @@ package-dir = {"" = "src"}
 "*" = ["*.*"]
 
 
+[project.scripts]
+cube4health = "cube4health.cli:run"
 
 
 # Mypy
