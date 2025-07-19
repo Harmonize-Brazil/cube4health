@@ -48,10 +48,6 @@
             "name": "Drone STAC",
             "version": "0.0.1"
         },
-        "wms": {
-            "url": "http://localhost:10190/geoserver/bdc_lcc/wms",
-            "layerName": "bdc_lcc:Mavic3M_FlightHeight120m"
-        },
         "sources": [
             {
                 "name": "Mavic3M_FlightHeight120m",
@@ -67,6 +63,15 @@
     "version_successor": null,
     "bdc:type": "collection",
     "category": "eo",
+    "properties": {
+        "bdc:visual": {
+            "rgb": [
+                "RED",
+                "GREEN",
+                "BLUE"
+            ]
+        }
+    },
     "bands": [
         {
             "name": "BLUE",
@@ -267,8 +272,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 52544407,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -286,8 +291,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 465420,
                     "checksum:multihash": ""
                 }
@@ -430,8 +435,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 77510668,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -449,8 +454,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 609327,
                     "checksum:multihash": ""
                 }
@@ -593,8 +598,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 32409527,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -612,8 +617,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 298748,
                     "checksum:multihash": ""
                 }
@@ -756,8 +761,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 43081067,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -775,8 +780,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 385964,
                     "checksum:multihash": ""
                 }
@@ -919,8 +924,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 77606826,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -938,8 +943,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 600075,
                     "checksum:multihash": ""
                 }

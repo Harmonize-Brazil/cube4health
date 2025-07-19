@@ -1,6 +1,6 @@
 {
     "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
-    "title": "Mavic3M_120m_MS_Mosaic",
+    "title": "Mavic3M_120m_MS",
     "description": "Collection of mosaics from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) images produced with OpenDroneMap.",
     "temporal_composition_schema": null,
     "composition_function": null,
@@ -291,8 +291,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 4300335368,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -310,8 +310,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 3644455,
                     "checksum:multihash": ""
                 }

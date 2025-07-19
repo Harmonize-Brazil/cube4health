@@ -1,6 +1,6 @@
 #
-# This file is part of scripts_drone.
-# Copyright (C) 2024 HARMONIZE/INPE.
+# This file is part of EODCtHRS Drone Data PRocessing (EDDPR).
+# Copyright (C) 2025 HARMONIZE/INPE.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,8 +32,12 @@ import getpass
 from tqdm import tqdm
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 from psycopg2 import errors
-from ..edpu import GeoServer
-from ..edpu.utils import connect_ssh
+if __name__ != "__main__":
+    from ..edpu import GeoServer
+    from ..edpu.utils import connect_ssh
+
+local_path = os.path.dirname(os.path.abspath(__file__))
+parent_path = Path(local_path).parent.absolute()
 
 
 # Emulates a Geoserver object instance
@@ -133,142 +137,170 @@ def check_remote_data(data_path_input,remote_root_path,geo_instance):
 def main(argv):
     prefix_geoserver_data = 'dev'
     
-    # Reading JSON files with collections of drones:
-    for fname_drone_collection in Path('.').glob('*_collection.json'):
-        with open(fname_drone_collection, 'r') as f:
-            drone_collection = json.load(f)
+    # Reading JSON file with collection of drone data:
+    fname_drone_collection = argv.json_catalog_file
+    with open(fname_drone_collection, 'r') as f:
+        drone_collection = json.load(f)
 
-        workspace = None
-        layer_name = drone_collection['name']
-        if drone_collection['metadata'].get('wms'):
-            service_url = drone_collection['metadata']['wms']['url'].split('geoserver')[0]+'geoserver'
-            time_regex='regex=[0-9]{8}' #daily mosaics
-            workspace = drone_collection['metadata']['wms']['url'].split('geoserver')[1].split('/')[1]
+    workspace = None
+    layer_name = drone_collection['name']
+    if drone_collection['metadata'].get('wms'):
+        service_url = drone_collection['metadata']['wms']['url'].split('geoserver')[0]+'geoserver'
+        time_regex='regex=[0-9]{8}' #daily mosaics
+        workspace = drone_collection['metadata']['wms']['url'].split('geoserver')[1].split('/')[1]
+    
+    
+    print('Publishing data from',layer_name,'collection...')
+    if 'localhost' in str(drone_collection):
+        try:
+            result = subprocess.run(['collection-cli','collection','create','--ifile',fname_drone_collection], capture_output=True, text=True, check=True) #BDC collection-register package
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr)            
+        except Exception as e:
+            if e.returncode != 1 : # Collection creation skipped because it already exists (exit code 1)
+                print(e.output) # print out the stdout messages up to the exception
+                print(e) # To print out the exception message
+                raise Exception("Impossible to create the collection...")
+            else:
+                print('Collection already exists!')
         
-        
-        print('Publishing data from',layer_name,'collection...')
-        if 'localhost' in str(drone_collection):
-            print('Creating STAC catalog for',layer_name,'collection...')
-            subprocess.run( ['bdc-catalog','load-data','--ifile', fname_drone_collection,'-v'])
+        print('Creating STAC catalog for',layer_name,'collection...')
+        subprocess.run( ['bdc-catalog','load-data','--ifile', fname_drone_collection,'-v'])
 
+        if 'service_url' in locals(): #check data are published throw Geoserver
             """service_url - the URL for the GeoServer instance
-               workspace - workspace name to group similar layers
-               hostname - IP from server which data are stored (default is localhost)."""
+                workspace - workspace name to group similar layers
+                hostname - IP from server which data are stored (default is localhost)."""
             geo = GeoServer(service_url=service_url, workspace=workspace)
 
             if workspace != 'mosaics':
                 time_regex='regex=[0-9]{8}T[0-9]{6}'
                 """data - path where the raster are stored
-                   root_path - root path where the data is stored
-                   layer_name - name that will identify the layer (same of the folder name where the data are stored)
-                   store_name - name that will identify the coveragestore
-                   db_settings is a dictionary with the database settings
-                   hostname - IP from server which data are stored (default is localhost)."""
-                if argv.option == 'new':
-                    created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
-                                                                    time_regex=time_regex, db_settings={'db':'harmonize','schema':'public','user':'postgres'})
-                else:
-                    created, message = geo.update_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), root_path=argv.data_path_input,
-                                                                    layer_name=layer_name, store_name=layer_name, time_regex=time_regex,
-                                                                    db_settings={'db':'harmonize','schema':'public','user':'postgres'})
-            else:
-                if argv.option == 'new':
-                     if 'Thermal' in layer_name:                        
-                         print('Creating thermal with workspace:',workspace, 'and style defined using .sld file!') 
-                         created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
-                                                                    workspace=workspace, style='thermal_style.sld', time_regex=time_regex)
-                     elif 'NDVI' in layer_name:
-                         print('Creating NDVI with workspace:',workspace, 'and style defined using .sld file!') 
-                         created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
-                                                                    workspace=workspace, style='ndvi_style.sld', time_regex=time_regex)
-                     elif 'MS' in layer_name:
-                         print('Creating Multispectral composition with workspace:',workspace, 'and style defined using .sld file!') 
-                         created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
-                                                                    workspace=workspace, style='multispectral_style.sld', time_regex=time_regex)              
-                     else:
-                         created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
-                                                                    workspace=workspace, time_regex=time_regex)
-                else:
-                    created, message = geo.update_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, 
-                                                                    store_name=layer_name, time_regex=time_regex)
-        else:
-            print()
-            print('-'*95)
-            hostname = input('Please, enter with IP of the remote host it has Geoserver, Titiler and STAC services available: ')
-
-            """service_url - the URL for the GeoServer instance
-               workspace - workspace name to group similar layers
-               hostname - IP from server which data are stored (default is localhost)."""
-            if workspace != None:
-                geo = GeoServer(service_url=service_url, workspace=workspace, hostname=hostname)
-
-            for key in drone_collection['items'][0]['assets'].keys():
-                remote_root_path_data = os.path.dirname(drone_collection['items'][0]['assets'][key]['href'].replace(prefix_geoserver_data,''))
-                
-
-            # Verify if data is available at remote server to publish
-            if "geo" not in locals():
-                geo = geo_object(hostname=hostname)
-                   
-            print('Checking the data availability of this collection on the remote server...')
-            check_remote_data(os.path.join(argv.data_path_input,layer_name),remote_root_path_data,geo)
-        
-            # Create STAC catalog 
-            os.environ['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@{}:5432/bdc".format(geo.hostname) # visible in this process + all children
-            print('Creating STAC catalog for',layer_name,'collection...')
-
-            try:
-                subprocess.run(['collection-cli','collection','create','--ifile',fname_drone_collection], shell=True, check=True, capture_output=True) #BDC collection-register package
-            except Exception as e:
-                print(e.output.decode()) # print out the stdout messages up to the exception
-                print(e) # To print out the exception message               
-                print('Collection {} creation skipped.'.format(fname_drone_collection))
-                
-            subprocess.run( ['bdc-catalog','load-data','--ifile', fname_drone_collection,'-v']) #BDC bdc-catalog package
-
-            for path in Path(os.path.join(argv.data_path_input,layer_name)).rglob('*'):
-                if path.suffix in {".png", ".tif"}:
-                    data = os.path.dirname(path)
-                    #root_path = os.path.dirname(os.path.dirname(data))
-
-            if workspace != None and workspace != 'mosaics':
-                 time_regex='regex=[0-9]{8}T[0-9]{6}'
-                 """data - path where the raster are stored
+                    root_path - root path where the data is stored
                     layer_name - name that will identify the layer (same of the folder name where the data are stored)
                     store_name - name that will identify the coveragestore
                     db_settings is a dictionary with the database settings
                     hostname - IP from server which data are stored (default is localhost)."""
-                 
-                 if argv.option == 'new':
+                #if argv.option == 'new':
+                try:
+                    created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
+                                                                    time_regex=time_regex, db_settings={'db':'harmonize','schema':'public','user':'postgres'})
+                #else:
+                except:
+                    created, message = geo.update_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), root_path=argv.data_path_input,
+                                                                    layer_name=layer_name, store_name=layer_name, time_regex=time_regex,
+                                                                    db_settings={'db':'harmonize','schema':'public','user':'postgres'})
+            else:
+                #if argv.option == 'new':
+                try:
+                        if 'Thermal' in layer_name:                        
+                            print('Creating thermal with workspace:',workspace, 'and style defined using .sld file!') 
+                            created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
+                                                                    workspace=workspace, style=os.path.join(os.path.join(parent_path,'data','thermal_style.sld')), time_regex=time_regex)
+                        elif 'NDVI' in layer_name:
+                            print('Creating NDVI with workspace:',workspace, 'and style defined using .sld file!')
+                            created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
+                                                                    workspace=workspace, style=os.path.join(os.path.join(parent_path,'data','ndvi_style.sld')), time_regex=time_regex)
+                        elif 'MS' in layer_name:
+                            print('Creating Multispectral composition with workspace:',workspace, 'and style defined using .sld file!')
+                            created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
+                                                                    workspace=workspace, style=os.path.join(os.path.join(parent_path,'data','multispectral_style.sld')), time_regex=time_regex)              
+                        else:
+                            created, message = geo.create_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, store_name=layer_name,
+                                                                    workspace=workspace, time_regex=time_regex)
+                #else:
+                except:
+                    created, message = geo.update_imagemosaic_store(data=os.path.join(argv.data_path_input,layer_name), layer_name=layer_name, 
+                                                                    store_name=layer_name, time_regex=time_regex)
+    else:
+        print()
+        print('-'*95)
+        hostname = input('Please, enter with IP of the remote host it has Geoserver, Titiler and STAC services available: ')
+
+        if 'service_url' in locals(): #check data are published throw Geoserver
+            """service_url - the URL for the GeoServer instance
+                workspace - workspace name to group similar layers
+                hostname - IP from server which data are stored (default is localhost)."""
+            if workspace != None:
+                geo = GeoServer(service_url=service_url, workspace=workspace, hostname=hostname)
+
+        for key in drone_collection['items'][0]['assets'].keys():
+            remote_root_path_data = os.path.dirname(drone_collection['items'][0]['assets'][key]['href'].replace(prefix_geoserver_data,''))
+            
+
+        # Verify if data is available at remote server to publish
+        if "geo" not in locals():
+            geo = geo_object(hostname=hostname)
+                
+        print('Checking the data availability of this collection on the remote server...')
+        check_remote_data(os.path.join(argv.data_path_input,layer_name),remote_root_path_data,geo)
+    
+        # Create STAC catalog 
+        os.environ['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@{}:5432/bdc".format(geo.hostname) # visible in this process + all children
+        print('Creating STAC catalog for',layer_name,'collection...')
+
+        try:
+            result = subprocess.run(['collection-cli','collection','create','--ifile',fname_drone_collection], capture_output=True, text=True, check=True) #BDC collection-register package
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr)            
+        except Exception as e:
+            if e.returncode != 1 : # Collection creation skipped because it already exists (exit code 1)
+                print(e.output) # print out the stdout messages up to the exception
+                print(e) # To print out the exception message
+                raise Exception("Impossible to create the collection...")
+            else:
+                print('Collection already exists!')             
+            
+        subprocess.run( ['bdc-catalog','load-data','--ifile', fname_drone_collection,'-v']) #BDC bdc-catalog package
+
+        for path in Path(os.path.join(argv.data_path_input,layer_name)).rglob('*'):
+            if path.suffix in {".png", ".tif"}:
+                data = os.path.dirname(path)
+                #root_path = os.path.dirname(os.path.dirname(data))
+
+        if workspace != None and workspace != 'mosaics':
+                time_regex='regex=[0-9]{8}T[0-9]{6}'
+                """data - path where the raster are stored
+                layer_name - name that will identify the layer (same of the folder name where the data are stored)
+                store_name - name that will identify the coveragestore
+                db_settings is a dictionary with the database settings
+                hostname - IP from server which data are stored (default is localhost)."""
+                
+                #if argv.option == 'new':
+                try:
                     created, message = geo.create_imagemosaic_store(data=data, layer_name=layer_name, store_name=layer_name, time_regex=time_regex,
-                                                                     db_settings={'schema': 'public'}, overwrite=True)
-                     
+                                                                        db_settings={'schema': 'public'}, overwrite=True)                     
                     print(created, message)
-                 else:
+                #else:
+                except:
                     created, message = geo.update_imagemosaic_store(data=data, remote_root_path_data=os.path.dirname(os.path.dirname(remote_root_path_data)),
                                                                     layer_name=layer_name, store_name=layer_name, time_regex=time_regex,
                                                                     db_settings={'db':'harmonize','schema':'public','user':'postgres'})
                     print(created, message)
-                     
-                 
-            elif workspace != None:
-                 if argv.option == 'new':
-                    created, message = geo.create_imagemosaic_store(data=data, layer_name=layer_name, store_name=layer_name, time_regex=time_regex, overwrite=True)
-                    print(created, message)
-                 else:                    
-                    created, message = geo.update_imagemosaic_store(data=data, root_path=root_path,
-                                                                    layer_name=layer_name, store_name=layer_name, time_regex=time_regex)
-                    print(created, message)
+                    
+                
+        elif workspace != None:
+            #if argv.option == 'new':
+            try:
+                created, message = geo.create_imagemosaic_store(data=data, layer_name=layer_name, store_name=layer_name, time_regex=time_regex, overwrite=True)
+                print(created, message)
+            #else:
+            except:                    
+                created, message = geo.update_imagemosaic_store(data=data, root_path=root_path,
+                                                                layer_name=layer_name, store_name=layer_name, time_regex=time_regex)
+                print(created, message)
 
 
 
 if __name__ == "__main__":
-    # Prompt user for (optional) command line arguments, when run from IDLE:
-    if 'idlelib' in sys.modules: sys.argv.extend(input("Args: ").split())
-
     # Process the arguments
     from argparse import ArgumentParser, SUPPRESS
-    import arghelper
+    import cube4health.eddpr.arghelper as arghelper
+
+    from ..edpu.geoserver import Geoserver
+    from ..edpu.utils import connect_ssh
 
     # Disable default help
     parser = ArgumentParser(description='Publish drone data collections using BDC-STAC service and Geoserver', add_help=False)
@@ -279,9 +311,7 @@ if __name__ == "__main__":
     optional.add_argument('-h','--help',action='help',default=SUPPRESS,help='show this help message and exit')
     required.add_argument('--data_path_input', type=lambda x: arghelper.is_valid_directory(parser, x),
                         required=True, help='Required path to root folder which Cloud Optimized GeoTIFF (COG) files collections were created before. Example /home/user/Docker-Compose/geoserver/data')
-    required.add_argument('--option',
-                       help='Required option new (create) or update (add new items) to collection',
-                        choices=('new', 'update'), required=True) 
+    required.add_argument('--json_catalog_file', type=lambda x: arghelper.is_valid_file(parser, x), help='Required JSON filename (including path) used to create STAC catalog and Geoserver layer.', required=True)
     #optional.add_argument('--optional_arg')
     
     if len(sys.argv) == 1:

@@ -22,9 +22,6 @@
 # --------------------------
 import click
 from .eddpr import eddpr
-from .edpu import GeoServer
-from .edpu.utils import connect_ssh
-import os
 
 
 class Cube4Health:

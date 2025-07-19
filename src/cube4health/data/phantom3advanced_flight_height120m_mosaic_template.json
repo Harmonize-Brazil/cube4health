@@ -27,10 +27,10 @@
                                }
                              ],
         "processor": {
-                      "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
-                      "name": "Drone STAC",
-                      "version": "0.0.1"
-                      },
+                    "uri": "https://github.com/Harmonize-Brazil/cube4health",
+                    "name": "cube4health",
+                    "version": "0.0.1"
+                    },
         "wms": {
                 "url": "http://localhost:10190/geoserver/mosaics/wms",
                 "layerName": "mosaics:Phantom3Advanced_FlightHeight120m_Mosaic"

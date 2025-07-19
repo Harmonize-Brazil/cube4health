@@ -44,8 +44,8 @@
             }
         ],
         "processor": {
-            "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
-            "name": "Drone STAC",
+            "uri": "https://github.com/Harmonize-Brazil/cube4health",
+            "name": "cube4health",
             "version": "0.0.1"
         },
         "sources": [
@@ -54,7 +54,16 @@
                 "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS-1",
                 "descriptionUri": null
             }
-        ]
+        ],
+        "properties": {
+            "bdc:visual": {
+                "rgb": [
+                    "RED",
+                    "NIR",
+                    "GREEN"
+                    ]
+                }
+            }
     },
     "is_public": true,
     "is_available": true,
@@ -62,30 +71,7 @@
     "version_predecessor": null,
     "version_successor": null,
     "bdc:type": "collection",
-    "category": "eo",
-    "properties": {
-        "bdc:visual": {
-            "rgb": [
-                "RED",
-                "NIR",
-                "GREEN"
-            ],
-            "rescale": [
-                [
-                    100,
-                    100000
-                ],
-                [
-                    100,
-                    100000
-                ],
-                [
-                    100,
-                    100000
-                ]
-            ]
-        }
-    },
+    "category": "eo",    
     "bands": [
         {
             "name": "GREEN",
@@ -97,15 +83,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.56,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.56,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "RED",
@@ -117,15 +99,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.65,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.65,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "RED EDGE",
@@ -137,15 +115,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.73,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.73,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "NIR",
@@ -157,15 +131,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.86,
-                    "full_width_half_max": 0.052,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.86,
+            "full_width_half_max": 0.052,
+            "resolution_unit": "Meter"
         },
         {
             "name": "NDVI",
@@ -177,15 +147,11 @@
             "scale": 0.0001,
             "data_type": "int16",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": null,
+            "full_width_half_max": null,
+            "resolution_unit": "Meter"
         }
     ],
     "items": [
@@ -326,8 +292,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 14989930,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -345,8 +311,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 14452184,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -364,8 +330,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 10875156,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -383,8 +349,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 13545319,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -402,8 +368,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 13895969,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -421,8 +387,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 90903,
                     "checksum:multihash": ""
                 }
@@ -565,8 +531,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 16231814,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -584,8 +550,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 16128207,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -603,8 +569,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 10129059,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -622,8 +588,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 15501655,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -641,8 +607,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 15506646,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -660,8 +626,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:17:19",
-                    "updated": "2025-07-11T15:17:19",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 125670,
                     "checksum:multihash": ""
                 }
@@ -804,8 +770,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 14925250,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -823,8 +789,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 13635957,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -842,8 +808,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 10682581,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -861,8 +827,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 14508891,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -880,8 +846,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 13083733,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -899,8 +865,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 72094,
                     "checksum:multihash": ""
                 }
@@ -1043,8 +1009,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 14399929,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1062,8 +1028,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 12969989,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1081,8 +1047,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 10507241,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1100,8 +1066,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 13352491,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1119,8 +1085,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 12712766,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1138,8 +1104,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 51304,
                     "checksum:multihash": ""
                 }
@@ -1282,8 +1248,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 16249971,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1301,8 +1267,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 16244726,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1320,8 +1286,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 10060698,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1339,8 +1305,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 15380355,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1358,8 +1324,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 15612691,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -1377,8 +1343,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 121947,
                     "checksum:multihash": ""
                 }

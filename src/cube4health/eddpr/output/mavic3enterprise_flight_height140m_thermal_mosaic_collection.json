@@ -219,8 +219,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 6766630,
                     "bdc:chunk_size": {
                         "x": 5433,
@@ -238,8 +238,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-11T15:16:51",
-                    "updated": "2025-07-11T15:16:51",
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
                     "bdc:size": 127691,
                     "checksum:multihash": ""
                 }

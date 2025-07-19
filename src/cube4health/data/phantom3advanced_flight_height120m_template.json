@@ -28,14 +28,10 @@
                             }
                             ],
         "processor": {
-                    "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
-                    "name": "Drone STAC",
+                    "uri": "https://github.com/Harmonize-Brazil/cube4health",
+                    "name": "cube4health",
                     "version": "0.0.1"
                     },
-        "wms": {
-                "url": "http://localhost:10190/geoserver/bdc_lcc/wms",
-                "layerName": "bdc_lcc:Phantom3Advanced_FlightHeight120m"
-                },
         "sources": [{
                     "name": "Phantom3Advanced_FlightHeight120m",
                     "stacUri": "http://localhost:8080/collections/Phantom3Advanced_FlightHeight120m-1",
@@ -50,6 +46,15 @@
     "version_successor": null,
     "bdc:type": "collection",
     "category": "eo",
+    "properties": {
+        "bdc:visual": {
+            "rgb": [
+                "RED",
+                "GREEN",
+                "BLUE"
+                ]
+                    }
+    },
     "bands": [
         {
             "name": "BLUE",

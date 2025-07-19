@@ -27,8 +27,8 @@
                                }
                              ],
         "processor": {
-                      "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
-                      "name": "Drone STAC",
+                      "uri": "https://github.com/Harmonize-Brazil/cube4health",
+                      "name": "cube4health",
                       "version": "0.0.1"
                       },
         "wms": {

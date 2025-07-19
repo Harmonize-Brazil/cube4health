@@ -457,7 +457,7 @@ def calc_ndvi(out_fname, fname):
         del dst_ds
 
 
-def process_flights(flights_path,collections_template,catalog_path,prefix_geoserver_data):
+def process_flights(flights_path,collections_template,catalog_path,prefix_geoserver_data, publish):
     """
     Processing drone data to produce COGs to publish using Geoserver/Titiler and JSON files used for STAC catalog creation. 
 
@@ -476,9 +476,9 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                      is <https://brazildatacube.dpi.inpe.br/harmonize/dev/geoserver> by default, the service points toa  path containing data using the prefix "dev".
        :type prefix_geoserver_data: String
 
-       :param argv: String with the parent path name for the data that will be published with Geoserver. For example, our address for Geoserver 
-                                     is <https://brazildatacube.dpi.inpe.br/harmonize/dev/geoserver> by default, the service points toa  path containing data using the prefix "dev".
-       :type prefix_geoserver_data: String
+       :param publish: String with True or False condition to publish the data collections created using STAC catalogs and Geoserver layers.
+       :type publish: String
+
     """
     flights_path = sorted(flights_path)
 
@@ -1040,8 +1040,9 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             with open(fname_drone_collection, 'w') as outfile:
                 json.dump(collections_template[key], outfile, indent=4)
 
-            if argv.publish_data == 'True':
-                ddsd
+            if publish == 'True':
+                args = SimpleNamespace(data_path_input=catalog_path, json_catalog_file=fname_drone_collection)
+                publish_drone_data(args)
             else:
                 print('\nJSON file for collection creation saved:\n',fname_drone_collection) 
 
@@ -1093,14 +1094,11 @@ def main(argv):
 
     # Check required parameters:
     argv, unknown = parser.parse_known_args()
-    print(argv)
-    print(type(argv))
-    quit()
-
-    if argv.publish_data == 'True':
-        option = None
-        while(option != 'new' or option != 'update'):
-            option = input('Please type the required option new (to create) or update (to add new items) to a collection(s)')
+    
+    # option = None
+    # if argv.publish_data == 'True':
+    #     while(option != 'new' or option != 'update'):
+    #         option = input('Please type the required option new (to create) or update (to add new items) to a collection(s)')
 
     templates = {}
     # Reading templates information about collections of drones: 
@@ -1127,7 +1125,7 @@ def main(argv):
     file_list = list(filter(lambda x: 'Nocturnal' not in x, file_list))
 
     #Processing Drone images to create Cloud Optimized GeoTIFFs (COG) and JSON file to BDC-Catalog load-data tool:
-    process_flights(file_list,templates,argv.data_path_output,prefix_geoserver_data)
+    process_flights(file_list,templates,argv.data_path_output,prefix_geoserver_data, argv.publish_data)
 
 
 

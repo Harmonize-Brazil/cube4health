@@ -20,14 +20,8 @@
 
 """Command line interface for the cube4health package."""
 import click
-import os
+from .cube4health import Cube4Health
 
-try:
-    from .cube4health import Cube4Health
-except:
-    from cube4health import Cube4Health
-    os.chdir('../..') #goes to the raw path of the package
-    
 
 @click.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option('--module',required=True, type=click.Choice(['eddpr', 'ehipr', 'eclimpr']), help='Choose a module.')
