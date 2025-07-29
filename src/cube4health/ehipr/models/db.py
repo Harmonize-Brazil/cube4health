@@ -207,5 +207,11 @@ def save_data_db(gdf: GeoDataFrame,
         if all(all_saved):
             return True
     except Exception as e:
-        print(str(e))
+        print("[ERROR]", str(e))
+        try:
+            if conn:
+                conn.rollback()
+        except:
+            pass
         return False
+

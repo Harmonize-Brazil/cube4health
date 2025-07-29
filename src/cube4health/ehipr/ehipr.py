@@ -534,6 +534,20 @@ def aggregate_data(indicators: List[str],
 
                 except Exception as e:
                     return f"Error: Failed to read file {file}: {e}"
+                
+                try:
+                    if not data_columns.get('spt_agg', None) in df.keys() and len(spatial_agg) == 1:
+                        temp_col = "agg"
+                        df[temp_col] = spatial_agg[0]
+                        data_columns['spt_agg'] = temp_col
+
+                    if not data_columns.get('temp_agg', None) in df.keys() and len(temp_agg) == 1:
+                        temp_col = "agg_time"
+                        df[temp_col] = temp_agg[0]
+                        data_columns['temp_agg'] = temp_col
+                except Exception as err:
+                    return f"Error: failed to get temporal and spatial aggregations. Reason: {str(err)}"
+                
                 try:
                     cod_col = data_columns['cod']
                     date_col = data_columns['date']
@@ -952,9 +966,17 @@ def spatialize_data(indicators: List[str],
                     # Casting the date column to datetime with the format '%Y-%m-%d %H:%M:%S'
                     gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y-%m-%d',
                                                    errors='coerce')
+                    
+
                     # Sorting the dataframe by the date column
                     gdf = gdf.sort_values(by=[date_col], 
                                           ascending=True).reset_index(drop=True)
+                    
+                    # Reordering DataFrame columns to match the expected database schema
+                    order_columns = ['cod', 'date', 'name', 'agg', 'agg_time', 'value', 'geometry']
+                    column_fields = [c for c in order_columns if c in gdf.columns]
+                    gdf = gdf[column_fields]
+
                     # Converting the date column to a string with the format '%Y-%m-%d'
                     gdf[date_col] = gdf[date_col].dt.strftime(DATE_FORMAT)
 
@@ -979,6 +1001,7 @@ def spatialize_data(indicators: List[str],
                         only_date = date.split(" ")[0]
                         filename_date = f"{filename}_{''.join(only_date.split('-'))}_"\
                                         f"{''.join(end_date.split('-'))}"
+                        
 
                         # CREATING .geojson, .zip(from shp) and parquet items files
                         for extension in ['.geojson', '.shp', df_indi['extension']]:
@@ -1062,7 +1085,8 @@ def spatialize_data(indicators: List[str],
                     title = f"{df_indi['info']['title'].lower().replace(' ', '_')}_"\
                             f"{region_crop}_{SPATIAL_AGG_ABBR[agg_spt]}_{agg_time}"
 
-                    column_fields = list(data_columns.values()) + ['geometry']
+                    #column_fields = list(data_columns.values()) + ['geometry']
+                    
 
                     layer_info = {
                         'name': filename,
@@ -1245,6 +1269,7 @@ def publish_data(layers: List[Dict[str, str]],
                 "name": name,
                 "title": title,
                 "description": description,
+                "keywords": keywords,
                 "version": version,
                 "metadata": {
                     "wms": {
