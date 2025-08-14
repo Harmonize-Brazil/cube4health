@@ -1,0 +1,249 @@
+{
+    "name": "Mavic3Enterprise_FlightHeight140m_Thermal_Mosaic",
+    "title": "Mavic3Enterprise_140m_Thermal",
+    "description": "Collection of mosaics from drone DJI Mavic 3 Enterprise based on Thermal Sensor data produced with Agisoft Metashape",
+    "temporal_composition_schema": null,
+    "composition_function": null,
+    "grid_ref_sys": null,
+    "collection_type": "mosaic",
+    "summaries": {
+        "sensor_dim_x_mm": [
+            17.4
+        ],
+        "sensor_dim_y_mm": [
+            13
+        ],
+        "focal_length_mm": [
+            12.29
+        ]
+    },
+    "metadata": {
+        "platform": {
+            "code": "DJI Mavic 3 Enterprise",
+            "instruments": [
+                "M3T"
+            ]
+        },
+        "contributors": [
+            {
+                "name": "National Institute for Space Research (INPE)",
+                "nameType": "Organizational",
+                "contributorType": "HostingInstitution"
+            },
+            {
+                "name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
+                "contributorType": "ResearchGroup"
+            }
+        ],
+        "fundingReferences": [
+            {
+                "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+            }
+        ],
+        "processor": {
+            "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
+            "name": "Drone STAC",
+            "version": "0.0.1"
+        },
+        "wms": {
+            "url": "http://localhost:10190/geoserver/mosaics/wms",
+            "layerName": "mosaics:Mavic3Enterprise_FlightHeight140m_Thermal_Mosaic"
+        },
+        "sources": [
+            {
+                "name": "Mavic3Enterprise_FlightHeight120m_Thermal_Mosaic",
+                "stacUri": "http://localhost:8080/collections/Mavic3Enterprise_FlightHeight140m_Thermal_Mosaic-1",
+                "descriptionUri": null
+            }
+        ]
+    },
+    "is_public": true,
+    "is_available": true,
+    "version": 1,
+    "version_predecessor": null,
+    "version_successor": null,
+    "bdc:type": "mosaic",
+    "category": "eo",
+    "bands": [
+        {
+            "name": "Thermal",
+            "common_name": "thermal",
+            "description": "",
+            "min_value": 0,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "byte",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.184203999999999,
+                    "resolution_y": 0.184204000000057,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }
+        }
+    ],
+    "items": [
+        {
+            "name": "Mavic3Enterprise_140m_Thermal_Mosaic_Iquitos_23DeFebrero_20230515",
+            "start_date": "2023-05-15T00:00:00",
+            "end_date": "2023-05-15T00:00:00",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -73.4637235307161,
+                            -4.155140176947152
+                        ],
+                        [
+                            -73.45468932184583,
+                            -4.155140176947152
+                        ],
+                        [
+                            -73.45468932184583,
+                            -4.144714535823923
+                        ],
+                        [
+                            -73.4637235307161,
+                            -4.144714535823923
+                        ],
+                        [
+                            -73.4637235307161,
+                            -4.155140176947152
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -73.4637235307161,
+                            -4.155140176947152
+                        ],
+                        [
+                            -73.45468932184583,
+                            -4.155140176947152
+                        ],
+                        [
+                            -73.45468932184583,
+                            -4.144714535823923
+                        ],
+                        [
+                            -73.4637235307161,
+                            -4.144714535823923
+                        ],
+                        [
+                            -73.4637235307161,
+                            -4.155140176947152
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 32718,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                670525.359172,
+                                9540556.456528
+                            ],
+                            [
+                                671526.139504,
+                                9540556.456528
+                            ],
+                            [
+                                671526.139504,
+                                9541711.231404
+                            ],
+                            [
+                                670525.359172,
+                                9541711.231404
+                            ],
+                            [
+                                670525.359172,
+                                9540556.456528
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                670525.359172,
+                                9540556.456528
+                            ],
+                            [
+                                671526.139504,
+                                9540556.456528
+                            ],
+                            [
+                                671526.139504,
+                                9541711.231404
+                            ],
+                            [
+                                670525.359172,
+                                9541711.231404
+                            ],
+                            [
+                                670525.359172,
+                                9540556.456528
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.184204,
+                "platform": [
+                    "DJI Mavic 3 Enterprise"
+                ],
+                "instruments": [
+                    "M3T"
+                ],
+                "mission": "Iquitos_23DeFebrero_20230515"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3Enterprise_FlightHeight140m_Thermal_Mosaic/2023/05/Iquitos_23DeFebrero_20230515_Thermal.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 6766630,
+                    "bdc:chunk_size": {
+                        "x": 5433,
+                        "y": 5433
+                    },
+                    "bdc:raster_size": {
+                        "x": 5433,
+                        "y": 6269
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3Enterprise_FlightHeight140m_Thermal_Mosaic/2023/05/Iquitos_23DeFebrero_20230515_Thermal.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 127691,
+                    "checksum:multihash": ""
+                }
+            }
+        }
+    ]
+}

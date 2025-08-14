@@ -1,0 +1,954 @@
+{
+    "name": "Mavic3M_FlightHeight120m",
+    "title": "Mavic3M_120m_RGB",
+    "description": "Collection of images from drone DJI Mavic 3M based on Visual Lens (RGB) projected using GPS center coordinates, flight height (120 meters) and flight yaw degree information.",
+    "temporal_composition_schema": null,
+    "composition_function": null,
+    "grid_ref_sys": null,
+    "collection_type": "collection",
+    "summaries": {
+        "gsd": [
+            0.03217693616391745
+        ],
+        "sensor_dim_x_mm": [
+            17.4
+        ],
+        "sensor_dim_y_mm": [
+            13
+        ],
+        "focal_length_mm": [
+            12.29
+        ]
+    },
+    "metadata": {
+        "platform": {
+            "code": "DJI Mavic 3 M",
+            "instruments": [
+                "M3M"
+            ]
+        },
+        "contributors": [
+            {
+                "name": "National Institute for Space Research (INPE)",
+                "nameType": "Organizational",
+                "contributorType": "HostingInstitution"
+            },
+            {
+                "name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
+                "contributorType": "ResearchGroup"
+            }
+        ],
+        "fundingReferences": [
+            {
+                "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+            }
+        ],
+        "processor": {
+            "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
+            "name": "Drone STAC",
+            "version": "0.0.1"
+        },
+        "sources": [
+            {
+                "name": "Mavic3M_FlightHeight120m",
+                "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m-1",
+                "descriptionUri": null
+            }
+        ]
+    },
+    "is_public": true,
+    "is_available": true,
+    "version": 1,
+    "version_predecessor": null,
+    "version_successor": null,
+    "bdc:type": "collection",
+    "category": "eo",
+    "properties": {
+        "bdc:visual": {
+            "rgb": [
+                "RED",
+                "GREEN",
+                "BLUE"
+            ]
+        }
+    },
+    "bands": [
+        {
+            "name": "BLUE",
+            "common_name": "blue",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "int8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }
+        },
+        {
+            "name": "GREEN",
+            "common_name": "green",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "int8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }
+        },
+        {
+            "name": "RED",
+            "common_name": "red",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "int8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }
+        }
+    ],
+    "items": [
+        {
+            "name": "Mavic3M_120m_Cameta_ContraMare_20231114115817",
+            "start_date": "2023-11-14T11:58:17",
+            "end_date": "2023-11-14T11:58:17",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43301554806329,
+                            -2.0953853592734215
+                        ],
+                        [
+                            -49.4311546420032,
+                            -2.0953853592734215
+                        ],
+                        [
+                            -49.4311546420032,
+                            -2.0937065629861404
+                        ],
+                        [
+                            -49.43301554806329,
+                            -2.0937065629861404
+                        ],
+                        [
+                            -49.43301554806329,
+                            -2.0953853592734215
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43301554806329,
+                            -2.0953853592734215
+                        ],
+                        [
+                            -49.4311546420032,
+                            -2.0953853592734215
+                        ],
+                        [
+                            -49.4311546420032,
+                            -2.0937065629861404
+                        ],
+                        [
+                            -49.43301554806329,
+                            -2.0937065629861404
+                        ],
+                        [
+                            -49.43301554806329,
+                            -2.0953853592734215
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 3395,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502858.119186381,
+                                -231748.07503690213
+                            ],
+                            [
+                                -5502650.964071358,
+                                -231748.07503690213
+                            ],
+                            [
+                                -5502650.964071358,
+                                -231562.3175844277
+                            ],
+                            [
+                                -5502858.119186381,
+                                -231562.3175844277
+                            ],
+                            [
+                                -5502858.119186381,
+                                -231748.07503690213
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502858.119186381,
+                                -231748.07503690213
+                            ],
+                            [
+                                -5502650.964071358,
+                                -231748.07503690213
+                            ],
+                            [
+                                -5502650.964071358,
+                                -231562.3175844277
+                            ],
+                            [
+                                -5502858.119186381,
+                                -231562.3175844277
+                            ],
+                            [
+                                -5502858.119186381,
+                                -231748.07503690213
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.03217693616391745,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "gps_img_center_coords": [
+                    -2.0945463055555558,
+                    -49.43208463888889
+                ],
+                "altitude": 104.153,
+                "mission": "Cameta_ContraMare_20231114"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T115817_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 52544407,
+                    "bdc:chunk_size": {
+                        "x": 256,
+                        "y": 256
+                    },
+                    "bdc:raster_size": {
+                        "x": 6438,
+                        "y": 5773
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T115817_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 465420,
+                    "checksum:multihash": ""
+                }
+            }
+        },
+        {
+            "name": "Mavic3M_120m_Cameta_ContraMare_20231114115854",
+            "start_date": "2023-11-14T11:58:54",
+            "end_date": "2023-11-14T11:58:54",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43167684317007,
+                            -2.0983829230049844
+                        ],
+                        [
+                            -49.429817382361655,
+                            -2.0983829230049844
+                        ],
+                        [
+                            -49.429817382361655,
+                            -2.0967073287857576
+                        ],
+                        [
+                            -49.43167684317007,
+                            -2.0967073287857576
+                        ],
+                        [
+                            -49.43167684317007,
+                            -2.0983829230049844
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43167684317007,
+                            -2.0983829230049844
+                        ],
+                        [
+                            -49.429817382361655,
+                            -2.0983829230049844
+                        ],
+                        [
+                            -49.429817382361655,
+                            -2.0967073287857576
+                        ],
+                        [
+                            -49.43167684317007,
+                            -2.0967073287857576
+                        ],
+                        [
+                            -49.43167684317007,
+                            -2.0983829230049844
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 3395,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502709.095239345,
+                                -232079.7535432864
+                            ],
+                            [
+                                -5502502.101009003,
+                                -232079.7535432864
+                            ],
+                            [
+                                -5502502.101009003,
+                                -231894.35003711
+                            ],
+                            [
+                                -5502709.095239345,
+                                -231894.35003711
+                            ],
+                            [
+                                -5502709.095239345,
+                                -232079.7535432864
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502709.095239345,
+                                -232079.7535432864
+                            ],
+                            [
+                                -5502502.101009003,
+                                -232079.7535432864
+                            ],
+                            [
+                                -5502502.101009003,
+                                -231894.35003711
+                            ],
+                            [
+                                -5502709.095239345,
+                                -231894.35003711
+                            ],
+                            [
+                                -5502709.095239345,
+                                -232079.7535432864
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.03217693616391745,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "gps_img_center_coords": [
+                    -2.0975454444444446,
+                    -49.430746666666664
+                ],
+                "altitude": 104.291,
+                "mission": "Cameta_ContraMare_20231114"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T115854_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 77510668,
+                    "bdc:chunk_size": {
+                        "x": 256,
+                        "y": 256
+                    },
+                    "bdc:raster_size": {
+                        "x": 6433,
+                        "y": 5762
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T115854_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 609327,
+                    "checksum:multihash": ""
+                }
+            }
+        },
+        {
+            "name": "Mavic3M_120m_Cameta_ContraMare_20231114120416",
+            "start_date": "2023-11-14T12:04:16",
+            "end_date": "2023-11-14T12:04:16",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43403440874957,
+                            -2.095577512933306
+                        ],
+                        [
+                            -49.43270853486053,
+                            -2.095577512933306
+                        ],
+                        [
+                            -49.43270853486053,
+                            -2.0939100581126913
+                        ],
+                        [
+                            -49.43403440874957,
+                            -2.0939100581126913
+                        ],
+                        [
+                            -49.43403440874957,
+                            -2.095577512933306
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43403440874957,
+                            -2.095577512933306
+                        ],
+                        [
+                            -49.43270853486053,
+                            -2.095577512933306
+                        ],
+                        [
+                            -49.43270853486053,
+                            -2.0939100581126913
+                        ],
+                        [
+                            -49.43403440874957,
+                            -2.0939100581126913
+                        ],
+                        [
+                            -49.43403440874957,
+                            -2.095577512933306
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 3395,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502971.538239166,
+                                -231769.3366969479
+                            ],
+                            [
+                                -5502823.9426329825,
+                                -231769.3366969479
+                            ],
+                            [
+                                -5502823.9426329825,
+                                -231584.8341449839
+                            ],
+                            [
+                                -5502971.538239166,
+                                -231584.8341449839
+                            ],
+                            [
+                                -5502971.538239166,
+                                -231769.3366969479
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502971.538239166,
+                                -231769.3366969479
+                            ],
+                            [
+                                -5502823.9426329825,
+                                -231769.3366969479
+                            ],
+                            [
+                                -5502823.9426329825,
+                                -231584.8341449839
+                            ],
+                            [
+                                -5502971.538239166,
+                                -231584.8341449839
+                            ],
+                            [
+                                -5502971.538239166,
+                                -231769.3366969479
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.03217693616391745,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "gps_img_center_coords": [
+                    -2.0947441944444445,
+                    -49.433371027777774
+                ],
+                "altitude": 105.391,
+                "mission": "Cameta_ContraMare_20231114"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T120416_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 32409527,
+                    "bdc:chunk_size": {
+                        "x": 256,
+                        "y": 256
+                    },
+                    "bdc:raster_size": {
+                        "x": 4587,
+                        "y": 5734
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T120416_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 298748,
+                    "checksum:multihash": ""
+                }
+            }
+        },
+        {
+            "name": "Mavic3M_120m_Cameta_ContraMare_20231114120847",
+            "start_date": "2023-11-14T12:08:47",
+            "end_date": "2023-11-14T12:08:47",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43228369618895,
+                            -2.1027234357180653
+                        ],
+                        [
+                            -49.43042510253154,
+                            -2.1027234357180653
+                        ],
+                        [
+                            -49.43042510253154,
+                            -2.101049591015835
+                        ],
+                        [
+                            -49.43228369618895,
+                            -2.101049591015835
+                        ],
+                        [
+                            -49.43228369618895,
+                            -2.1027234357180653
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.43228369618895,
+                            -2.1027234357180653
+                        ],
+                        [
+                            -49.43042510253154,
+                            -2.1027234357180653
+                        ],
+                        [
+                            -49.43042510253154,
+                            -2.101049591015835
+                        ],
+                        [
+                            -49.43228369618895,
+                            -2.101049591015835
+                        ],
+                        [
+                            -49.43228369618895,
+                            -2.1027234357180653
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 3395,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502776.649808393,
+                                -232560.02963624793
+                            ],
+                            [
+                                -5502569.752108859,
+                                -232560.02963624793
+                            ],
+                            [
+                                -5502569.752108859,
+                                -232374.81919168856
+                            ],
+                            [
+                                -5502776.649808393,
+                                -232374.81919168856
+                            ],
+                            [
+                                -5502776.649808393,
+                                -232560.02963624793
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5502776.649808393,
+                                -232560.02963624793
+                            ],
+                            [
+                                -5502569.752108859,
+                                -232560.02963624793
+                            ],
+                            [
+                                -5502569.752108859,
+                                -232374.81919168856
+                            ],
+                            [
+                                -5502776.649808393,
+                                -232374.81919168856
+                            ],
+                            [
+                                -5502776.649808393,
+                                -232560.02963624793
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.03217693616391745,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "gps_img_center_coords": [
+                    -2.101886888888889,
+                    -49.431353888888886
+                ],
+                "altitude": 105.286,
+                "mission": "Cameta_ContraMare_20231114"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T120847_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 43081067,
+                    "bdc:chunk_size": {
+                        "x": 256,
+                        "y": 256
+                    },
+                    "bdc:raster_size": {
+                        "x": 6430,
+                        "y": 5756
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T120847_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 385964,
+                    "checksum:multihash": ""
+                }
+            }
+        },
+        {
+            "name": "Mavic3M_120m_Cameta_ContraMare_20231114121025",
+            "start_date": "2023-11-14T12:10:25",
+            "end_date": "2023-11-14T12:10:25",
+            "cloud_cover": 0,
+            "srid": 4326,
+            "bbox": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.435743458398306,
+                            -2.0961758681579523
+                        ],
+                        [
+                            -49.434180563234136,
+                            -2.0961758681579523
+                        ],
+                        [
+                            -49.434180563234136,
+                            -2.0943580696655655
+                        ],
+                        [
+                            -49.435743458398306,
+                            -2.0943580696655655
+                        ],
+                        [
+                            -49.435743458398306,
+                            -2.0961758681579523
+                        ]
+                    ]
+                ]
+            },
+            "footprint": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -49.435743458398306,
+                            -2.0961758681579523
+                        ],
+                        [
+                            -49.434180563234136,
+                            -2.0961758681579523
+                        ],
+                        [
+                            -49.434180563234136,
+                            -2.0943580696655655
+                        ],
+                        [
+                            -49.435743458398306,
+                            -2.0943580696655655
+                        ],
+                        [
+                            -49.435743458398306,
+                            -2.0961758681579523
+                        ]
+                    ]
+                ]
+            },
+            "metadata_": {
+                "proj:epsg": 3395,
+                "proj:bbox": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5503161.788775804,
+                                -231835.54427600297
+                            ],
+                            [
+                                -5502987.808081966,
+                                -231835.54427600297
+                            ],
+                            [
+                                -5502987.808081966,
+                                -231634.40624804224
+                            ],
+                            [
+                                -5503161.788775804,
+                                -231634.40624804224
+                            ],
+                            [
+                                -5503161.788775804,
+                                -231835.54427600297
+                            ]
+                        ]
+                    ]
+                },
+                "proj:geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                -5503161.788775804,
+                                -231835.54427600297
+                            ],
+                            [
+                                -5502987.808081966,
+                                -231835.54427600297
+                            ],
+                            [
+                                -5502987.808081966,
+                                -231634.40624804224
+                            ],
+                            [
+                                -5503161.788775804,
+                                -231634.40624804224
+                            ],
+                            [
+                                -5503161.788775804,
+                                -231835.54427600297
+                            ]
+                        ]
+                    ]
+                },
+                "gsd": 0.03217693616391745,
+                "platform": [
+                    "Mavic 3M"
+                ],
+                "instruments": [
+                    "M3M"
+                ],
+                "gps_img_center_coords": [
+                    -2.0952674166666667,
+                    -49.43496147222222
+                ],
+                "altitude": 105.727,
+                "mission": "Cameta_ContraMare_20231114"
+            },
+            "assets": {
+                "file": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T121025_RGB.tif",
+                    "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                    "roles": [
+                        "data"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 77606826,
+                    "bdc:chunk_size": {
+                        "x": 256,
+                        "y": 256
+                    },
+                    "bdc:raster_size": {
+                        "x": 5407,
+                        "y": 6251
+                    },
+                    "checksum:multihash": ""
+                },
+                "thumbnail": {
+                    "href": "data/Mavic3M_FlightHeight120m/2023/11/Cameta_ContraMare_20231114T121025_RGB.png",
+                    "type": "image/png",
+                    "roles": [
+                        "thumbnail"
+                    ],
+                    "created": "2025-07-16T16:38:25",
+                    "updated": "2025-07-16T16:38:25",
+                    "bdc:size": 600075,
+                    "checksum:multihash": ""
+                }
+            }
+        }
+    ]
+}

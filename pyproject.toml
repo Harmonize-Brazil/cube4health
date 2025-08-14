@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["wheel","setuptools (>=67,<70)"] # setuptools limited for use of pkg_resources API
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,19 +8,64 @@ version = "0.0.1"
 description = "Package cube4health is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination."
 readme = "README.rst"
 authors = [
-  {name = "Marcos Lima Rodrigues", email = "marcos.rodrigues@inpe.br"}
+  {name = "Adeline Maciel", email = "adelinemaciel22@gmail.com"},
+  {name = "Marcos Lima Rodrigues", email = "marcos.mlr@gmail.com"},
+  {name = "Yuri Domaradzki", email = "yuridomaradzki@gmail.com"}
 ]
 maintainers = [
-  {name = "Marcos Lima Rodrigues", email = "marcos.rodrigues@inpe.br"}
+  {name = "Adeline Maciel", email = "adelinemaciel22@gmail.com"},
+  {name = "Gabriel Sansigolo", email = "gabrielsansigolo@gmail.com"},
+  {name = "Luana Becker", email = "luanabeckerdaluz@gmail.com"},
+  {name = "Marcos Lima Rodrigues", email = "marcos.mlr@gmail.com"},
+  {name = "Yuri Domaradzki", email = "yuridomaradzki@gmail.com"}
 ]
 classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: Linux Ubuntu",
 
 ]
 license = {text = "GNU General Public License v3"}
+requires-python = ">= 3.10"
 dependencies = [
-  
+  "requests",
+  "geobr",
+  "pandas",
+  "geopandas",
+  "tqdm",
+  "python-dateutil",
+  "numpy",
+  "gdal[numpy] <= 3.4.1",
+  "fiona",
+  "shapely",
+  "psutil",
+  "fastparquet",
+  "pyarrow",
+  "bdc-catalog @ git+https://github.com/brazil-data-cube/bdc-catalog.git@v1.0.2#egg=bdc-catalog",
+  "bdc-db @ git+https://github.com/brazil-data-cube/bdc-db@v0.6.3",
+  "collection-register @ git+https://github.com/brazil-data-cube/collection-register@v1.0.2",
+  "geoserver-rest @ git+https://github.com/YuriDomaradzki/geoserver-rest.git@dev",
+  "geoserver-restconfig @ git+https://github.com/Harmonize-Brazil/geoserver-restconfig",
+  "paramiko",
+  "jsonpath_rw",
+  "psycopg2-binary",
+  "psycopg2",
+  "rasterio",
+  "geoalchemy2",
+  "flask",
+  "docker",
+  "matplotlib",
+  "affine",
+  "geopy",
+  "jsonpath_rw_ext",
+  "pytz",
+  "timezonefinder[pytz]",
+  "defusedxml",
+  "opencv-python",
+  "tqdm",
+  "click"
 ]
 
+# Extras Dependencies
 [project.optional-dependencies]
 dev = [
     "coverage",  # testing
@@ -28,12 +73,29 @@ dev = [
     "pytest",  # testing
     "ruff"  # linting
 ]
+docs = [
+    "Sphinx>=7.0",
+    "sphinx_rtd_theme",
+    "sphinx-copybutton",
+    "sphinx-tabs",
+]
+tests = [
+    "coverage>=6.4",
+    "coveralls>=3.3",
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-pep8>=1.0",
+    "pydocstyle>=4.0",
+    "isort>4.3",
+    "check-manifest>=0.40",
+]
+all = ["cube4health[docs,tests]"]
+## End extras dependencies
 
 [project.urls]
-
-bugs = "https://github.com/marcosmlr/cube4health/issues"
-changelog = "https://github.com/marcosmlr/cube4health/blob/master/changelog.md"
-homepage = "https://github.com/marcosmlr/cube4health"
+bugs = "https://github.com/Harmonize-Brazil/cube4health/issues"
+changelog = "https://github.com/Harmonize-Brazil/cube4health/blob/master/changelog.md"
+homepage = "https://github.com/Harmonize-Brazil/cube4health"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -42,6 +104,8 @@ package-dir = {"" = "src"}
 "*" = ["*.*"]
 
 
+[project.scripts]
+cube4health = "cube4health.cli:run"
 
 
 # Mypy
