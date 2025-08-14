@@ -1,5 +1,5 @@
 # inbuilt libraries
-from typing import Optional
+from typing import List, Optional
 
 # third-party libraries
 #import psycopg2
@@ -29,6 +29,7 @@ from src.cube4health.edpu.utils import (
 
 def _insert_data(gdf: GeoDataFrame, 
                  name: str, 
+                 db_columns: List[str],
                  schema: str, 
                  conn: connect,
                  cursor: extensions.cursor) -> bool:
@@ -52,30 +53,48 @@ def _insert_data(gdf: GeoDataFrame,
         Boolean value of success
     """
 
-    records = []
+    # Nome da coluna de geometria
+    geometry_col = "geometry"
+
+    # Remove a geometria da lista para processá-la separadamente (como WKB)
+    columns_no_geom = [col for col in db_columns if col != geometry_col]
 
     try:
+
+        # Converte as linhas em tuplas com geometria como WKB
+        records = []
+
         for row in gdf.itertuples(index=False):
-            geometry_wkb = dumps(row[6], srid=gdf.crs.to_epsg())
-            records.append((row[0], row[1], row[2], row[3], row[4], row[5], geometry_wkb))
+            values = list(row[:-1])  # Todos exceto geometria
+            geometry_wkb = dumps(row[-1], srid=gdf.crs.to_epsg())  # Última coluna = geometria
+            values.append(geometry_wkb)
+            records.append(tuple(values))
 
-            insert_query = sql.SQL("""
-                INSERT INTO {}
-                (cod, date, name, agg, agg_time, value, geom)
-                VALUES %s;
-            """).format(sql.Identifier(schema, name))
+        # Monta a query dinamicamente com base em db_columns
+        insert_query = sql.SQL("""
+            INSERT INTO {}.{} ({})
+            VALUES %s;
+        """).format(
+            sql.Identifier(schema),
+            sql.Identifier(name),
+            sql.SQL(', ').join(map(sql.Identifier, db_columns))
+        )
 
-            extras.execute_values(cursor, insert_query, records)
-            conn.commit()
+        # Executa o batch insert
+        extras.execute_values(cursor, insert_query, records)
+        conn.commit()
+
         return True
     except Exception as e:
-        print(str(e))
+        print(f"[ERROR] Falha ao inserir dados: {e}")
+        conn.rollback()
         return False
 
 
 def save_data_db(gdf: GeoDataFrame, 
                  name: str, 
                  schema: str, 
+                 db_columns = List[str],
                  hostname: Optional[str] = 'localhost',
                  port : Optional[int] = 5432,
                  db: Optional[str] = 'harmonize', 
@@ -167,19 +186,52 @@ def save_data_db(gdf: GeoDataFrame,
         table_exists = cursor.fetchone()[0]
 
         if not table_exists:
-            # Defines the SQL command to create the table
+
+            # Mapeia campos alternativos para nomes lógicos que têm tipo definido
+            mapeamento_coluna_para_tipo_logico = {
+                "epiweek_start_date": "date",  # usa o tipo de date
+                "geometry": "geom"             # usa o tipo definido de geom
+            }
+
+            # Tipos SQL por campo lógico
+            tipo_por_coluna = {
+                "code_mun": "VARCHAR(8) NOT NULL",
+                "name_mun": "VARCHAR(50) NOT NULL",
+                "uf_mun": "VARCHAR(2) NOT NULL",
+                "data_source": "VARCHAR(50) NOT NULL",
+                "name_indicator": "VARCHAR(50) NOT NULL",
+                "epiweek_number": "INTEGER NOT NULL",
+                "time_agg": "VARCHAR(20) NOT NULL",
+                "spatial_agg": "VARCHAR(20) NOT NULL",
+                "value": "NUMERIC(10, 2) NOT NULL",
+                "date": "TIMESTAMP WITH TIME ZONE NOT NULL",
+                "geom": "geometry(MULTIPOLYGON, 4326) NOT NULL"
+            }
+
+            # Monta os campos da tabela
+            campos_formatados = [("id", "SERIAL PRIMARY KEY")]
+
+            for col in db_columns:
+                tipo_logico = mapeamento_coluna_para_tipo_logico.get(col, col)
+                tipo_sql = tipo_por_coluna[tipo_logico]
+                campos_formatados.append((col, tipo_sql))
+
+            # Cria o SQL seguro com psycopg2
+            campos_sql = sql.SQL(", ").join([
+                sql.SQL("{} {}").format(sql.Identifier(col), sql.SQL(tipo))
+                for col, tipo in campos_formatados
+            ])
+
+            # Cria a query final
             create_table_query = sql.SQL("""
-                CREATE TABLE {} (
-                    id SERIAL PRIMARY KEY,
-                    cod VARCHAR(8) NOT NULL,
-                    date TIMESTAMP WITH TIME ZONE NOT NULL,
-                    name VARCHAR(15) NOT NULL,
-                    agg VARCHAR(15) NOT NULL,
-                    agg_time VARCHAR(15) NOT NULL,
-                    value NUMERIC(10, 2) NOT NULL,
-                    geom geometry(MULTIPOLYGON, 4326) NOT NULL
+                CREATE TABLE {}.{} (
+                    {}
                 );
-            """).format(sql.Identifier(schema, name))
+            """).format(
+                sql.Identifier(schema),
+                sql.Identifier(name),
+                campos_sql
+            )
 
             # Executes the SQL command to create the table
             cursor.execute(create_table_query)
@@ -195,7 +247,7 @@ def save_data_db(gdf: GeoDataFrame,
         with ThreadPoolExecutor(max_workers=10) as executor:
 
             futures = [executor.submit(_insert_data, 
-                                        gdf, name, schema, 
+                                        gdf, name, db_columns, schema, 
                                         conn, cursor) for gdf in gdfs]
 
             for index, future in enumerate(tqdm(as_completed(futures), desc="Processing chunks...")):

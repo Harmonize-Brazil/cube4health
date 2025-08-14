@@ -1,5 +1,6 @@
 # inbuilt libraries
 import os
+import re
 import time
 import psutil
 from datetime import datetime
@@ -375,6 +376,7 @@ def get_infodengue_indicator(indicator: str,
             all_items.append(item)
             if len(all_items) == 1000:
                 df = adjust_df().drop_duplicates()
+                print(filepath)
                 saved = __save_to_csv(data=df, filename=filepath)
                 all_items = []
 

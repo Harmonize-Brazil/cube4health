@@ -75,6 +75,9 @@ SPATIAL_AGG_ABBR = {
     'state': 'uf'
 }
 
+# Abbreviations of the spatial aggregations
+TEMPORAL_AGG_ABBR = {"week": "epiweek"}
+
 # Abbreviations of the cardinal directions
 REGION_ABBR = {
     'north': 'NO',
@@ -495,7 +498,7 @@ def aggregate_data(indicators: List[str],
                 return f"Error: Indicator name {indicator} must be a string"
 
             directory = os.path.join(input_path, indicator)
-
+            print(directory)
 
             try:
                 _check_existence_dirs([directory])
@@ -535,18 +538,18 @@ def aggregate_data(indicators: List[str],
                 except Exception as e:
                     return f"Error: Failed to read file {file}: {e}"
                 
-                try:
-                    if not data_columns.get('spt_agg', None) in df.keys() and len(spatial_agg) == 1:
-                        temp_col = "agg"
-                        df[temp_col] = spatial_agg[0]
-                        data_columns['spt_agg'] = temp_col
+                # try:
+                #     if not data_columns.get('spt_agg', None) in df.keys() and len(spatial_agg) == 1:
+                #         temp_col = "agg"
+                #         df[temp_col] = spatial_agg[0]
+                #         data_columns['spt_agg'] = temp_col
 
-                    if not data_columns.get('temp_agg', None) in df.keys() and len(temp_agg) == 1:
-                        temp_col = "agg_time"
-                        df[temp_col] = temp_agg[0]
-                        data_columns['temp_agg'] = temp_col
-                except Exception as err:
-                    return f"Error: failed to get temporal and spatial aggregations. Reason: {str(err)}"
+                #     if not data_columns.get('temp_agg', None) in df.keys() and len(temp_agg) == 1:
+                #         temp_col = "agg_time"
+                #         df[temp_col] = temp_agg[0]
+                #         data_columns['temp_agg'] = temp_col
+                # except Exception as err:
+                #     return f"Error: failed to get temporal and spatial aggregations. Reason: {str(err)}"
                 
                 try:
                     cod_col = data_columns['cod']
@@ -598,11 +601,17 @@ def aggregate_data(indicators: List[str],
                         else:
                             agg_spt = new_df.loc[0][spt_col]
                         agg_time = new_df.loc[0][temp_col]
+                        agg_time = (
+                            new_df.loc[0][temp_col]
+                            if new_df.loc[0][temp_col] not in ['week', 'epiweek']
+                            else TEMPORAL_AGG_ABBR['week']
+                        )
                         name = new_df.loc[0][name_col]
                     except Exception as e:
                         return f"Error: Failed to extract metadata from the dataframe: {e}"
 
                     final_path = os.path.join(directory, agg_time, agg_spt)
+
                     try:
                         _check_existence_dirs([final_path])
 
@@ -614,8 +623,11 @@ def aggregate_data(indicators: List[str],
                         return indi_info
 
                     indi_info = indi_info.get("indicator")
-                    filename = f"{indi_info.get(name_col)}_{agg_spt}_{agg_time}.{extension}"
+                    filename = (
+                        f"{indi_info.get(name_col)}_{agg_spt}_{agg_time}.{extension}"
+                    )
                     filepath = os.path.join(final_path, filename)
+                    new_df["name"] = indi_info.get("name")
 
                     if save:
                         try:
@@ -685,6 +697,7 @@ def spatialize_data(indicators: List[str],
     region_crop = None
 
     # AGGREGATE DATA
+    print('input_path: ', input_path)
     dataframes = aggregate_data(indicators=indicators, 
                                 input_path=input_path, 
                                 github_settings=github_settings, 
@@ -700,8 +713,8 @@ def spatialize_data(indicators: List[str],
     try:
         cod_col = data_columns['cod']
         date_col = data_columns['date']
-        #name_col = data_columns['name']
-        #spt_col = data_columns['spt_agg']
+        # name_col = data_columns['name']
+        # spt_col = data_columns['spt_agg']
         temp_col = data_columns['temp_agg']
         value_col = data_columns['value']
     except KeyError:
@@ -711,7 +724,7 @@ def spatialize_data(indicators: List[str],
 
     # Verifies if the temporal aggregation is 'week'. If it is, the csv_week_pd will be used 
     # to format the data in the 'week' format.
-    if any([df['temporal_agg'] for df in dataframes if df['temporal_agg'] == 'week']):
+    if any([df['temporal_agg'] for df in dataframes if df['temporal_agg'] == 'epiweek']):
         csv_week_pd = pd.read_csv(os.path.join(ROOT_PATH, 
                                   'ehipr/templates/csv/epidemiologicalweeks_ptbr.csv'))
     else:
@@ -764,7 +777,7 @@ def spatialize_data(indicators: List[str],
                     df = df_indi['df']
                     name = df_indi['info']['name']
                     #id = df_indi['info']['id']
-                    agg_time = df_indi['temporal_agg']
+                    agg_time = df_indi["temporal_agg"] if not 'week' else TEMPORAL_AGG_ABBR['week']
                     data_country = df_indi['info']['country']
                 except KeyError:
                     return "Error: The dictionary provided by aggregate_data does not contain "\
@@ -779,13 +792,17 @@ def spatialize_data(indicators: List[str],
                 if not grid:
                     if provider == 'lis':
                         try:
-                            grid_path = glob.glob(os.path.join(ROOT_PATH, f'shp_malhas/default_grid/'\
-                                                            f'{agg_spt}/BR*.shp'))[0]
+                            grid_path = glob.glob(os.path.join(ROOT_PATH, f"ehipr/shp_malhas/default_grid/{agg_spt}/BR*_2022.shp"))[0]
                         except IndexError:
                             create_LIS_boundaries_shp(agg=agg_spt)
-                            grid_path = glob.glob(os.path.join(ROOT_PATH, f'shp_malhas/default_grid/'\
-                                                            f'/{agg_spt}/BR*.shp'))[0]
-                        grid_info = {'cod': 'GEOCODE', 'name': 'NAME', 'cod_mun': 'CD_MUN'}
+                            grid_path = glob.glob(os.path.join(ROOT_PATH, f"ehipr/shp_malhas/default_grid/{agg_spt}/BR*_2022.shp"))[0]
+
+                        grid_info = {
+                            'cod': 'GEOCODE', 
+                            'name': 'NAME', 
+                            'cod_mun': 'CD_MUN',
+                            "uf": 'uf'
+                        }
                     elif data_country == 'Brazil':
                         if agg_spt == 'state':
                             grid_path = read_state(year=2020)
@@ -808,8 +825,15 @@ def spatialize_data(indicators: List[str],
                     except ValueError:
                         return "Error: The parameter 'grid' must be a tuple with two elements: "\
                             "the path and the shapefile columns in dict format."
+                    
+                    if not {"cod", "name", "uf"}.issubset(grid_info.keys()):
+                        return (
+                            "Error: The parameter 'grid' informed must have three columns: 'cod', 'name' and 'uf', to "
+                            "represent the code, name, and federal unit of each geographic region."
+                        )
 
                 final_path = os.path.join(input_path, provider, name, agg_time, agg_spt)
+
                 _check_existence_dirs([final_path])
 
                 filename = f"{df_indi['info']['title'].lower().replace(' ', '_')}"
@@ -817,11 +841,14 @@ def spatialize_data(indicators: List[str],
                 if file_crops_geom:
                     if file_crop_geom and file_crop_geom.endswith('shp'):
                         region_crop = os.path.basename(file_crop_geom).split('.')[0]
-                        filename = filename + '_' + region_crop
+                        try:
+                            filename = filename + "_" + REGION_ABBR[region_crop]
+                        except Exception as e:
+                            filename = filename + "_" + region_crop
 
                 # Get the spatial and temporal aggregations and the indicator name from this dataframe
                 try:
-                    filename = f"{filename}_{SPATIAL_AGG_ABBR[agg_spt]}_{agg_time}_{provider}"
+                    filename = f"{filename}_{SPATIAL_AGG_ABBR[agg_spt]}_{agg_time}"
                 except KeyError:
                     return f"Error: Some information about the spatial aggregation is wrong: {agg_spt}."
 
@@ -835,17 +862,36 @@ def spatialize_data(indicators: List[str],
                         except Exception as e:
                             if agg_spt == 'state':
                                 df_polygon = read_state(year=2020)
-                                grid_info = {'cod': 'code_state', 'name': 'abbrev_state'}
+                                grid_info = {
+                                    'cod': 'code_state', 
+                                    'name': 'name_state'
+                                }
                             elif agg_spt == 'health_region':
                                 df_polygon = read_health_region()
-                                grid_info = {'cod': 'code_health_region', 'name': 'name_health_region'}
+                                grid_info = {
+                                    'cod': 'code_health_region', 
+                                    'name': 'name_health_region'
+                                }
                             else:
-                                df_polygon = read_municipality(code_muni="all", year=2022)
-                                grid_info = {'cod': 'code_muni', 'name': 'name_muni'}
+                                # df_polygon = read_municipality(code_muni="all", year=2022)
+                                # grid_info = {
+                                #     'cod': 'code_muni', 
+                                #     'name': 'name_muni'
+                                # }
+                                if provider != 'lis':
+                                    df_polygon = read_municipality(
+                                        code_muni="all", year=2022
+                                    )
+                                    grid_info = {
+                                        "cod": "code_muni", 
+                                        "name": "name_muni"
+                                    }
                             df_polygon[grid_info['cod']] = df_polygon[grid_info['cod']].astype(int)
 
                             if df_polygon.crs is None:
                                 df_polygon.crs = {'init': 'epsg:3857'}
+
+                            grid_info["uf"] = "abbrev_state"
 
                         # Crop the polygon if the user specifies to do it
                         if region_crop:
@@ -864,9 +910,33 @@ def spatialize_data(indicators: List[str],
                     # Filtrando o DataFrame para manter apenas as linhas com códigos presentes em cod_polygon
                     df = df[df[cod_col].isin(cod_polygon)]
 
+
                     if df.empty:
                         return "Error: No data found for the selected codes in the grid."
 
+                    df["nome_mun"] = df[cod_col].map(
+                        df_polygon.set_index(grid_info["cod"])[grid_info["name"]]
+                    )
+
+                    print(grid_info)
+                    df["uf_mun"] = df[cod_col].map(
+                        df_polygon.set_index(grid_info["cod"])[grid_info["uf"]]
+                    )
+                    print(df.head(1))
+
+                    # Criando um DataFrame com apenas as colunas necessárias para o merge
+                    cols_merge = [cod_name for cod_name in [grid_info.get("cod", None), grid_info.get("name", None), grid_info.get("uf", None)] if cod_name]
+                    df_metadata = df_polygon[cols_merge].drop_duplicates()
+
+                    # Fazendo o merge no código
+                    df = df.merge(
+                        df_metadata,
+                        how="left",
+                        left_on=cod_col,
+                        right_on=grid_info["cod"],
+                        suffixes=("", "_polygon")
+                    )
+                    print(df.head(1))
                     # Criando um dicionário para mapear cada código à sua geometria correspondente
                     cod_geometry_dict = {}
 
@@ -894,7 +964,9 @@ def spatialize_data(indicators: List[str],
                         return cod_geometry_dict
 
                     # Prepare the chunks of unique_codes
-                    unique_codes_chunks = list(chunk_list(sorted(unique_codes), len(unique_codes) // CPU_COUNT))
+                    len_unique_codes = len(unique_codes)
+                    n_chunks = len_unique_codes // CPU_COUNT if  len_unique_codes > CPU_COUNT else 1
+                    unique_codes_chunks = list(chunk_list(sorted(unique_codes), n_chunks))
 
                     geometries = {}
 
@@ -902,7 +974,7 @@ def spatialize_data(indicators: List[str],
                         # Submit each chunk to the executor
                         futures = [executor.submit(get_geometry, chunk) for chunk in unique_codes_chunks]
 
-                        for future in tqdm(as_completed(futures), desc="Processing chunks..."):
+                        for i, future in enumerate(tqdm(as_completed(futures), desc="Processing chunks...")):
                             geometries.update(future.result())
 
                     # Adicionando a coluna de geometria ao DataFrame original
@@ -920,13 +992,16 @@ def spatialize_data(indicators: List[str],
                         return round_value["message"]
                     gdf[value_col] = pd.to_numeric(gdf[value_col], errors='coerce')
                     gdf[value_col] = gdf[value_col].round(round_value).astype(str)
-                    gdf.rename(columns={data_columns['value']: 'value'}, inplace=True)
-                    data_columns['value'] = 'value'
-
+                    
                     # FORMAT THE GEODATAFRAME DATE FIELD
                     add_to_data = None
                     time_aggregations = gdf[temp_col].unique()
+                    name_date_col = ""
+
                     if len(time_aggregations) == 1 and time_aggregations[0] == 'week':
+
+                        name_date_col = 'epiweek_start_date'
+                        name_date_number_col = "epiweek_number"
 
                         if csv_week_pd is None:
                             return "Error: The csv file with the weekly data isn't available."
@@ -945,52 +1020,104 @@ def spatialize_data(indicators: List[str],
                                     gdf_years = gdf_copy.loc[notna & contains_year_week]
 
                                     filtered_csv_week_pd = csv_week_pd.loc[(csv_week_pd['Year'].astype('int') == int(year)) &
-                                                            (csv_week_pd['Week'].astype('int') == int(week)), 'StartDate']
+                                                            (csv_week_pd['Week'].astype('int') == int(week)), ["StartDate", "Week"]]
 
                                     if not filtered_csv_week_pd.empty:
                                         date = filtered_csv_week_pd.iloc[0]
-                                        gdf.loc[contains_year_week, date_col] = date
+                                        week = filtered_csv_week_pd.iloc[1]
+                                        gdf.loc[contains_year_week, [date_col, name_date_number_col]] = [date, week]
+
                             except:
                                 return "Error: Something went wrong when trying to format the "\
                                         f"date column: {date_col}."
 
+                        else:
+                            gdf = gdf.merge(
+                                csv_week_pd[["StartDate", "Week"]],
+                                left_on=date_col,
+                                right_on="StartDate",
+                                how="left"
+                            ).rename(columns={"Week": name_date_number_col}).drop(columns=["StartDate"])
+
+                        # Changes 'week' to 'epiweek' in the column temp_agg
+                        gdf[temp_col] = TEMPORAL_AGG_ABBR[time_aggregations[0]]
+
                     elif len(time_aggregations) == 1 and time_aggregations[0] == 'month':
+                        name_date_col = 'month_start_date'
+                        name_date_number_col = "month_number"
                         add_to_data = relativedelta(months=+1)
                         for index, row in gdf.iterrows():
-                            gdf.loc[index, date_col] = f"{row[date_col]}-01"
+                            date_row = row[date_col]
+                            gdf.loc[index, date_col] = f"{date_row}-01"
+                            gdf.loc[index, name_date_number_col] = date_row[-2:]
+                        # gdf[name_date_number_col] = gdf[date_col].dt.month
                     else:
+                        name_date_col = 'year_start_date'
+                        name_date_number_col = "year_number"
                         add_to_data = timedelta(days=365)
                         for index, row in gdf.iterrows():
-                            gdf.loc[index, date_col] = f"{row[date_col]}-01-01"
+                            date_row = row[date_col]
+                            gdf.loc[index, date_col] = f"{date_row}-01-01"
+                            gdf.loc[index, name_date_number_col] = date_row[:3]
+                        # gdf[name_date_number_col] = gdf[date_col].dt.year
 
                     # Casting the date column to datetime with the format '%Y-%m-%d %H:%M:%S'
                     gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y-%m-%d',
                                                    errors='coerce')
-                    
-
                     # Sorting the dataframe by the date column
                     gdf = gdf.sort_values(by=[date_col], 
                                           ascending=True).reset_index(drop=True)
                     
                     # Reordering DataFrame columns to match the expected database schema
-                    order_columns = ['cod', 'date', 'name', 'agg', 'agg_time', 'value', 'geometry']
-                    column_fields = [c for c in order_columns if c in gdf.columns]
-                    gdf = gdf[column_fields]
+                    # order_columns = ['cod', 'date', 'name', 'agg', 'agg_time', 'value', 'geometry']
+                    # column_fields = [c for c in order_columns if c in gdf.columns]
+                    # gdf = gdf[column_fields]
 
                     # Converting the date column to a string with the format '%Y-%m-%d'
                     gdf[date_col] = gdf[date_col].dt.strftime(DATE_FORMAT)
 
                     dates =  gdf[date_col].unique()
 
+                    time_column = "time_agg"
+
+                    # Renomeando as colunas para 'nome_mun' e 'uf_mun'
+                    gdf.rename(
+                        columns={
+                            # Grid Columns
+                            grid_info["name"]: "name_mun",
+                            # grid_info["uf"]: "uf_mun",
+                            grid_info["cod"]: "code_mun",
+                            # Data Columns
+                            data_columns["value"]: "value",
+                            data_columns["spt_agg"]: "spatial_agg",
+                            data_columns["temp_agg"]: time_column,
+                            data_columns["name"]: "name_indicator",
+                            data_columns["date"]: name_date_col,
+                        },
+                        inplace=True
+                    )
+
+                    gdf["data_source"] = provider
+                    gdf = gdf.drop(data_columns["cod"], axis=1)
+
+                    gdf = gdf[
+                        [
+                            "code_mun", "name_mun", "uf_mun", "data_source",
+                            "name_indicator", name_date_number_col, name_date_col,
+                            "time_agg", "spatial_agg", "value", "geometry"
+                        ]
+                    ]
+
+                    print(gdf.head(1))
                     # Creating the items files for each date
                     for index, date in enumerate(dates):
-                        temp_gdf = gdf.loc[gdf[date_col] == date]
+                        temp_gdf = gdf.loc[gdf[name_date_col] == date]
 
                         if index+1 < len(dates):
                             end_date = datetime.strptime(dates[index+1], 
                                                         DATE_FORMAT) - timedelta(days=1)
                         else:
-                            if temp_gdf[temp_col].unique()[0] != 'week':
+                            if temp_gdf[time_column].unique()[0] != "epiweek":
                                 end_date = (datetime.strptime(date, DATE_FORMAT) + 
                                             add_to_data) - timedelta(days=1)
                             else:
@@ -1015,11 +1142,13 @@ def spatialize_data(indicators: List[str],
                             asset_path = os.path.join(file_path, f"{filename_date}{extension}")
                             if extension == '.parquet':
                                 asset_path.replace('.parquet', '')
-                                temp_gdf.drop(columns=['geometry']).to_parquet(asset_path)
+                                gdf.drop(columns=["geometry"]).to_parquet(
+                                    asset_path
+                                )
                             elif extension == '.csv':
-                                temp_gdf.to_csv(asset_path, index=False)
+                                gdf.to_csv(asset_path, index=False)
                             else:
-                                temp_gdf.to_file(asset_path, driver=driver)
+                                gdf.to_file(asset_path, driver=driver)
                                 if extension == '.shp':
                                     asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
                                                                                 f"{extension}", ''))
@@ -1075,7 +1204,7 @@ def spatialize_data(indicators: List[str],
                 if style_file:
                     description = (
                         f"This is the {df_indi['info']['title'].lower()} "
-                        f"aggregated by {agg_spt} and {agg_time} to {region_crop}. "
+                        f"aggregated by {agg_spt} and {agg_time if not 'epiweek' else 'epidemiological week'} to {region_crop}. "
                         f"This indicator {df_indi['info']['description'].lower()}"
                     )
 
@@ -1085,7 +1214,7 @@ def spatialize_data(indicators: List[str],
                     title = f"{df_indi['info']['title'].lower().replace(' ', '_')}_"\
                             f"{region_crop}_{SPATIAL_AGG_ABBR[agg_spt]}_{agg_time}"
 
-                    #column_fields = list(data_columns.values()) + ['geometry']
+                    # column_fields = list(data_columns.values()) + ['geometry']
                     
 
                     layer_info = {
@@ -1096,7 +1225,7 @@ def spatialize_data(indicators: List[str],
                         'bbox': bbox,
                         'path': file_path,
                         'keywords': keywords,
-                        'gdf': gdf[column_fields]
+                        'gdf': gdf
                     }
 
                     layers.append(layer_info)
@@ -1171,12 +1300,15 @@ def publish_data(layers: List[Dict[str, str]],
 
     for layer in tqdm(layers, desc='Saving data in the database'):
         # Saving data in the database
-        response = save_data_db(db=db,
-                                schema=db_schema,
-                                hostname=hostname, 
-                                replace_table=True,
-                                gdf=layer['gdf'], 
-                                name=layer['name'])
+        response = save_data_db(
+            db=db,
+            schema=db_schema,
+            hostname=hostname, 
+            replace_table=True,
+            gdf=layer['gdf'], 
+            name=layer['name'],
+            db_columns=layer["gdf"].keys()
+        )
         response = True
         all_saved.append(response)
 
