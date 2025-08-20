@@ -65,7 +65,7 @@
                 "name": "dengue_cases_notified",
                 "title": "Dengue cases",
                 "disease": "Dengue",
-                "description": "Dengue cases notified",
+                "description": "Shows the number of dengue cases notified each week. The values are retrospectively updated every week to reflect the most accurate data available.",
                 "field_name": "casos",
                 "id": "indi_0001"
             },
@@ -74,7 +74,7 @@
                 "title": "Dengue incidence",
                 "disease": "Dengue",
                 "field_name": "p_inc100k",
-                "description": "Dengue estimated incidence rate (cases per population x 100.00)",
+                "description": "Is a representation of the estimated incidence rate of dengue, calculated as the number of reported cases per population, multiplied by 100.00. It provides a standardized measure to compare dengue occurrence relative to the size of the population.",
                 "id": "indi_0002"
             },
             {
@@ -82,7 +82,7 @@
                 "title": "Dengue alert level",
                 "disease": "Dengue",
                 "field_name": "nivel",
-                "description": "Dengue alert level",
+                "description": "Is a classification that indicates the current risk of dengue outbreaks in a given region. This level ranges from 1 to 4, as follows: 1 (Green): Low risk - situation under control. 2 (Yellow): Moderate risk - caution advised. 3 (Orange): High risk - alert for potential outbreak. 4 (Red): Very high risk - critical situation with epidemic potential.",
                 "id": "indi_0003"
             },
             {
@@ -90,7 +90,7 @@
                 "title": "Dengue confirmed cases",
                 "disease": "Dengue",
                 "field_name": "casconf",
-                "description": "Dengue cases actually confirmed by laboratory tests",
+                "description": "Is a number of dengue cases that have been definitively confirmed through laboratory testing. It reflects only those cases for which diagnostic tests have validated the presence of the dengue virus, ensuring accuracy in reporting and surveillance.",
                 "id": "indi_0004"
             },
             {
@@ -98,7 +98,7 @@
                 "title": "Chikungunya cases notified",
                 "disease": "Chikungunya",
                 "field_name": "casos",
-                "description": "Chikungunya cases notified",
+                "description": "Shows the number of chikungunya cases notified each week. The values are retrospectively updated every week to reflect the most accurate data available.",
                 "id": "indi_0005"
             },
             {
@@ -106,7 +106,7 @@
                 "title": "Chikungunya incidence",
                 "disease": "Chikungunya",
                 "field_name": "p_inc100k",
-                "description": "Chikungunya estimated incidence rate (cases per population x 100.00)",
+                "description": "Is a representation of the estimated incidence rate of chikungunya, calculated as the number of reported cases per population, multiplied by 100.00. It provides a standardized measure to compare chikungunya occurrence relative to the size of the population.",
                 "id": "indi_0006"
             },
             {
@@ -114,7 +114,7 @@
                 "title": "Chikungunya alert level",
                 "disease": "Chikungunya",
                 "field_name": "nivel",
-                "description": "Chikungunya alert level",
+                "description": "Is a classification that indicates the current risk of chikungunya outbreaks in a given region. This level ranges from 1 to 4, as follows: 1 (Green): Low risk - situation under control. 2 (Yellow): Moderate risk - caution advised. 3 (Orange): High risk - alert for potential outbreak. 4 (Red): Very high risk - critical situation with epidemic potential.",
                 "id": "indi_0007"
             },
             {
@@ -122,7 +122,7 @@
                 "title": "Chikungunya confirmed cases",
                 "disease": "Chikungunya",
                 "field_name": "casconf",
-                "description": "Chikungunya cases actually confirmed by laboratory tests",
+                "description": "Is a number of chikungunya cases that have been definitively confirmed through laboratory testing. It reflects only those cases for which diagnostic tests have validated the presence of the chikungunya virus, ensuring accuracy in reporting and surveillance.",
                 "id": "indi_0008"
             },
             {
@@ -130,7 +130,7 @@
                 "title": "Zika cases notified",
                 "disease": "Zika",
                 "field_name": "casos",
-                "description": "Zika cases notified",
+                "description": "Shows the number of zika cases notified each week. The values are retrospectively updated every week to reflect the most accurate data available.",               
                 "id": "indi_0009"
             },
             {
@@ -138,7 +138,7 @@
                 "title": "Zika incidence",
                 "disease": "Zika",
                 "field_name": "p_inc100k",
-                "description": "Zika estimated incidence rate (cases per population x 100.00)",
+                "description": "Is a representation of the estimated incidence rate of zika, calculated as the number of reported cases per population, multiplied by 100.00. It provides a standardized measure to compare zika occurrence relative to the size of the population.",
                 "id": "indi_0010"
             },
             {
@@ -146,7 +146,7 @@
                 "title": "Zika alert level",
                 "disease": "Zika",
                 "field_name": "nivel",
-                "description": "Zika alert level",
+                "description": "Is a classification that indicates the current risk of zika outbreaks in a given region. This level ranges from 1 to 4, as follows: 1 (Green): Low risk - situation under control. 2 (Yellow): Moderate risk - caution advised. 3 (Orange): High risk - alert for potential outbreak. 4 (Red): Very high risk - critical situation with epidemic potential.",
                 "id": "indi_0011"
             },
             {
@@ -154,7 +154,7 @@
                 "title": "Zika confirmed cases",
                 "disease": "Zika",
                 "field_name": "casconf",
-                "description": "Zika cases actually confirmed by laboratory tests",
+                "description": "Is a number of zika cases that have been definitively confirmed through laboratory testing. It reflects only those cases for which diagnostic tests have validated the presence of the zika virus, ensuring accuracy in reporting and surveillance.",
                 "id": "indi_0012"
             }
         ]

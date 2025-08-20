@@ -57,17 +57,23 @@ def __format_lis_boundaries_shapefile(gdf: gpd.GeoDataFrame,
 
     if agg == 'municipality':
         if '.shp' not in file_path:
+            print(os.path.join(file_path, '2010*.shp'))
             file_path = glob.glob(os.path.join(file_path, '2010*.shp'))[0]
         old_gdf = gpd.read_file(file_path, encoding='utf-8')
+
         for _, row in gdf.iterrows():
             condition = old_gdf['CD_GEOCODM'] == row['CD_MUN']
             for idx in old_gdf.index[condition]:
                 old_gdf.at[idx, 'NM_MUNICIP'] = row['NM_MUN']
                 old_gdf.at[idx, 'geometry'] = row['geometry']
+                old_gdf.at[idx, 'uf'] = row.get('SIGLA_UF')
+
         old_gdf = old_gdf.rename(columns={"cod6": "GEOCODE", 
                                           "NM_MUNICIP": "NAME", 
                                           "CD_GEOCODM": "CD_MUN"})
+        
         gdf = old_gdf.copy()
+        return gdf[['GEOCODE', 'NAME', 'geometry', 'CD_MUN', 'uf']]
 
     elif agg == 'state':
         gdf = gdf.rename(columns={"CD_GEOCODU": "GEOCODE", "NM_ESTADO": "NAME"})

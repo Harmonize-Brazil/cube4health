@@ -305,6 +305,7 @@ class GeoServer:
                              pg_username: str, 
                              pg_password: str, 
                              time_regex: str,
+                             attribute: str = "date",
                              schema: Optional[str] = None, 
                              workspace: Optional[str]=None, 
                              store: Optional[str]=None,
@@ -412,7 +413,8 @@ class GeoServer:
                                     print(f"Style {layer_name} uploaded with success!")
                                     response = self.geoserver.publish_time_dimension_to_layers(layer_name=layer_name, 
                                                                                                store_name=store, 
-                                                                                               workspace=workspace)
+                                                                                               workspace=workspace,
+                                                                                               attribute=attribute)
 
                                     # Add tile cache if add_tile_cache is True
                                     if response == 200 and add_tile_cache:
