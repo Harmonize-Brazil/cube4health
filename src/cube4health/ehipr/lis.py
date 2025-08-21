@@ -57,7 +57,7 @@ def __format_lis_boundaries_shapefile(gdf: gpd.GeoDataFrame,
 
     if agg == 'municipality':
         if '.shp' not in file_path:
-            print(os.path.join(file_path, '2010*.shp'))
+            # print(os.path.join(file_path, '2010*.shp'))
             file_path = glob.glob(os.path.join(file_path, '2010*.shp'))[0]
         old_gdf = gpd.read_file(file_path, encoding='utf-8')
 

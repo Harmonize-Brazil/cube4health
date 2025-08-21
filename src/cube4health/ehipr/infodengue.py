@@ -17,11 +17,8 @@ from tqdm import tqdm
 # custom libraries
 from .utils import check_date_format
 from .ehipr import _check_existence_dirs, _get_indicator_info # TODO :remover importacao check_exist
-#from edpu.utils import _check_existence_dirs
 
-
-# Setting the number of cores to use (70% of the CPU) and the maximum memory usage to 80%
-CPU_COUNT = int(os.cpu_count() * 0.9)
+from .config import CPU_COUNT
 
 # URL of the API
 ROUTE = "https://api.mosqlimate.org/api/datastore/infodengue/"
@@ -376,7 +373,7 @@ def get_infodengue_indicator(indicator: str,
             all_items.append(item)
             if len(all_items) == 1000:
                 df = adjust_df().drop_duplicates()
-                print(filepath)
+                # print(filepath)
                 saved = __save_to_csv(data=df, filename=filepath)
                 all_items = []
 

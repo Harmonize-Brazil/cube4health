@@ -21,6 +21,7 @@ from concurrent.futures import (
 )
 
 # custom functions
+from ..config import CPU_COUNT
 from ..utils import chunk_list
 from src.cube4health.edpu.utils import (
     get_ip_container_db,
@@ -244,7 +245,7 @@ def save_data_db(gdf: GeoDataFrame,
         gdfs = list(chunk_list(list_to_chunk=gdf, 
                                 nchunks=len(gdf)//max_rows)) if len(gdf) > max_rows else [gdf]
 
-        with ThreadPoolExecutor(max_workers=10) as executor:
+        with ThreadPoolExecutor(max_workers=CPU_COUNT) as executor:
 
             futures = [executor.submit(_insert_data, 
                                         gdf, name, db_columns, schema, 

@@ -398,7 +398,7 @@ class GeoServer:
 
                         # Upload style
                         if create_style:
-                            print(layer_style)
+                            # print(layer_style)
                             response = self.geoserver.upload_style(path=layer_style, 
                                                                    workspace=workspace, 
                                                                    name=layer_name)
@@ -464,7 +464,7 @@ class GeoServer:
         
         # Definindo o caminho do arquivo de saída
         output = template.with_name(f'{layer_name}.sld')
-        print('output: ', output)
+        # print('output: ', output)
 
         # Caso especial para 'alert_level'
         if template_name == 'alert_level':
@@ -823,7 +823,7 @@ class GeoServer:
         args = {}
         if hasattr(self, 'connection'):
             args['conn'] = self.connection
-        print(path)
+        # print(path)
         list_dates = get_time_list_from_data(path=path,
                                              time_regex=time_regex,
                                              is_vector=is_vector, **args)
@@ -1177,43 +1177,45 @@ class GeoServer:
                                                              path=data,
                                                              schema=db_schema,
                                                              db_user=db_user)
-            else:
-                message = "To update datastore.properties, db_settings must be a dict."
+                
+                # Updating imagemosaic store
+                if response:
+                    print("\nUpdating Imagemosaic store...")
 
-        # Updating imagemosaic store
-        if response:
-            print("\nUpdating Imagemosaic store...")
+                    try:
+                        cat_obj = self.cat.add_granule(data=data,
+                                                        store=store_name,
+                                                        workspace=workspace)
 
-            try:
-                cat_obj = self.cat.add_granule(data=data,
-                                               store=store_name,
-                                               workspace=workspace)
+                        # Updating coverage granule. The condition is checking if cat_obj is None
+                        # because the return from the add_granule function if the coverage is
+                        # updated is None
+                        if cat_obj is None:
+                            message = "Coveragestore updated!"
 
-                # Updating coverage granule. The condition is checking if cat_obj is None
-                # because the return from the add_granule function if the coverage is
-                # updated is None
-                if cat_obj is None:
-                    message = "Coveragestore updated!"
-
-                    # Updating time dimension to coveragestore
-                    response = self._add_tile_cache(name=layer_name,
-                                                    time_regex=time_regex,
-                                                    path=root_path)
-                    if response == 200:
-                        print("...Done")
-                        updated = True
-                        message = "Coveragestore with time dimension and tile caching "\
-                                  "successfully updated!"
-                    else:
-                        message = "Coveragestore with time dimension and tile caching not "\
-                                  "updated!"
+                            # Updating time dimension to coveragestore
+                            response = self._add_tile_cache(name=layer_name,
+                                                            time_regex=time_regex,
+                                                            path=root_path)
+                            if response == 200:
+                                print("...Done")
+                                updated = True
+                                message = "Coveragestore with time dimension and tile caching "\
+                                        "successfully updated!"
+                            else:
+                                message = "Coveragestore with time dimension and tile caching not "\
+                                        "updated!"
+                        else:
+                            message = "Coveragestore not updated!"
+                    except FailedRequestError as fe:
+                        # print(fe)
+                        message = "Error: To update coveragestore it is necessary to create the "\
+                                "store first."
                 else:
-                    message = "Coveragestore not updated!"
-            except FailedRequestError as fe:
-                message = "Error: To update coveragestore it is necessary to create the "\
-                          "store first."
-        else:
-            message = "Datastore properties not updated! Some parameters are missing."
+                    message = "Datastore properties not updated! Some parameters are missing."
+
+            else:
+                message = "To update datastore.properties, db_settings must be a dict."    
 
         # Closing connection to remote server
         if hasattr(self, 'connection'):

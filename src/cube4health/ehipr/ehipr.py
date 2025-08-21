@@ -498,7 +498,7 @@ def aggregate_data(indicators: List[str],
                 return f"Error: Indicator name {indicator} must be a string"
 
             directory = os.path.join(input_path, indicator)
-            print(directory)
+            # print(directory)
 
             try:
                 _check_existence_dirs([directory])
@@ -697,7 +697,7 @@ def spatialize_data(indicators: List[str],
     region_crop = None
 
     # AGGREGATE DATA
-    print('input_path: ', input_path)
+    # print('input_path: ', input_path)
     dataframes = aggregate_data(indicators=indicators, 
                                 input_path=input_path, 
                                 github_settings=github_settings, 
@@ -918,11 +918,11 @@ def spatialize_data(indicators: List[str],
                         df_polygon.set_index(grid_info["cod"])[grid_info["name"]]
                     )
 
-                    print(grid_info)
+                    # print(grid_info)
                     df["uf_mun"] = df[cod_col].map(
                         df_polygon.set_index(grid_info["cod"])[grid_info["uf"]]
                     )
-                    print(df.head(1))
+                    # print(df.head(1))
 
                     # Criando um DataFrame com apenas as colunas necessárias para o merge
                     cols_merge = [cod_name for cod_name in [grid_info.get("cod", None), grid_info.get("name", None), grid_info.get("uf", None)] if cod_name]
@@ -936,7 +936,7 @@ def spatialize_data(indicators: List[str],
                         right_on=grid_info["cod"],
                         suffixes=("", "_polygon")
                     )
-                    print(df.head(1))
+                    # print(df.head(1))
                     # Criando um dicionário para mapear cada código à sua geometria correspondente
                     cod_geometry_dict = {}
 
@@ -969,7 +969,7 @@ def spatialize_data(indicators: List[str],
                     unique_codes_chunks = list(chunk_list(sorted(unique_codes), n_chunks))
 
                     geometries = {}
-
+                    
                     with ThreadPoolExecutor(max_workers=CPU_COUNT) as executor:
                         # Submit each chunk to the executor
                         futures = [executor.submit(get_geometry, chunk) for chunk in unique_codes_chunks]
@@ -1108,7 +1108,7 @@ def spatialize_data(indicators: List[str],
                         ]
                     ]
 
-                    print(gdf.head(1))
+                    # print(gdf.head(1))
                     # Creating the items files for each date
                     for index, date in enumerate(dates):
                         temp_gdf = gdf.loc[gdf[name_date_col] == date]
