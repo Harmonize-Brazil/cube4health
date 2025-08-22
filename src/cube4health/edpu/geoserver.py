@@ -352,9 +352,6 @@ class GeoServer:
         create_style, create_store, store_exists = False, False, False
         pg_schema = self.db_schema
 
-        print('store: ', store)
-        print('pg_schema: ', pg_schema)
-
         # Create feature store
         try:
             if self.geoserver.get_datastore(store_name=store, 
