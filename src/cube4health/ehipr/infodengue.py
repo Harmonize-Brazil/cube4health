@@ -241,7 +241,7 @@ def __request_data(disease: str,
                         futures[executor.submit(attempt_delay, session,url, headers)] = url
                     for future in tqdm(as_completed(futures), 
                                         total=len(futures), 
-                                        desc="Processing results..."):
+                                        desc="Downloading data from Mosqlimate/Infodengue API..."):
                         _ = futures[future]
                         resp = future.result()
                         # The conditional is incorporating the first page

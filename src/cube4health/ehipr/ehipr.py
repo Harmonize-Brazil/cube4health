@@ -996,7 +996,7 @@ def spatialize_data(indicators: List[str],
                         # Submit each chunk to the executor
                         futures = [executor.submit(get_geometry, chunk) for chunk in unique_codes_chunks]
 
-                        for i, future in enumerate(tqdm(as_completed(futures), total=len(futures), desc="Processing chunks...")):
+                        for i, future in enumerate(tqdm(as_completed(futures), total=len(futures))): #, desc="Processing chunks...")):
                             geometries.update(future.result())
 
                     # Adicionando a coluna de geometria ao DataFrame original
@@ -1250,18 +1250,13 @@ def spatialize_data(indicators: List[str],
 
 
 def publish_data(layers: List[Dict[str, str]], 
-                 db: str, 
-                 db_schema: str,
                  gs_store: str,
                  time_regex: str,
                  root_data_path: str,
                  gs_service_url: Optional[str] = 'http://localhost:10190/geoserver', 
                  gs_username: Optional[str] = 'admin', 
-                 gs_password: Optional[str] = 'geoserver',
                  workspace: Optional[str] = 'bdc_lcc',
-                 db_username: Optional[str] = 'postgres',
-                 db_password: Optional[str] = 'postgres',
-                 db_port: Optional[int] = 5432,
+                 db_settings: Optional[dict] = None,
                  stac_url: Optional[str] = 'http://localhost:8080/',
                  hostname: Optional[str] = 'localhost',
                  additional_path: Optional[str] = None) -> Union[List[int], str]:
@@ -1310,20 +1305,41 @@ def publish_data(layers: List[Dict[str, str]],
     if not isinstance(layers, list):
         return "Error: The 'layers' parameter must be a list with dictionaries!"
 
-    all_saved = []
+    all_saved = []    
+    gs_service_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
+                     'geoserver' if hostname != 'localhost' else gs_service_url
+    
+    geo = GeoServer(
+        service_url=gs_service_url, 
+        workspace=workspace, 
+        hostname=hostname,
+        username=gs_username,
+        store=gs_store,
+        db_settings=db_settings
+    )
+
+    db = geo.db
+    pg_schema = geo.db_schema
+    pg_username = geo.db_user
+    pg_password = geo.db_password
+    pg_port = geo.db_port
 
     print(f'\nSAVING  DATA IN DATABASE...')
     for layer in tqdm(layers, total=len(layers), desc='Saving data in the database'):
         # Saving data in the database
         response = save_data_db(
-            db=db,
-            schema=db_schema,
-            hostname=hostname, 
-            replace_table=True,
             gdf=layer['gdf'], 
             name=layer['name'],
-            db_columns=layer["gdf"].keys()
+            schema=pg_schema,
+            db_columns=layer["gdf"].keys(),
+            hostname=hostname, 
+            port=pg_port,
+            db=db,
+            user=pg_username,
+            password=pg_password,
+            replace_table=True,
         )
+
         response = True
         all_saved.append(response)
 
@@ -1340,26 +1356,11 @@ def publish_data(layers: List[Dict[str, str]],
 
     # Publishing data in GeoServer
     print('\nPUBLISHING DATA IN GEOSERVER AND MAKING THUMBNAILS...')
-    gs_service_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
-                     'geoserver' if hostname != 'localhost' else gs_service_url
-
-    geo = GeoServer(service_url=gs_service_url, 
-                    username=gs_username,
-                    password=gs_password, 
-                    store=gs_store, 
-                    schema=db_schema, 
-                    workspace=workspace, 
-                    hostname=hostname)
-
+    
     # Publishing feature data in GeoServer
     try:
-
         attribute_date = layer.get("attribute_data", 'date')
-
         geo.publish_feature_data(layers=layers, 
-                                 db=db, 
-                                 pg_username=db_username, 
-                                 pg_password=db_password, 
                                  time_regex=time_regex,
                                  attribute=attribute_date, 
                                  dynamic_style=True,

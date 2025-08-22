@@ -97,7 +97,7 @@ def save_data_db(gdf: GeoDataFrame,
                  schema: str, 
                  db_columns = List[str],
                  hostname: Optional[str] = 'localhost',
-                 port : Optional[int] = 5432,
+                 port : Optional[str] = '5432',
                  db: Optional[str] = 'harmonize', 
                  user: Optional[str] = 'postgres', 
                  password: Optional[str] = 'postgres',
@@ -131,7 +131,7 @@ def save_data_db(gdf: GeoDataFrame,
     -------
         Boolean value indicating if the data was stored.
     """
-
+    
     host = hostname if hostname != 'localhost' else get_ip_container_db()
     port = port if port != 5432 else get_ports_container_db()
 

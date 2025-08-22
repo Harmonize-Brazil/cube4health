@@ -41,7 +41,8 @@ from .utils import (
     check_existence_remote_path,
     get_round_value, 
     get_ip_container_db, 
-    clean_raster_directory
+    clean_raster_directory,
+    _check_database_existence 
 )
 
 
@@ -61,12 +62,10 @@ class GeoServer:
             Hostname for server with collections files. Default values is localhost.
         username : str
             Login name for session.
-        password : str
-            Password for session.
         store : str
             Store name to connects to a data source that contains raster or vector data.
-        schema : str
-            Schema name. Default value is 'public'.
+        db_settings: Optional[dict] = None
+            Database settings (name, user, schema and port)
     """
 
     def __init__(
@@ -75,15 +74,13 @@ class GeoServer:
         workspace: str,
         hostname: str = "localhost",  # ip for server with collections files, default localhost
         username: str = "admin",  # default username during geoserver installation
-        password: str = "geoserver",  # default password during geoserver installation
         store: str = 'public', # default Store
-        schema: str = 'public'# default schema
+        db_settings: Optional[dict] = None
     ):
 
         self.hostname = hostname if hostname != 'localhost' else get_ip_container_db()
         self._username = username
         self.service_url = service_url
-
 
         if hostname != 'localhost':
 
@@ -140,6 +137,29 @@ class GeoServer:
                 print('-'*120)
                 print()
                 sys.exit() 
+
+        for try_connect in range(1, 4):
+            
+            self.db = db_settings.get('db', 'public')
+            self.db_user = db_settings.get('user', 'postgres')
+            self.db_port = db_settings.get('port', 5432)
+            self.db_schema = db_settings.get('schema', 'postgres')
+
+            self.db_password = getpass.getpass(f'Enter password for database user ('+ self.db_user +'): ')
+
+            status_db = _check_database_existence(self.db, self.db_user, self.db_password, self.hostname, self.db_port)
+            if status_db:
+                break
+            else:
+                print(f'\ntry {try_connect}/3\n')
+        else:
+            print('-'*120)
+            print(f'As you have reached the maximum number of database login attempts, '\
+                    'you need to run the script again.')
+            print('-'*120)
+            print()
+            sys.exit()
+        
         self.store = store
 
         try:
@@ -153,8 +173,6 @@ class GeoServer:
             _ = self.create_workspace(workspace=workspace)
 
         self.workspace = workspace
-        self.schema = schema
-
 
     def get_username(self) -> str:
         """
@@ -217,11 +235,7 @@ class GeoServer:
         return ws_exists
 
 
-    def create_feature_store(self, 
-                             db: str, 
-                             pg_username: str, 
-                             pg_password: str, 
-                             schema: Optional[str] = None,
+    def create_feature_store(self,
                              workspace: Optional[str]=None, 
                              store: Optional[str]=None) -> bool:
         """
@@ -229,14 +243,6 @@ class GeoServer:
 
         Parameters
         ----------
-            db : str,
-                The name of database where features are stored.
-            pg_username : str,
-                Login name for db session.
-            pg_password : str, 
-                Login password for db session.
-            schema : str, default value is 'public'.
-                Database schema name.
             workspace : str, default value is None.
                 The name of workspace.
             store : str, default value is None.
@@ -250,10 +256,14 @@ class GeoServer:
             workspace = self.workspace
         if not store:
             store = self.store
-        if not schema:
-            schema = self.schema
 
         max_request = 0
+
+        db = self.db
+        pg_schema = self.db_schema
+        pg_username = self.db_user
+        pg_password = self.db_password
+        pg_port = self.db_port
 
         # Create workspace
         try:
@@ -280,8 +290,9 @@ class GeoServer:
                                                                       workspace=workspace, 
                                                                       pg_password=pg_password, 
                                                                       pg_user=pg_username, 
-                                                                      schema=schema, 
-                                                                      db=db, 
+                                                                      schema=pg_schema, 
+                                                                      db=db,
+                                                                      port=pg_port, 
                                                                       host=self.hostname)
 
                         # Verify if the feature store exists
@@ -301,12 +312,8 @@ class GeoServer:
 
     def publish_feature_data(self, 
                              layers: List[dict], 
-                             db: str, 
-                             pg_username: str, 
-                             pg_password: str, 
                              time_regex: str,
                              attribute: str = "date",
-                             schema: Optional[str] = None, 
                              workspace: Optional[str]=None, 
                              store: Optional[str]=None,
                              dynamic_style: bool=False,
@@ -319,16 +326,8 @@ class GeoServer:
             layers : list with dicts,
                 A list that contains dicts with layers informations,  
                 keys = (name, title, style, dates, bbox, path)
-            db : str,
-                The name of database where features are stored.
-            pg_username : str,
-                Login name for db session.
-            pg_password : str, 
-                Login password for db session.
             time_regex : str
                 The regex that matches the time of features.
-            schema : str, default value is 'public'.
-                Database schema name.
             workspace : str, default value is None.
                 The name of workspace.
             store : str, default value is None.
@@ -347,10 +346,14 @@ class GeoServer:
             workspace = self.workspace
         if not store:
             store = self.store
-        if not schema:
-            schema = self.schema
+        # if not schema:
+        #     schema = self.schema
 
         create_style, create_store, store_exists = False, False, False
+        pg_schema = self.db_schema
+
+        print('store: ', store)
+        print('pg_schema: ', pg_schema)
 
         # Create feature store
         try:
@@ -359,10 +362,7 @@ class GeoServer:
                 store_exists = True
 
         except GeoserverException as e:
-            store_exists = self.create_feature_store(db=db, 
-                                                     pg_username=pg_username, 
-                                                     pg_password=pg_password, 
-                                                     schema=schema)
+            store_exists = self.create_feature_store(schema=pg_schema)
 
         # Publish feature layers
         if store_exists:
@@ -722,11 +722,10 @@ class GeoServer:
             return False
 
 
-    def _create_datastore_properties(self, 
-                                     path: str, 
-                                     db: str, 
-                                     schema: Optional[str]='public', 
-                                     db_user: Optional[str]='postgres') -> bool:
+    def _create_datastore_properties(self, path: str) -> bool:
+                                    #  db: str, 
+                                    #  schema: Optional[str]='public', 
+                                    #  db_user: Optional[str]='postgres') -> bool:
         """
             Create indexer properties for layer.
 
@@ -734,27 +733,26 @@ class GeoServer:
         ----------
             path : str,
                 Path where the file will be created.
-            db : str,
-                Database name.
-            schema : Optional[str], default value is 'public'
-                Schema name.
-            db_user : Optional[str], default value is 'postgres'
-                Database user.
 
         Returns
         -------
             Boolean value indicating if the file was created.
         """
 
-        db_password = getpass.getpass(f'Enter password for database: ')
+        # db_password = getpass.getpass(f'Enter password for database: ')
+        db = self.db
+        pg_schema = self.db_schema
+        pg_user = self.db_user
+        pg_password = self.db_password
+        pg_port = self.db_port
 
         data_xml = f'SPI=org.geotools.data.postgis.PostgisNGDataStoreFactory\n\
         host={self.hostname}\n\
-        port=5432\n\
+        port={pg_port}\n\
         database={db}\n\
-        schema={schema}\n\
-        user={db_user}\n\
-        passwd={db_password}'
+        schema={pg_schema}\n\
+        user={pg_user}\n\
+        passwd={pg_password}'
         lines = data_xml.splitlines()
         non_empty_lines = [line.strip() for line in lines if line.strip()]
         data_xml = textwrap.dedent('\n'.join(non_empty_lines))
@@ -907,8 +905,8 @@ class GeoServer:
                                  title: Optional[str] = None,
                                  time_regex: Optional[str]='regex=[0-9]{8}',
                                  style: Optional[str]=None,
-                                 is_root_path: Optional[bool]=True,
-                                 db_settings: Optional[dict]=None) -> Union[bool, str]:
+                                 is_root_path: Optional[bool]=True) -> Union[bool, str]:
+                                #  db_settings: Optional[dict]=None) -> Union[bool, str]:
         """
             Create a new coverage store in geoserver.
 
@@ -929,8 +927,6 @@ class GeoServer:
             is_root_path : Optional[bool], default = False
                 If false, the data is not stored in the root path. Otherwise, the data is 
                 stored in the root path.
-            db_settings : Optional[dict], default = None
-                Database settings (name, user and schema).
 
         Return
         ------
@@ -942,17 +938,11 @@ class GeoServer:
             data_path = '/home/yuri/Docker-Compose/geoserver/data/Phantom3Adv_120m_RGB'
             name = 'Phantom3Adv_120m_RGB'
             time_regex = 'regex=[0-9]{8}T[0-9]{6}'
-            db_settings = {
-                'db': 'harmonize',
-                'schema': 'public',
-                'user': 'postgres',
-            }
 
             created, message = geo.create_imagemosaic_store(data=data_path, 
                                                             layer_name=name, 
                                                             store_name=name,
-                                                            time_regex=time_regex,
-                                                            db_settings=db_settings)
+                                                            time_regex=time_regex)
         """
         response_style = 0
         created = False
@@ -1007,74 +997,68 @@ class GeoServer:
                                                          time_regex=time_regex,
                                                          path=data)
             if response:
-                # Creating datastore properties if db_settings is not None
-                if db_settings:
-                    if isinstance(db_settings, dict):
-                        keys = db_settings.keys()
-                        db = db_settings.get('db') if 'db' in keys else 'harmonize'
-                        db_schema = db_settings.get('schema') if 'schema' in keys else 'public'
-                        db_user = db_settings.get('user') if 'user' in keys else 'postgres'
+                db = self.db
+                pg_schema = self.db_schema
+                pg_user = self.db_user
 
-                        response = self._create_datastore_properties(path=data,
-                                                                     db=db,
-                                                                     schema=db_schema,
-                                                                     db_user=db_user)
-                        # Creating imagemosaic store
-                        if response:
-                            print("\nCreating Imagemosaic store...")
+                response = self._create_datastore_properties(path=data,
+                                                             db=db,
+                                                             schema=pg_schema,
+                                                             db_user=pg_user)
+                # Creating imagemosaic store
+                if response:
+                    print("\nCreating Imagemosaic store...")
 
-                            try:
-                                cat_obj = self.cat.create_imagemosaic(name=store_name,
-                                                                    data=data,
-                                                                    workspace=workspace,
-                                                                    coverageName=layer_name)
+                    try:
+                        cat_obj = self.cat.create_imagemosaic(name=store_name,
+                                                              data=data,
+                                                              workspace=workspace,
+                                                              coverageName=layer_name)
 
-                                # Publishing time dimension to coveragestore
-                                if cat_obj:
-                                    response = self.geoserver.publish_time_dimension_to_coveragestore(layer_name=layer_name, 
-                                                                                                      store_name=store_name, 
-                                                                                                      workspace=workspace)
+                        # Publishing time dimension to coveragestore
+                        if cat_obj:
+                            response = self.geoserver.publish_time_dimension_to_coveragestore(layer_name=layer_name, 
+                                                                                              store_name=store_name, 
+                                                                                              workspace=workspace)
 
-                                    # Updating coverage title
-                                    response_title = self._update_coverage_title(name=store_name, title=title)
+                            # Updating coverage title
+                            response_title = self._update_coverage_title(name=store_name, title=title)
 
-                                    # Publishing style
-                                    if response_style == 200:
-                                        response_style = self.geoserver.publish_style(layer_name=layer_name, 
-                                                                                      style_name=style_name, 
-                                                                                      workspace=workspace)
+                            # Publishing style
+                            if response_style == 200:
+                                response_style = self.geoserver.publish_style(layer_name=layer_name, 
+                                                                              style_name=style_name, 
+                                                                              workspace=workspace)
 
-                                        # Printing response if the coveragestore style is created or not
-                                        if response_style in [200, 201, 202] and response_title == 200: 
-                                            print("Coveragestore style successfully created!")
-                                        else:
-                                            print("Coveragestore style not created!")
-
-                                    # Adding tile caching to coveragestore
-                                    if response in [200, 201, 202]:
-                                        response = self._add_tile_cache(path=data,
-                                                                        name=layer_name,
-                                                                        time_regex=time_regex)
-
-                                        # Printing response if the coveragestore is created or not
-                                        if response == 200:
-                                            print("...Done")
-                                            created = True
-                                            message = "Coveragestore with time dimension and tile caching "\
-                                                    "successfully created!"
-                                        else:
-                                            message = "Coveragestore with time dimension and tile caching not "\
-                                                    "created!"
+                                # Printing response if the coveragestore style is created or not
+                                if response_style in [200, 201, 202] and response_title == 200: 
+                                    print("Coveragestore style successfully created!")
                                 else:
-                                    message = "Coveragestore not created!"
+                                    print("Coveragestore style not created!")
 
-                            except ConflictingDataError as ce:
-                                message = str(ce)
+                            # Adding tile caching to coveragestore
+                            if response in [200, 201, 202]:
+                                response = self._add_tile_cache(path=data,
+                                                                name=layer_name,
+                                                                time_regex=time_regex)
 
+                                # Printing response if the coveragestore is created or not
+                                if response == 200:
+                                    print("...Done")
+                                    created = True
+                                    message = "Coveragestore with time dimension and tile caching "\
+                                            "successfully created!"
+                                else:
+                                    message = "Coveragestore with time dimension and tile caching not "\
+                                            "created!"
                         else:
-                            message = "Datastore.properties not created!"
-                    else:
-                        message = "To create datastore.properties, db_settings must be a dict."
+                            message = "Coveragestore not created!"
+
+                    except ConflictingDataError as ce:
+                        message = str(ce)
+
+                else:
+                    message = "Datastore.properties not created!"
             else:
                 message = "Timeregex.properties not created!"
         else:
@@ -1093,8 +1077,8 @@ class GeoServer:
                                  store_name: Optional[str]=None,
                                  workspace: Optional[str]=None,
                                  title: Optional[str] = None,
-                                 time_regex: Optional[str]='regex=[0-9]{8}',
-                                 db_settings: Optional[dict]=None) -> Union[bool, str]:
+                                 time_regex: Optional[str]='regex=[0-9]{8}') -> Union[bool, str]:
+                                #  db_settings: Optional[dict]=None) -> Union[bool, str]:
         """
             Update Imagemosaic store
 
@@ -1114,9 +1098,7 @@ class GeoServer:
                 The title of the layer.
             time_regex : str, default value is 'regex=[0-9]{8}'
                 The time regex.
-            db_settings : dict, default value is None
-                The datastore properties.
-
+           
         Return
         ------
             A boolean value indicating if the store was updated and a string
@@ -1129,18 +1111,12 @@ class GeoServer:
             root_data = '/home/yuri/Docker-Compose/geoserver/data/Phantom3Adv_120m_RGB'
             name = 'Phantom3Adv_120m_RGB'
             time_regex = 'regex=[0-9]{8}T[0-9]{6}'
-            db_settings = {
-                'db': 'harmonize',
-                'schema': 'public',
-                'user': 'postgres',
-            }
 
             created, message = geo.update_imagemosaic_store(data=new_data,
                                                             root_path=root_data,
                                                             layer_name=name, 
                                                             store_name=name,
-                                                            time_regex=time_regex,
-                                                            db_settings=db_settings)
+                                                            time_regex=time_regex)
 
         """
         response = False
@@ -1164,76 +1140,70 @@ class GeoServer:
             if not os.path.exists(data) or not os.path.exists(root_path):
                 return False, "The data or root_path does not exist in the local server."
 
-        # Creating datastore properties if db_settings is not None
-        if db_settings:
-            if isinstance(db_settings, dict):
-                keys = db_settings.keys()
-                db = db_settings.get('db') if 'db' in keys else 'harmonize'
-                db_schema = db_settings.get('schema') if 'schema' in keys else 'public'
-                db_user = db_settings.get('user') if 'user' in keys else 'postgres'
+        db = self.db
+        pg_schema = self.db_schema
+        pg_user = self.db_user
 
-                root_files = set(os.listdir(root_path))  # usar set para busca mais rápida
-                root_folder_name = os.path.basename(os.path.normpath(root_path))
+        root_files = set(os.listdir(root_path))  # usar set para busca mais rápida
+        root_folder_name = os.path.basename(os.path.normpath(root_path))
 
-                required_properties = {
-                    f"{root_folder_name}.properties",
-                    "datastore.properties",
-                    "indexer.properties",
-                    "timeregex.properties"
-                }
+        required_properties = {
+            f"{root_folder_name}.properties",
+            "datastore.properties",
+            "indexer.properties",
+            "timeregex.properties"
+        }
 
-                missing_files = required_properties - root_files  # encontra os arquivos que faltam
+        missing_files = required_properties - root_files  # encontra os arquivos que faltam
 
-                if missing_files:
-                    missing_prop_files = True
-                    message = (
-                        f"The following required .properties file(s) are missing: "
-                        f"{', '.join(sorted(missing_files))}"
-                    )
+        if missing_files:
+            missing_prop_files = True
+            message = (
+                f"The following required .properties file(s) are missing: "
+                f"{', '.join(sorted(missing_files))}"
+            )
+        else:
+            response = self._create_datastore_properties(db=db,
+                                                         path=data,
+                                                         schema=pg_schema,
+                                                         db_user=pg_user)
+            
+        # Updating imagemosaic store
+        if response:
+            print("\nUpdating Imagemosaic store...")
+
+            try:
+                cat_obj = self.cat.add_granule(data=data,
+                                            store=store_name,
+                                            workspace=workspace)
+
+                # Updating coverage granule. The condition is checking if cat_obj is None
+                # because the return from the add_granule function if the coverage is
+                # updated is None
+                if cat_obj is None:
+                    message = "Coveragestore updated!"
+
+                    # Updating time dimension to coveragestore
+                    response = self._add_tile_cache(name=layer_name,
+                                                    time_regex=time_regex,
+                                                    path=root_path)
+                    if response == 200:
+                        print("...Done")
+                        updated = True
+                        message = "Coveragestore with time dimension and tile caching "\
+                                "successfully updated!"
+                    else:
+                        message = "Coveragestore with time dimension and tile caching not "\
+                                "updated!"
                 else:
-                    response = self._create_datastore_properties(db=db,
-                                                                path=data,
-                                                                schema=db_schema,
-                                                                db_user=db_user)
-                    
-                # Updating imagemosaic store
-                if response:
-                    print("\nUpdating Imagemosaic store...")
-
-                    try:
-                        cat_obj = self.cat.add_granule(data=data,
-                                                    store=store_name,
-                                                    workspace=workspace)
-
-                        # Updating coverage granule. The condition is checking if cat_obj is None
-                        # because the return from the add_granule function if the coverage is
-                        # updated is None
-                        if cat_obj is None:
-                            message = "Coveragestore updated!"
-
-                            # Updating time dimension to coveragestore
-                            response = self._add_tile_cache(name=layer_name,
-                                                            time_regex=time_regex,
-                                                            path=root_path)
-                            if response == 200:
-                                print("...Done")
-                                updated = True
-                                message = "Coveragestore with time dimension and tile caching "\
-                                        "successfully updated!"
-                            else:
-                                message = "Coveragestore with time dimension and tile caching not "\
-                                        "updated!"
-                        else:
-                            message = "Coveragestore not updated!"
-                    except FailedRequestError as fe:
-                        message = "Error: To update coveragestore it is necessary to create the "\
-                                "store first."
-                elif not response and not missing_prop_files:
-                    message = "Datastore properties not updated! Some parameters are missing."
-                else:
-                    pass
-            else:
-                message = "To update datastore.properties, db_settings must be a dict."
+                    message = "Coveragestore not updated!"
+            except FailedRequestError as fe:
+                message = "Error: To update coveragestore it is necessary to create the "\
+                        "store first."
+        elif not response and not missing_prop_files:
+            message = "Datastore properties not updated! Some parameters are missing."
+        else:
+            pass
 
         # Closing connection to remote server
         if hasattr(self, 'connection'):
