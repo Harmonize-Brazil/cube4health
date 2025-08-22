@@ -3,8 +3,7 @@ import os
 import re
 import time
 import psutil
-from datetime import datetime
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # third-party libraries
@@ -180,7 +179,7 @@ def __request_data(disease: str,
                    start_date: str, 
                    end_date: str, 
                    token: str,
-                   geocode: Optional[Union[str, int]]=[None]) -> Union[list, str]:
+                   geocode: Optional[Union[str, int]]=[None]) -> Union[list, str]: # type: ignore
     """
     Fetch infoDengue indicator data from the API.
 

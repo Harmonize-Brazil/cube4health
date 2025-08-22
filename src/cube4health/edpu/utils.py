@@ -19,6 +19,7 @@ import stat
 import docker
 import numpy as np
 import geopandas as gpd
+import shapely
 from tqdm import tqdm
 from shapely import geometry
 from paramiko import SSHClient

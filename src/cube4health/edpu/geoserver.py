@@ -1006,9 +1006,7 @@ class GeoServer:
             response = self._create_timeregex_properties(layer_name=layer_name, 
                                                          time_regex=time_regex,
                                                          path=data)
-
             if response:
-
                 # Creating datastore properties if db_settings is not None
                 if db_settings:
                     if isinstance(db_settings, dict):
@@ -1021,63 +1019,62 @@ class GeoServer:
                                                                      db=db,
                                                                      schema=db_schema,
                                                                      db_user=db_user)
+                        # Creating imagemosaic store
+                        if response:
+                            print("\nCreating Imagemosaic store...")
+
+                            try:
+                                cat_obj = self.cat.create_imagemosaic(name=store_name,
+                                                                    data=data,
+                                                                    workspace=workspace,
+                                                                    coverageName=layer_name)
+
+                                # Publishing time dimension to coveragestore
+                                if cat_obj:
+                                    response = self.geoserver.publish_time_dimension_to_coveragestore(layer_name=layer_name, 
+                                                                                                      store_name=store_name, 
+                                                                                                      workspace=workspace)
+
+                                    # Updating coverage title
+                                    response_title = self._update_coverage_title(name=store_name, title=title)
+
+                                    # Publishing style
+                                    if response_style == 200:
+                                        response_style = self.geoserver.publish_style(layer_name=layer_name, 
+                                                                                      style_name=style_name, 
+                                                                                      workspace=workspace)
+
+                                        # Printing response if the coveragestore style is created or not
+                                        if response_style in [200, 201, 202] and response_title == 200: 
+                                            print("Coveragestore style successfully created!")
+                                        else:
+                                            print("Coveragestore style not created!")
+
+                                    # Adding tile caching to coveragestore
+                                    if response in [200, 201, 202]:
+                                        response = self._add_tile_cache(path=data,
+                                                                        name=layer_name,
+                                                                        time_regex=time_regex)
+
+                                        # Printing response if the coveragestore is created or not
+                                        if response == 200:
+                                            print("...Done")
+                                            created = True
+                                            message = "Coveragestore with time dimension and tile caching "\
+                                                    "successfully created!"
+                                        else:
+                                            message = "Coveragestore with time dimension and tile caching not "\
+                                                    "created!"
+                                else:
+                                    message = "Coveragestore not created!"
+
+                            except ConflictingDataError as ce:
+                                message = str(ce)
+
+                        else:
+                            message = "Datastore.properties not created!"
                     else:
                         message = "To create datastore.properties, db_settings must be a dict."
-
-                # Creating imagemosaic store
-                if response:
-                    print("\nCreating Imagemosaic store...")
-
-                    try:
-                        cat_obj = self.cat.create_imagemosaic(name=store_name,
-                                                              data=data,
-                                                              workspace=workspace,
-                                                              coverageName=layer_name)
-
-                        # Publishing time dimension to coveragestore
-                        if cat_obj:
-                            response = self.geoserver.publish_time_dimension_to_coveragestore(layer_name=layer_name, 
-                                                                                              store_name=store_name, 
-                                                                                              workspace=workspace)
-
-                            # Updating coverage title
-                            response_title = self._update_coverage_title(name=store_name, title=title)
-
-                            # Publishing style
-                            if response_style == 200:
-                                response_style = self.geoserver.publish_style(layer_name=layer_name, 
-                                                                              style_name=style_name, 
-                                                                              workspace=workspace)
-
-                                # Printing response if the coveragestore style is created or not
-                                if response_style in [200, 201, 202] and response_title == 200: 
-                                    print("Coveragestore style successfully created!")
-                                else:
-                                    print("Coveragestore style not created!")
-
-                            # Adding tile caching to coveragestore
-                            if response in [200, 201, 202]:
-                                response = self._add_tile_cache(path=data,
-                                                                name=layer_name,
-                                                                time_regex=time_regex)
-
-                                # Printing response if the coveragestore is created or not
-                                if response == 200:
-                                    print("...Done")
-                                    created = True
-                                    message = "Coveragestore with time dimension and tile caching "\
-                                            "successfully created!"
-                                else:
-                                    message = "Coveragestore with time dimension and tile caching not "\
-                                            "created!"
-                        else:
-                            message = "Coveragestore not created!"
-
-                    except ConflictingDataError as ce:
-                        message = str(ce)
-
-                else:
-                    message = "Datastore.properties not created!"
             else:
                 message = "Timeregex.properties not created!"
         else:
@@ -1088,7 +1085,6 @@ class GeoServer:
             self.connection.close()
 
         return created, message
-
 
     def update_imagemosaic_store(self, 
                                  data: str, 
@@ -1177,49 +1173,47 @@ class GeoServer:
                                                              path=data,
                                                              schema=db_schema,
                                                              db_user=db_user)
-                
-                # Updating imagemosaic store
-                if response:
-                    print("\nUpdating Imagemosaic store...")
-
-                    try:
-                        cat_obj = self.cat.add_granule(data=data,
-                                                        store=store_name,
-                                                        workspace=workspace)
-
-                        # Updating coverage granule. The condition is checking if cat_obj is None
-                        # because the return from the add_granule function if the coverage is
-                        # updated is None
-                        if cat_obj is None:
-                            message = "Coveragestore updated!"
-
-                            # Updating time dimension to coveragestore
-                            response = self._add_tile_cache(name=layer_name,
-                                                            time_regex=time_regex,
-                                                            path=root_path)
-                            if response == 200:
-                                print("...Done")
-                                updated = True
-                                message = "Coveragestore with time dimension and tile caching "\
-                                        "successfully updated!"
-                            else:
-                                message = "Coveragestore with time dimension and tile caching not "\
-                                        "updated!"
-                        else:
-                            message = "Coveragestore not updated!"
-                    except FailedRequestError as fe:
-                        # print(fe)
-                        message = "Error: To update coveragestore it is necessary to create the "\
-                                "store first."
-                else:
-                    message = "Datastore properties not updated! Some parameters are missing."
-
             else:
-                message = "To update datastore.properties, db_settings must be a dict."    
+                message = "To update datastore.properties, db_settings must be a dict."
+
+        # Updating imagemosaic store
+        if response:
+            print("\nUpdating Imagemosaic store...")
+
+            try:
+                cat_obj = self.cat.add_granule(data=data,
+                                               store=store_name,
+                                               workspace=workspace)
+
+                # Updating coverage granule. The condition is checking if cat_obj is None
+                # because the return from the add_granule function if the coverage is
+                # updated is None
+                if cat_obj is None:
+                    message = "Coveragestore updated!"
+
+                    # Updating time dimension to coveragestore
+                    response = self._add_tile_cache(name=layer_name,
+                                                    time_regex=time_regex,
+                                                    path=root_path)
+                    if response == 200:
+                        print("...Done")
+                        updated = True
+                        message = "Coveragestore with time dimension and tile caching "\
+                                  "successfully updated!"
+                    else:
+                        message = "Coveragestore with time dimension and tile caching not "\
+                                  "updated!"
+                else:
+                    message = "Coveragestore not updated!"
+            except FailedRequestError as fe:
+                message = "Error: To update coveragestore it is necessary to create the "\
+                          "store first."
+        else:
+            message = "Datastore properties not updated! Some parameters are missing."
 
         # Closing connection to remote server
         if hasattr(self, 'connection'):
             self.connection.close()
 
         return updated, message
-
+    

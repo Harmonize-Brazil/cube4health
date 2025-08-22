@@ -15,6 +15,7 @@ from typing import (
     Optional
 )
 from concurrent.futures import (
+    ProcessPoolExecutor,
     as_completed,
     ThreadPoolExecutor
 )
@@ -291,6 +292,23 @@ def __crop_geometry(gdf: gpd.GeoDataFrame,
     return gdf.loc[gdf[grid_col].isin(gdf_crop[data_col])]
     # FUNCTION TO CREATE MUNICIPALITY GRID FROM 2010
     #return gpd.sjoin(gdf, gdf_crop, how='inner', predicate='intersects')[gdf.columns]
+
+def __process_crop(df_polygon, grid_info, crop_info, file_crop_geom):
+    grid_info_cod = grid_info.get('cod_mun', grid_info['cod'])
+    crop_info_cod = crop_info.get('cod_mun', crop_info['cod'])
+
+    df_cropped = __crop_geometry(
+        gdf=df_polygon,
+        file_path=file_crop_geom,
+        columns={'grid': grid_info_cod, 'crop': crop_info_cod}
+    )
+
+    # df_cropped = df_cropped.astype({grid_info['cod']: int})
+    # cod_polygon = df_cropped[grid_info['cod']].unique()
+
+    return df_cropped
+    # return df_cropped, cod_polygon
+
 
 
 '''def aggregate_data(indicators: List[str],
@@ -751,7 +769,8 @@ def spatialize_data(indicators: List[str],
         gdf = gdf.copy()
 
     # SPATIALIZE DATA
-    print(f'\nSPATIALIZING AND SAVING DATA IN DATABASE...')
+    print(f'\nSPATIALIZING DATA...')
+    
     # Suppressing Shapely deprecation and Future warnings
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
@@ -895,13 +914,16 @@ def spatialize_data(indicators: List[str],
 
                         # Crop the polygon if the user specifies to do it
                         if region_crop:
-                            grid_info_cod = grid_info['cod_mun'] if 'cod_mun' in grid_info.keys() else grid_info['cod']
-                            crop_info = crop_info['cod_mun'] if 'cod_mun' in crop_info.keys() else crop_info['cod']
+                            with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
+                                future = executor.submit(__process_crop, df_polygon, grid_info, crop_info, file_crop_geom)
+                                df_polygon = future.result()
+                            # grid_info_cod = grid_info['cod_mun'] if 'cod_mun' in grid_info.keys() else grid_info['cod']
+                            # crop_info = crop_info['cod_mun'] if 'cod_mun' in crop_info.keys() else crop_info['cod']
 
-                            df_polygon = __crop_geometry(gdf=df_polygon, 
-                                                        file_path=file_crop_geom,
-                                                        columns={'grid': grid_info_cod, 'crop': crop_info})
-
+                            # df_polygon = __crop_geometry(gdf=df_polygon, 
+                            #                             file_path=file_crop_geom,
+                            #                             columns={'grid': grid_info_cod, 'crop': crop_info})
+                    
                         df_polygon = df_polygon.astype({grid_info['cod']: int})
                         cod_polygon = df_polygon[grid_info['cod']].unique()
 
@@ -909,7 +931,6 @@ def spatialize_data(indicators: List[str],
 
                     # Filtrando o DataFrame para manter apenas as linhas com códigos presentes em cod_polygon
                     df = df[df[cod_col].isin(cod_polygon)]
-
 
                     if df.empty:
                         return "Error: No data found for the selected codes in the grid."
@@ -969,7 +990,7 @@ def spatialize_data(indicators: List[str],
                     unique_codes_chunks = list(chunk_list(sorted(unique_codes), n_chunks))
 
                     geometries = {}
-                    
+
                     with ThreadPoolExecutor(max_workers=CPU_COUNT) as executor:
                         # Submit each chunk to the executor
                         futures = [executor.submit(get_geometry, chunk) for chunk in unique_codes_chunks]
@@ -999,7 +1020,6 @@ def spatialize_data(indicators: List[str],
                     name_date_col = ""
 
                     if len(time_aggregations) == 1 and time_aggregations[0] == 'week':
-
                         name_date_col = 'epiweek_start_date'
                         name_date_number_col = "epiweek_number"
 
@@ -1041,7 +1061,6 @@ def spatialize_data(indicators: List[str],
 
                         # Changes 'week' to 'epiweek' in the column temp_agg
                         gdf[temp_col] = TEMPORAL_AGG_ABBR[time_aggregations[0]]
-
                     elif len(time_aggregations) == 1 and time_aggregations[0] == 'month':
                         name_date_col = 'month_start_date'
                         name_date_number_col = "month_number"
@@ -1225,7 +1244,8 @@ def spatialize_data(indicators: List[str],
                         'bbox': bbox,
                         'path': file_path,
                         'keywords': keywords,
-                        'gdf': gdf
+                        'gdf': gdf,
+                        'attribute_data': name_date_col
                     }
 
                     layers.append(layer_info)
@@ -1298,6 +1318,7 @@ def publish_data(layers: List[Dict[str, str]],
 
     all_saved = []
 
+    print(f'\nSAVING  DATA IN DATABASE...')
     for layer in tqdm(layers, desc='Saving data in the database'):
         # Saving data in the database
         response = save_data_db(
@@ -1339,11 +1360,15 @@ def publish_data(layers: List[Dict[str, str]],
 
     # Publishing feature data in GeoServer
     try:
+
+        attribute_date = layer.get("attribute_data", 'date')
+
         geo.publish_feature_data(layers=layers, 
                                  db=db, 
                                  pg_username=db_username, 
                                  pg_password=db_password, 
-                                 time_regex=time_regex, 
+                                 time_regex=time_regex,
+                                 attribute=attribute_date, 
                                  dynamic_style=True,
                                  add_tile_cache=False)
     except GeoserverException:
