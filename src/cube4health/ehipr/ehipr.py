@@ -1,4 +1,5 @@
 # inbuilt libraries
+from copy import deepcopy
 import os
 import json
 import requests
@@ -599,8 +600,8 @@ def aggregate_data(indicators: List[str],
                 if len(dfs) != 0:
                     print("... Done")
 
-                print("\norganizing the datasets...".upper())
-                for df in tqdm(dfs):
+                # print("\norganizing the datasets...".upper())
+                for df in tqdm(dfs, total=len(dfs), desc='Organizing the datasets...'.upper()):
                     dicts = []
                     cods = df.loc[df[cod_col].notna()][cod_col].unique()
                     for cod in cods:
@@ -791,7 +792,7 @@ def spatialize_data(indicators: List[str],
                     return f"Error: file_crops_geom must be a list with tuples where each tuple has two"\
                             " elements: the path to the shapefile and a dictionary with the columns names."
 
-            for df_indi in tqdm(dataframes):
+            for df_indi in tqdm(dataframes, total=len(dataframes), desc="Processing dataframes..."):
                 try:
                     df = df_indi['df']
                     name = df_indi['info']['name']
@@ -995,7 +996,7 @@ def spatialize_data(indicators: List[str],
                         # Submit each chunk to the executor
                         futures = [executor.submit(get_geometry, chunk) for chunk in unique_codes_chunks]
 
-                        for i, future in enumerate(tqdm(as_completed(futures), desc="Processing chunks...")):
+                        for i, future in enumerate(tqdm(as_completed(futures), total=len(futures), desc="Processing chunks...")):
                             geometries.update(future.result())
 
                     # Adicionando a coluna de geometria ao DataFrame original
@@ -1064,23 +1065,19 @@ def spatialize_data(indicators: List[str],
                     elif len(time_aggregations) == 1 and time_aggregations[0] == 'month':
                         name_date_col = 'month_start_date'
                         name_date_number_col = "month_number"
-                        add_to_data = relativedelta(months=+1)
-                        for index, row in gdf.iterrows():
-                            date_row = row[date_col]
-                            gdf.loc[index, date_col] = f"{date_row}-01"
-                            gdf.loc[index, name_date_number_col] = date_row[-2:]
-                        # gdf[name_date_number_col] = gdf[date_col].dt.month
+                        add_to_data = relativedelta(months=1)
+
+                        gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y-%m') + pd.offsets.MonthBegin(1) - pd.offsets.MonthBegin(1)
+                        gdf[name_date_number_col] = gdf[date_col].dt.month
                     else:
                         name_date_col = 'year_start_date'
                         name_date_number_col = "year_number"
                         add_to_data = timedelta(days=365)
-                        for index, row in gdf.iterrows():
-                            date_row = row[date_col]
-                            gdf.loc[index, date_col] = f"{date_row}-01-01"
-                            gdf.loc[index, name_date_number_col] = date_row[:3]
-                        # gdf[name_date_number_col] = gdf[date_col].dt.year
 
-                    # Casting the date column to datetime with the format '%Y-%m-%d %H:%M:%S'
+                        gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y')
+                        gdf[name_date_number_col] = gdf[date_col].dt.year
+
+                    # Casting the date column to datetime with the format '%Y-%m-%d'
                     gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y-%m-%d',
                                                    errors='coerce')
                     # Sorting the dataframe by the date column
@@ -1126,11 +1123,9 @@ def spatialize_data(indicators: List[str],
                             "time_agg", "spatial_agg", "value", "geometry"
                         ]
                     ]
-
-                    # print(gdf.head(1))
                     # Creating the items files for each date
-                    for index, date in enumerate(dates):
-                        temp_gdf = gdf.loc[gdf[name_date_col] == date]
+                    for index, date in tqdm(enumerate(dates), total=len(dates), desc='Creating the items files for each date'):
+                        temp_gdf = deepcopy(gdf.loc[gdf[name_date_col] == date])
 
                         if index+1 < len(dates):
                             end_date = datetime.strptime(dates[index+1], 
@@ -1148,7 +1143,6 @@ def spatialize_data(indicators: List[str],
                         filename_date = f"{filename}_{''.join(only_date.split('-'))}_"\
                                         f"{''.join(end_date.split('-'))}"
                         
-
                         # CREATING .geojson, .zip(from shp) and parquet items files
                         for extension in ['.geojson', '.shp', df_indi['extension']]:
                             file_path = os.path.join(final_path, 'items', only_date)
@@ -1161,13 +1155,13 @@ def spatialize_data(indicators: List[str],
                             asset_path = os.path.join(file_path, f"{filename_date}{extension}")
                             if extension == '.parquet':
                                 asset_path.replace('.parquet', '')
-                                gdf.drop(columns=["geometry"]).to_parquet(
+                                temp_gdf.drop(columns=["geometry"]).to_parquet(
                                     asset_path
                                 )
                             elif extension == '.csv':
-                                gdf.to_csv(asset_path, index=False)
+                                temp_gdf.to_csv(asset_path, index=False)
                             else:
-                                gdf.to_file(asset_path, driver=driver)
+                                temp_gdf.to_file(asset_path, driver=driver)
                                 if extension == '.shp':
                                     asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
                                                                                 f"{extension}", ''))
@@ -1319,7 +1313,7 @@ def publish_data(layers: List[Dict[str, str]],
     all_saved = []
 
     print(f'\nSAVING  DATA IN DATABASE...')
-    for layer in tqdm(layers, desc='Saving data in the database'):
+    for layer in tqdm(layers, total=len(layers), desc='Saving data in the database'):
         # Saving data in the database
         response = save_data_db(
             db=db,
@@ -1339,7 +1333,6 @@ def publish_data(layers: List[Dict[str, str]],
             layer['remote'] = f"{root_data_path}{layer['path'].split(root_data_path)[1]}"
             paths = [(path, f"{root_data_path}{path.split(root_data_path)[1]}") 
                       for path in local_paths]
-
 
     if not all(all_saved):
         return "Error: Some layer was not saved. Something went wrong with the database!"
@@ -1394,7 +1387,7 @@ def publish_data(layers: List[Dict[str, str]],
      
     # Adding tile cache in GeoServer
     add_tile_cache = []
-    for layer in tqdm(layers, desc='Adding tile cache in GeoServer layers...'): 
+    for layer in tqdm(layers, total=len(layers), desc='Adding tile cache in GeoServer layers...'): 
         layer_name = layer['name']
         layer_folder = layer['remote'] if hostname != 'localhost' else layer['path']
 
@@ -1414,7 +1407,7 @@ def publish_data(layers: List[Dict[str, str]],
 
     with stac.app.app_context():
         # Publishing metadata in STAC
-        for layer in tqdm(layers):
+        for layer in tqdm(layers, total=len(layers), desc="Publishing metadata in STAC..."):
             name, description = layer['name'], layer['description']
             title = layer['title']
             keywords = layer['keywords']

@@ -189,10 +189,17 @@ def save_data_db(gdf: GeoDataFrame,
         if not table_exists:
 
             # Mapeia campos alternativos para nomes lógicos que têm tipo definido
+            temporal_date_fields = ["epiweek_start_date", "month_start_date", "year_start_date"]
+            temporal_date_field = next((field for field in temporal_date_fields if field in db_columns), None)
             mapeamento_coluna_para_tipo_logico = {
-                "epiweek_start_date": "date",  # usa o tipo de date
+                temporal_date_field: "date",  # usa o tipo de date
                 "geometry": "geom"             # usa o tipo definido de geom
             }
+
+            temporal_fields = ["epiweek_number", "month_number", "year_number"]
+
+            # Pega o campo temporal presente em db_columns
+            temporal_field = next((field for field in temporal_fields if field in db_columns), None)
 
             # Tipos SQL por campo lógico
             tipo_por_coluna = {
@@ -201,7 +208,7 @@ def save_data_db(gdf: GeoDataFrame,
                 "uf_mun": "VARCHAR(2) NOT NULL",
                 "data_source": "VARCHAR(50) NOT NULL",
                 "name_indicator": "VARCHAR(50) NOT NULL",
-                "epiweek_number": "INTEGER NOT NULL",
+                temporal_field: "INTEGER NOT NULL",
                 "time_agg": "VARCHAR(20) NOT NULL",
                 "spatial_agg": "VARCHAR(20) NOT NULL",
                 "value": "NUMERIC(10, 2) NOT NULL",
