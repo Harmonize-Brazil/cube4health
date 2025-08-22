@@ -1143,8 +1143,11 @@ class GeoServer:
                                                             db_settings=db_settings)
 
         """
+        response = False
         updated = False
         message = ""
+        
+        missing_prop_files = False
 
         if not workspace:
             workspace=self.workspace
@@ -1169,47 +1172,68 @@ class GeoServer:
                 db_schema = db_settings.get('schema') if 'schema' in keys else 'public'
                 db_user = db_settings.get('user') if 'user' in keys else 'postgres'
 
-                response = self._create_datastore_properties(db=db,
-                                                             path=data,
-                                                             schema=db_schema,
-                                                             db_user=db_user)
+                root_files = set(os.listdir(root_path))  # usar set para busca mais rápida
+                root_folder_name = os.path.basename(os.path.normpath(root_path))
+
+                required_properties = {
+                    f"{root_folder_name}.properties",
+                    "datastore.properties",
+                    "indexer.properties",
+                    "timeregex.properties"
+                }
+
+                missing_files = required_properties - root_files  # encontra os arquivos que faltam
+
+                if missing_files:
+                    missing_prop_files = True
+                    message = (
+                        f"The following required .properties file(s) are missing: "
+                        f"{', '.join(sorted(missing_files))}"
+                    )
+                else:
+                    response = self._create_datastore_properties(db=db,
+                                                                path=data,
+                                                                schema=db_schema,
+                                                                db_user=db_user)
+                    
+                # Updating imagemosaic store
+                if response:
+                    print("\nUpdating Imagemosaic store...")
+
+                    try:
+                        cat_obj = self.cat.add_granule(data=data,
+                                                    store=store_name,
+                                                    workspace=workspace)
+
+                        # Updating coverage granule. The condition is checking if cat_obj is None
+                        # because the return from the add_granule function if the coverage is
+                        # updated is None
+                        if cat_obj is None:
+                            message = "Coveragestore updated!"
+
+                            # Updating time dimension to coveragestore
+                            response = self._add_tile_cache(name=layer_name,
+                                                            time_regex=time_regex,
+                                                            path=root_path)
+                            if response == 200:
+                                print("...Done")
+                                updated = True
+                                message = "Coveragestore with time dimension and tile caching "\
+                                        "successfully updated!"
+                            else:
+                                message = "Coveragestore with time dimension and tile caching not "\
+                                        "updated!"
+                        else:
+                            message = "Coveragestore not updated!"
+                    except FailedRequestError as fe:
+                        message = "Error: To update coveragestore it is necessary to create the "\
+                                "store first."
+                elif not response and not missing_prop_files:
+                    message = "Datastore properties not updated! Some parameters are missing."
+                else:
+                    pass
             else:
                 message = "To update datastore.properties, db_settings must be a dict."
-
-        # Updating imagemosaic store
-        if response:
-            print("\nUpdating Imagemosaic store...")
-
-            try:
-                cat_obj = self.cat.add_granule(data=data,
-                                               store=store_name,
-                                               workspace=workspace)
-
-                # Updating coverage granule. The condition is checking if cat_obj is None
-                # because the return from the add_granule function if the coverage is
-                # updated is None
-                if cat_obj is None:
-                    message = "Coveragestore updated!"
-
-                    # Updating time dimension to coveragestore
-                    response = self._add_tile_cache(name=layer_name,
-                                                    time_regex=time_regex,
-                                                    path=root_path)
-                    if response == 200:
-                        print("...Done")
-                        updated = True
-                        message = "Coveragestore with time dimension and tile caching "\
-                                  "successfully updated!"
-                    else:
-                        message = "Coveragestore with time dimension and tile caching not "\
-                                  "updated!"
-                else:
-                    message = "Coveragestore not updated!"
-            except FailedRequestError as fe:
-                message = "Error: To update coveragestore it is necessary to create the "\
-                          "store first."
-        else:
-            message = "Datastore properties not updated! Some parameters are missing."
 
         # Closing connection to remote server
         if hasattr(self, 'connection'):
