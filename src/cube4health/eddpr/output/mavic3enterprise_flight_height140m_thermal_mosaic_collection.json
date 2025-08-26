@@ -41,8 +41,8 @@
             }
         ],
         "processor": {
-            "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
-            "name": "Drone STAC",
+            "uri": "https://github.com/Harmonize-Brazil/cube4health",
+            "name": "cube4health",
             "version": "0.0.1"
         },
         "wms": {
@@ -69,11 +69,11 @@
             "name": "Thermal",
             "common_name": "thermal",
             "description": "",
-            "min_value": 0,
+            "min_value": 1,
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "byte",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -219,8 +219,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 6766630,
                     "bdc:chunk_size": {
                         "x": 5433,
@@ -238,8 +238,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 127691,
                     "checksum:multihash": ""
                 }

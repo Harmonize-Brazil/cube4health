@@ -50,15 +50,6 @@
     "version_successor": null,
     "bdc:type": "mosaic",
     "category": "eo",
-    "properties": {
-        "bdc:visual": {
-            "rgb": [
-                "RED",
-                "NIR",
-                "GREEN"
-                ]
-                    }
-    },
     "bands": [
         {
             "name": "GREEN",

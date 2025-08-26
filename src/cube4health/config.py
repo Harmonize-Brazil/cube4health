@@ -1,6 +1,5 @@
-
 #
-# This file is part of cube4health package.
+# This file is part of EODCtHRS Drone Data PRocessing (EDDPR).
 # Copyright (C) 2025 HARMONIZE/INPE.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,22 +16,9 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 #
 
+"""Global definitions to persist variables between cube4health modules"""
 
-"""Command line interface for the cube4health package."""
-import click
-from .cube4health import Cube4Health
-from . import config #cube4health global variables
-from . import __version__
-
-@click.group()
-@click.version_option(__version__, prog_name="cube4health CLI Tool")
-def cli():
-    """A CLI tool for cube4health package."""
-    pass
-
-@cli.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
-@click.option('--module', required=True, type=click.Choice(['eddpr', 'ehipr', 'eclimpr']), help='Choose a module.')
-def run(module):
-    """Run a module."""
-    cube_obj = Cube4Health()
-    cube_obj.run(module=module)
+geoserver_passwd = None
+db_passwd = None
+ssh_username = None
+ssh_passwd = None

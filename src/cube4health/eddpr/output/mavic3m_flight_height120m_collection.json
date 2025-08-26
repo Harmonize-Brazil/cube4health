@@ -44,8 +44,8 @@
             }
         ],
         "processor": {
-            "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
-            "name": "Drone STAC",
+            "uri": "https://github.com/Harmonize-Brazil/cube4health",
+            "name": "cube4health",
             "version": "0.0.1"
         },
         "sources": [
@@ -65,10 +65,8 @@
     "category": "eo",
     "properties": {
         "bdc:visual": {
-            "rgb": [
-                "RED",
-                "GREEN",
-                "BLUE"
+            "tci": [
+                "file"
             ]
         }
     },
@@ -81,7 +79,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -101,7 +99,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -121,7 +119,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -272,8 +270,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 52544407,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -291,8 +289,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 465420,
                     "checksum:multihash": ""
                 }
@@ -435,8 +433,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 77510668,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -454,8 +452,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 609327,
                     "checksum:multihash": ""
                 }
@@ -598,8 +596,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 32409527,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -617,8 +615,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 298748,
                     "checksum:multihash": ""
                 }
@@ -761,8 +759,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 43081067,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -780,8 +778,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 385964,
                     "checksum:multihash": ""
                 }
@@ -924,8 +922,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 77606826,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -943,8 +941,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 600075,
                     "checksum:multihash": ""
                 }

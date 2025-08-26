@@ -48,11 +48,7 @@
     "category": "eo",
     "properties": {
         "bdc:visual": {
-            "rgb": [
-                "RED",
-                "GREEN",
-                "BLUE"
-                ]
+            "tci": ["file"]
                     }
     },
     "bands": [
@@ -64,7 +60,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -84,7 +80,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -104,7 +100,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {

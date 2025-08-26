@@ -44,8 +44,8 @@
             }
         ],
         "processor": {
-            "uri": "https://github.com/Harmonize-Brazil/scripts_drone",
-            "name": "Drone STAC",
+            "uri": "https://github.com/Harmonize-Brazil/cube4health",
+            "name": "cube4health",
             "version": "0.0.1"
         },
         "wms": {
@@ -67,15 +67,6 @@
     "version_successor": null,
     "bdc:type": "mosaic",
     "category": "eo",
-    "properties": {
-        "bdc:visual": {
-            "rgb": [
-                "RED",
-                "NIR",
-                "GREEN"
-            ]
-        }
-    },
     "bands": [
         {
             "name": "NDVI",
@@ -231,8 +222,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
                     "bdc:size": 1331764340,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -250,9 +241,9 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-07-16T16:38:25",
-                    "updated": "2025-07-16T16:38:25",
-                    "bdc:size": 2473457,
+                    "created": "2025-08-26T15:54:30",
+                    "updated": "2025-08-26T15:54:30",
+                    "bdc:size": 2101769,
                     "checksum:multihash": ""
                 }
             }
