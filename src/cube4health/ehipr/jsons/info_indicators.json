@@ -1,0 +1,163 @@
+{
+    "lis": {
+        "name": "Health Information Laboratory (LIS - ICICT/Fiocruz)",
+        "url": "https://github.com/rfsaldanha/bilis_harmonize",
+        "country": "Brazil",
+        "indicators":[
+            {
+                "name": "mortality_rate_external_causes",
+                "title": "Mortality from external causes",
+                "disease":  "External causes",
+                "description": "Mortality rate due to external causes (per 100,000 population)",
+                "id": "indi_0001"
+            },
+            {
+                "name": "stroke_mortality_rate",
+                "title": "Stroke mortality",
+                "disease": "Stroke",
+                "description": "Stroke mortality rate (per 100,000 population)",
+                "id": "indi_0002"
+            },
+            {
+                "name": "dengue_mortality_rate",
+                "title": "Dengue mortality",
+                "disease": "Dengue",
+                "description": "Dengue mortality rate (per 100,000 population)",
+                "id": "indi_0014"
+            },
+            {
+                "name": "dengue_incidence_rate",
+                "title": "Dengue incidence",
+                "disease": "Dengue",
+                "description": "Classic Dengue incidence rate",
+                "id": "indi_0015"
+            },
+            {
+                "name": "zika_incidence_rate",
+                "title": "Zika incidence",
+                "disease": "Zika",
+                "description": "Zika incidence rate",
+                "id": "indi_0016"
+            },
+            {
+                "name": "chickungunya_incidence_rate",
+                "title": "Chikungunya incidence",
+                "disease": "Chikungunya",
+                "description": "Chickungunya incidence rate",
+                "id": "indi_0017"
+            },
+            {
+                "name": "chagas_disease_incidence_rate",
+                "title": "Chagas disease incidence",
+                "disease": "Chagas disease",
+                "description": "Chagas disease incidence rate",
+                "id": "indi_0019"
+            }
+        ]
+    },
+
+    "infodengue": {
+        "name": "AlertaDengue - InfoDengue",
+        "url": "https://info.dengue.mat.br/api/alertcity",
+        "country": "Brazil",
+        "indicators": [
+            {
+                "name": "dengue_cases_notified",
+                "title": "Dengue cases",
+                "disease": "Dengue",
+                "description": "Dengue cases notified",
+                "field_name": "casos",
+                "id": "indi_0001"
+            },
+            {
+                "name": "dengue_incidence_rate",
+                "title": "Dengue incidence",
+                "disease": "Dengue",
+                "field_name": "p_inc100k",
+                "description": "Dengue estimated incidence rate (cases per population x 100.00)",
+                "id": "indi_0002"
+            },
+            {
+                "name": "dengue_alert_level",
+                "title": "Dengue alert level",
+                "disease": "Dengue",
+                "field_name": "nivel",
+                "description": "Dengue alert level",
+                "id": "indi_0003"
+            },
+            {
+                "name": "dengue_confirmed_cases",
+                "title": "Dengue confirmed cases",
+                "disease": "Dengue",
+                "field_name": "casconf",
+                "description": "Dengue cases actually confirmed by laboratory tests",
+                "id": "indi_0004"
+            },
+            {
+                "name": "chikungunya_cases_notified",
+                "title": "Chikungunya cases notified",
+                "disease": "Chikungunya",
+                "field_name": "casos",
+                "description": "Chikungunya cases notified",
+                "id": "indi_0005"
+            },
+            {
+                "name": "chikungunya_incidence_rate",
+                "title": "Chikungunya incidence",
+                "disease": "Chikungunya",
+                "field_name": "p_inc100k",
+                "description": "Chikungunya estimated incidence rate (cases per population x 100.00)",
+                "id": "indi_0006"
+            },
+            {
+                "name": "chikungunya_alert_level",
+                "title": "Chikungunya alert level",
+                "disease": "Chikungunya",
+                "field_name": "nivel",
+                "description": "Chikungunya alert level",
+                "id": "indi_0007"
+            },
+            {
+                "name": "chikungunya_confirmed_cases",
+                "title": "Chikungunya confirmed cases",
+                "disease": "Chikungunya",
+                "field_name": "casconf",
+                "description": "Chikungunya cases actually confirmed by laboratory tests",
+                "id": "indi_0008"
+            },
+            {
+                "name": "zika_cases_notified",
+                "title": "Zika cases notified",
+                "disease": "Zika",
+                "field_name": "casos",
+                "description": "Zika cases notified",
+                "id": "indi_0009"
+            },
+            {
+                "name": "zika_incidence_rate",
+                "title": "Zika incidence",
+                "disease": "Zika",
+                "field_name": "p_inc100k",
+                "description": "Zika estimated incidence rate (cases per population x 100.00)",
+                "id": "indi_0010"
+            },
+            {
+                "name": "zika_alert_level",
+                "title": "Zika alert level",
+                "disease": "Zika",
+                "field_name": "nivel",
+                "description": "Zika alert level",
+                "id": "indi_0011"
+            },
+            {
+                "name": "zika_confirmed_cases",
+                "title": "Zika confirmed cases",
+                "disease": "Zika",
+                "field_name": "casconf",
+                "description": "Zika cases actually confirmed by laboratory tests",
+                "id": "indi_0012"
+            }
+        ]
+    }
+
+}

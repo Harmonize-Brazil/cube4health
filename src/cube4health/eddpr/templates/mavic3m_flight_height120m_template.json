@@ -1,0 +1,117 @@
+{
+    "name": "Mavic3M_FlightHeight120m",
+    "title": "Mavic3M_120m_RGB",
+    "description": "Collection of images from drone DJI Mavic 3M based on Visual Lens (RGB) projected using GPS center coordinates, flight height (120 meters) and flight yaw degree information.",
+    "temporal_composition_schema": null,
+    "composition_function": null,
+    "grid_ref_sys": null,
+    "collection_type": "collection",
+    "summaries": {
+        "gsd": [0.032176936163917453], 
+        "sensor_dim_x_mm": [17.4],
+        "sensor_dim_y_mm": [13],
+        "focal_length_mm": [12.29]
+    },
+    "metadata": {
+        "platform": {
+            "code": "DJI Mavic 3 M",
+            "instruments": ["M3M"]
+          },
+        "contributors": [{"name": "National Institute for Space Research (INPE)",
+                        "nameType": "Organizational",
+                        "contributorType": "HostingInstitution"},
+                        {"name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
+                        "contributorType": "ResearchGroup"}                      
+                        ],
+        "fundingReferences": [{
+                            "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+                            }
+                            ],
+        "processor": {
+                    "uri": "https://github.com/Harmonize-Brazil/cube4health",
+                    "name": "cube4health",
+                    "version": "0.0.1"
+                    },
+        "sources": [{
+                    "name": "Mavic3M_FlightHeight120m",
+                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m-1",
+                    "descriptionUri": null
+                    }
+                ]
+    },
+    "is_public": true,
+    "is_available": true,
+    "version": 1,
+    "version_predecessor": null,
+    "version_successor": null,
+    "bdc:type": "collection",
+    "category": "eo",
+    "properties": {
+        "bdc:visual": {
+            "tci": ["file"]
+                    }
+    },
+    "bands": [
+        {
+            "name": "BLUE",
+            "common_name": "blue",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        },
+        {
+            "name": "GREEN",
+            "common_name": "green",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        },
+        {
+            "name": "RED",
+            "common_name": "red",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        }
+    ]    
+}
+        

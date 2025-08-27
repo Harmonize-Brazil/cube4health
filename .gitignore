@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# user py files
+new_ex.py
+
 # C extensions
 *.so
 
@@ -172,3 +175,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# Health package
+src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.cpg
+src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.dbf
+src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.prj
+src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.shp
+src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.shx

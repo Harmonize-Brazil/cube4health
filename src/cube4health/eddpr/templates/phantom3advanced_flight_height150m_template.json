@@ -1,0 +1,117 @@
+{
+    "name": "Phantom3Advanced_FlightHeight150m",
+    "title": "Phantom3Adv_150m_RGB",
+    "description": "Collection of images from drone DJI Phantom 3 Advanced projected based on GPS center coordinates, flight height (150 meters) and course angle information.",
+    "temporal_composition_schema": null,
+    "composition_function": null,
+    "grid_ref_sys": null,
+    "collection_type": "collection",
+    "summaries": {
+                  "gsd": [0.06490304709141274],
+                  "sensor_dim_x_mm": [6.248],
+                  "sensor_dim_y_mm": [4.686],
+                  "focal_length_mm": [3.61]
+    },
+    "metadata": {
+        "platform": {
+            "code": "DJI Phantom 3 Advanced",
+            "instruments": ["FC300S"]
+          },
+        "contributors": [{"name": "National Institute for Space Research (INPE)",
+                        "nameType": "Organizational",
+                        "contributorType": "HostingInstitution"},
+                        {"name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
+                        "contributorType": "ResearchGroup"}                      
+                        ],
+        "fundingReferences": [{
+                            "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+                            }
+                            ],
+        "processor": {
+                    "uri": "https://github.com/Harmonize-Brazil/cube4health",
+                    "name": "cube4health",
+                    "version": "0.0.1"
+                    },
+        "sources": [{
+                    "name": "Phantom3Advanced_FlightHeight150m",
+                    "stacUri": "http://localhost:8080/collections/Phantom3Advanced_FlightHeight150m-1",
+                    "descriptionUri": null
+                    }
+                ]        
+    },
+    "is_public": false,
+    "is_available": true,
+    "version": 1,
+    "version_predecessor": null,
+    "version_successor": null,
+    "bdc:type": "collection",
+    "category": "eo",
+    "properties": {
+        "bdc:visual": {
+            "tci": ["file"]
+                    }
+    },
+    "bands": [
+        {
+            "name": "BLUE",
+            "common_name": "blue",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.06490304709141274,
+                    "resolution_y": 0.06490304709141274,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        },
+        {
+            "name": "GREEN",
+            "common_name": "green",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.06490304709141274,
+                    "resolution_y": 0.06490304709141274,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        },
+        {
+            "name": "RED",
+            "common_name": "red",
+            "description": "",
+            "min_value": 1,
+            "max_value": 255,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint8",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.06490304709141274,
+                    "resolution_y": 0.06490304709141274,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }            
+        }
+    ]  
+}
+        
