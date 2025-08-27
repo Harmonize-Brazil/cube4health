@@ -63,7 +63,7 @@ See `INSTALL.rst <INSTALL.rst>`_.
 Usage
 =====
 
-The package ``cube4health`` has an entry point based on the `Click <https://click.palletsprojects.com/en/stable/>`_ package to execution of functions as a command-line tool. Please, see  `CLI.rst <CLI.rst>`_. for examples of how execute ``cube4health``  directly from the terminal.
+The package ``cube4health`` has an entry point based on the `Click <https://click.palletsprojects.com/en/stable/>`_ package for the execution of functions as a command-line tool. Please see  `CLI.rst <CLI.rst>`_ for examples of how to execute ``cube4health``  directly from the terminal.
 
 
 License

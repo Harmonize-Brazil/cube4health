@@ -19,13 +19,13 @@
 Installation
 ============
 
-``cube4health`` depends essentially on Geospatial Data Abstraction Library (`GDAL <https://gdal.org/en/stable/>`_) for raster processing. Please, read the instructions below in order to install ``cube4health``.
+The ``cube4health`` relies primarily on the Geospatial Data Abstraction Library (`GDAL <https://gdal.org/en/stable/>`_) for raster processing. Please read the instructions below to install ``cube4health``.
 
 
 Development Installation
 ------------------------
 
-Install GDAL library and its development header files on your system (Linux systems):
+Install the GDAL library and its development header files on your system (Linux systems):
 
 .. code-block:: shell
 
@@ -42,13 +42,13 @@ Install the Python dependencies and build numpy-based raster support (Linux syst
         pip3 install --upgrade "pip<=25.2" wheel numpy
         pip3 install --use-pep517 --no-build-isolation --no-cache-dir --force-reinstall gdal[numpy]==`gdal-config --version`
 
-Verify that numpy-based raster support has been installed with:
+Verify that numpy-based raster support has been installed:
 
 .. code-block:: shell
 
         python -c "from osgeo import gdal, gdal_array ; print(gdal.__version__)"
 
-**Obs.:** If this command raises an ImportError, numpy-based raster support has not been properly installed, please see these `related issues and solutions <ISSUES.rst>`_!
+**Obs.:** If this command raises an ImportError, numpy-based raster support has not been properly installed. Please see these `related issues and solutions <ISSUES.rst>`_!
 
 Source code from Github:
 
@@ -90,4 +90,4 @@ Alternative using *Python Virtual Environment*:
         
 **Obs.:** This installs the package in development mode, allowing you to modify the code without having to rebuild the package.
 
-Problems with GDAL import, please see these `related issues and solutions <ISSUES.rst>`_!
+Problems with GDAL import? Please see these `related issues and solutions <ISSUES.rst>`_!
