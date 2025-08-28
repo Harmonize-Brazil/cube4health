@@ -423,7 +423,8 @@ def calc_ndvi(out_fname, fname):
         NIR = arr[bands['NIR'],...]
         Red = arr[bands['Red'],...]
         ndvi = (NIR - Red)/(NIR + Red)
-        ndvi = np.where((ndvi<-1.)|(ndvi>1.),np.nan,ndvi) #remove outliers
+        ndvi = np.where((ndvi<-1.),-1.,ndvi) #remove outliers
+        ndvi = np.where((ndvi>1.),1.,ndvi) #remove outliers
         ndvi[np.isnan(ndvi)] = -9999. # define nodata
 
         driver = gdal.GetDriverByName('MEM') #To avoid error of overview creation

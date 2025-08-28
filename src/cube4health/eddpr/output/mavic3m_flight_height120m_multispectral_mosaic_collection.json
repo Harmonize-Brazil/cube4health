@@ -1,7 +1,7 @@
 {
-    "name": "Mavic3M_FlightHeight120m_NDVI_Mosaic",
-    "title": "Mavic3M_120m_NDVI",
-    "description": "Collection of NDVI mosaics from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) images produced with OpenDroneMap.",
+    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
+    "title": "Mavic3M_120m_MS",
+    "description": "Collection of mosaics from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) images produced with OpenDroneMap.",
     "temporal_composition_schema": null,
     "composition_function": null,
     "grid_ref_sys": null,
@@ -50,12 +50,12 @@
         },
         "wms": {
             "url": "http://localhost:10190/geoserver/mosaics/wms",
-            "layerName": "mosaics:Mavic3M_FlightHeight120m_NDVI_Mosaic"
+            "layerName": "mosaics:Mavic3M_FlightHeight120m_MS_Mosaic"
         },
         "sources": [
             {
-                "name": "Mavic3M_FlightHeight120m_NDVI_Mosaic",
-                "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_NDVI_Mosaic-1",
+                "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
+                "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS_Mosaic-1",
                 "descriptionUri": null
             }
         ]
@@ -69,21 +69,81 @@
     "category": "eo",
     "bands": [
         {
-            "name": "NDVI",
-            "common_name": "ndvi",
-            "description": "Normalized Difference Vegetation Index",
-            "min_value": -1,
-            "max_value": 1,
-            "nodata": -9999,
+            "name": "GREEN",
+            "common_name": "green",
+            "description": "Green band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
             "scale": 1,
-            "data_type": "float32",
+            "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
-                    "resolution_x": 0.052964517032209,
-                    "resolution_y": 0.052964517032209,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.56,
+                    "full_width_half_max": 0.032,
+                    "resolution_unit": "Meter"
+                }
+            }
+        },
+        {
+            "name": "RED",
+            "common_name": "red",
+            "description": "Red band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint32",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.65,
+                    "full_width_half_max": 0.032,
+                    "resolution_unit": "Meter"
+                }
+            }
+        },
+        {
+            "name": "RED EDGE",
+            "common_name": "rededge",
+            "description": "Red Edge band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint32",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.73,
+                    "full_width_half_max": 0.032,
+                    "resolution_unit": "Meter"
+                }
+            }
+        },
+        {
+            "name": "NIR",
+            "common_name": "nir",
+            "description": "Near Infrared band",
+            "min_value": 1,
+            "max_value": 4294967295,
+            "nodata": 0,
+            "scale": 1,
+            "data_type": "uint32",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": 0.86,
+                    "full_width_half_max": 0.052,
                     "resolution_unit": "Meter"
                 }
             }
@@ -91,7 +151,7 @@
     ],
     "items": [
         {
-            "name": "Mavic3M_120m_NDVI_Mosaic_Mocajuba_BairroNovo_20231107",
+            "name": "Mavic3M_120m_MS_Mosaic_Mocajuba_BairroNovo_20231107",
             "start_date": "2023-11-07T00:00:00",
             "end_date": "2023-11-07T00:00:00",
             "cloud_cover": 0,
@@ -217,14 +277,14 @@
             },
             "assets": {
                 "file": {
-                    "href": "data/Mavic3M_FlightHeight120m_NDVI_Mosaic/2023/11/Mocajuba_BairroNovo_20231107_NDVI.tif",
+                    "href": "data/Mavic3M_FlightHeight120m_MS_Mosaic/2023/11/Mocajuba_BairroNovo_20231107_MS.tif",
                     "type": "image/tiff; application=geotiff; profile=cloud-optimized",
                     "roles": [
                         "data"
                     ],
                     "created": "2025-08-28T09:49:53",
                     "updated": "2025-08-28T09:49:53",
-                    "bdc:size": 1331764903,
+                    "bdc:size": 4300335368,
                     "bdc:chunk_size": {
                         "x": 256,
                         "y": 256
@@ -236,14 +296,14 @@
                     "checksum:multihash": ""
                 },
                 "thumbnail": {
-                    "href": "data/Mavic3M_FlightHeight120m_NDVI_Mosaic/2023/11/Mocajuba_BairroNovo_20231107_NDVI.png",
+                    "href": "data/Mavic3M_FlightHeight120m_MS_Mosaic/2023/11/Mocajuba_BairroNovo_20231107_MS.png",
                     "type": "image/png",
                     "roles": [
                         "thumbnail"
                     ],
                     "created": "2025-08-28T09:49:53",
                     "updated": "2025-08-28T09:49:53",
-                    "bdc:size": 2101083,
+                    "bdc:size": 3644455,
                     "checksum:multihash": ""
                 }
             }

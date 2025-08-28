@@ -270,8 +270,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 52544407,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -289,8 +289,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 465420,
                     "checksum:multihash": ""
                 }
@@ -433,8 +433,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 77510668,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -452,8 +452,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 609327,
                     "checksum:multihash": ""
                 }
@@ -596,8 +596,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 32409527,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -615,8 +615,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 298748,
                     "checksum:multihash": ""
                 }
@@ -759,8 +759,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 43081067,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -778,8 +778,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 385964,
                     "checksum:multihash": ""
                 }
@@ -922,8 +922,8 @@
                     "roles": [
                         "data"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 77606826,
                     "bdc:chunk_size": {
                         "x": 256,
@@ -941,8 +941,8 @@
                     "roles": [
                         "thumbnail"
                     ],
-                    "created": "2025-08-26T15:54:30",
-                    "updated": "2025-08-26T15:54:30",
+                    "created": "2025-08-28T09:49:53",
+                    "updated": "2025-08-28T09:49:53",
                     "bdc:size": 600075,
                     "checksum:multihash": ""
                 }
