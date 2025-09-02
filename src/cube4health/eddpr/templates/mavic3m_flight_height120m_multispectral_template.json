@@ -47,14 +47,57 @@
     "bdc:type": "collection",
     "category": "eo",
     "properties": {
+        "renders": {
+            "rgb": {
+                "title": "True Color",
+                "assets": [
+                    "RED",
+                    "NIR",
+                    "GREEN"
+                ],
+                "rescale": [
+                            [
+                            235,
+                            96287
+                            ],
+                            [
+                            301,
+                            73538
+                            ],
+                            [
+                            363,
+                            107809
+                            ]
+                ],
+                "resampling": "nearest"
+            }
+
+        },
         "bdc:visual": {
             "rgb": [
                 "RED",
                 "NIR",
                 "GREEN"
+                ],
+                "rescale": [
+                            [
+                            235,
+                            96287
+                            ],
+                            [
+                            301,
+                            73538
+                            ],
+                            [
+                            363,
+                            107809
+                            ]
                 ]
-                    }
+        } 
     },
+    "bdc:applications": [
+        "BDCExplorer"
+    ],
     "bands": [
         {
             "name": "GREEN",

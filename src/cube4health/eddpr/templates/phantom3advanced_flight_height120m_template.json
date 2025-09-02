@@ -46,11 +46,23 @@
     "version_successor": null,
     "bdc:type": "collection",
     "category": "eo",
-    "properties": {
+     "properties": {
+        "renders": {
+            "tci": {
+                "title": "True Color Image",
+                "assets": [
+                    "file"
+                ],
+                "resampling": "nearest"
+            }
+        },
         "bdc:visual": {
             "tci": ["file"]
-                    }
+        }
     },
+    "bdc:applications": [
+        "BDCExplorer"
+    ],
     "bands": [
         {
             "name": "BLUE",
