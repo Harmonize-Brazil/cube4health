@@ -33,6 +33,6 @@ def cli():
 @cli.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option('--module', required=True, type=click.Choice(['eddpr', 'ehipr', 'eclimpr']), help='Choose a module.')
 def run(module):
-    """Run a module."""
+    """Run a module: cube4health run --module eddpr"""
     cube_obj = Cube4Health()
     cube_obj.run(module=module)
