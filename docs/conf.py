@@ -28,7 +28,7 @@ rst_prolog = """
    :align: middle
    :height: 139px
 """ % (
-    "https://raw.githubusercontent.com/Harmonize-Brazil/cube4health/main/docs/figures/cube4health_logo.png"
+    "docs/figures/cube4health_logo.png"
     if on_rtd
     else "_static/cube4health_logo.png"
 )
