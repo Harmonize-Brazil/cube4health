@@ -298,42 +298,36 @@ class STAC:
                      root_data_path: Optional[str]=None,
                      footprint: Union[List[int], Dict[str, List[int]]]=None, **kwargs) -> Union[List[dict], str]:
         """
-            Browse the items directory.
+        Browse the items directory.
 
-            Parameters
-            ----------
-            path: str,
-                The directory path.
-            asset_names: Dict[str, str],
-                The asset names. The key of the dictionary is the asset name and the value is the asset extension.
-            root_data_path: str,
-                The data path where nginx is running.
-            footprint: Union[List[int], Dict[str, List[int]]], default value is None,
-                The footprint of the items. The user can inform the footprint in a list or in a dictionary with footprints.
-                If the footprint is in a dictionary, the key of the dictionary is the item name and the value is the footprint.
-                If the footprint is in a list, the footprint is a list of coordinates and it will be used to all items.
+        Parameters
+        ----------
+        path : str
+            The directory path.
+        asset_names : Dict[str, str]
+            The asset names. The key of the dictionary is the asset name, and the value is the asset extension.
+        root_data_path : str
+            The data path where nginx is running.
+        footprint : Union[List[int], Dict[str, List[int]]], optional
+            The footprint of the items. The user can provide the footprint as a list or as a dictionary. If a dictionary, the key is the item name, and the value is the footprint. If a list, it represents coordinates and will be used for all items.
 
-            Returns
-            -------
-                A list with items. Each item is a dictionary with the following keys:
-                    name: str,
-                        The name of the item.
-                    collection_id: int,
-                        The collection id.
-                    start_date: datetime,
-                        The start date of the item.
-                    end_date: datetime,
-                        The end date of the item.
-                    footprint: Polygon,
-                        The footprint of the item.
-                    assets: dict,
-                        A dictionary with the assets of the item.
-                    cloud_cover: int,
-                        The cloud cover of the item.
-                    srid: int,
-                        The srid of the item.
-                If the returns is a string, it means that there was an error.
+        Returns
+        -------
+        Union[List[dict], str]
+            A list of items. Each item is a dictionary with the following keys:
+
+            - `name` (str): The name of the item.
+            - `collection_id` (int): The collection ID.
+            - `start_date` (datetime): The start date of the item.
+            - `end_date` (datetime): The end date of the item.
+            - `footprint` (Polygon): The footprint of the item.
+            - `assets` (dict): A dictionary with the assets of the item.
+            - `cloud_cover` (int): The cloud cover of the item.
+            - `srid` (int): The SRID of the item.
+
+            If the return value is a string, it indicates an error.
         """
+
         items = []
 
         additional_path = kwargs.get('additional_path') if 'additional_path' in kwargs.keys() else None

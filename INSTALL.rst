@@ -91,3 +91,33 @@ Alternative using *Python Virtual Environment*:
 **Obs.:** This installs the package in development mode, allowing you to modify the code without having to rebuild the package.
 
 Problems with GDAL import? Please see these `related issues and solutions <ISSUES.rst>`_!
+
+
+Build the Documentation
+-----------------------
+
+You can automate the documentation process building using Sphinx. Basically, it takes the .rst files and converts them to HTML.
+
+1. Install Sphinx:
+
+.. code-block:: shell
+
+        pip install -e .[docs]
+
+
+2. Build docs:
+
+.. code-block:: shell
+
+        sphinx-build docs docs/_build/html
+
+        
+**Obs.:** The above command will generate the documentation in HTML and it will place it under: ``docs/sphinx/_build/html/``
+
+3. Access docs:
+
+.. code-block:: shell
+
+        firefox docs/_build/html/index.html
+
+Use your favorite browser (For example Firefox) to open the documentation.

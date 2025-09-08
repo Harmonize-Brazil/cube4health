@@ -18,8 +18,25 @@
 # absolute, like shown here.
 #
 import os
+
+# Use GitHub-hosted image only if building for GitHub
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
+rst_prolog = """
+.. |logo| image:: %s
+   :alt: Cube4Health Logo
+   :align: middle
+   :height: 139px
+""" % (
+    "https://raw.githubusercontent.com/Harmonize-Brazil/cube4health/main/docs/figures/cube4health_logo.png"
+    if on_rtd
+    else "_static/cube4health_logo.png"
+)
+
 import sys
-sys.path.insert(0, os.path.abspath('../src'))
+
+# Add the 'src' directory to sys.path so Sphinx can find cube4health
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
 import cube4health
 
@@ -94,7 +111,7 @@ html_theme = 'sphinx_rtd_theme' #'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+html_static_path = ['_static']
 
 
 # -- Options for HTMLHelp output ---------------------------------------
