@@ -15,7 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-|logo|
+.. image:: docs/figures/cube4health_logo.png
+   :alt: Cube4Health Logo
+   :align: right
+   :height: 139px
 
 =====================================
 cube4health 
@@ -52,13 +55,13 @@ Package **cube4health** is a data acquisition, processing, and publishing toolki
 Installation
 ============
 
-See `INSTALL.rst <INSTALL.rst>`_.
+See the `installation instructions <https://github.com/Harmonize-Brazil/cube4health/blob/main/docs/installation.rst>`_.
 
 
 Usage
 =====
 
-The package ``cube4health`` has an entry point based on the `Click <https://click.palletsprojects.com/en/stable/>`_ package for the execution of functions as a command-line tool. Please see  `CLI.rst <CLI.rst>`_ for examples of how to execute ``cube4health``  directly from the terminal.
+The package ``cube4health`` has an entry point based on the `Click <https://click.palletsprojects.com/en/stable/>`_ package for the execution of functions as a command-line tool. Please see  `usage <https://github.com/Harmonize-Brazil/cube4health/blob/main/docs/usage.rst>`_ for examples of how to execute ``cube4health``  directly from the terminal.
 
 
 License
