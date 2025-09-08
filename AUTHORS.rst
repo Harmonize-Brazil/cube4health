@@ -3,7 +3,7 @@ Credits
 =======
 
 Development Leaders
-----------------
+-------------------
 
 * Adeline Maciel <adelinemaciel22@gmail.com>
 * Marcos Lima Rodrigues <marcos.mlr@gmail.com>
