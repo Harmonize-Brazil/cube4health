@@ -18,21 +18,6 @@
 # absolute, like shown here.
 #
 import os
-
-# Use GitHub-hosted image only if building for GitHub
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-
-rst_prolog = """
-.. |logo| image:: %s
-   :alt: Cube4Health Logo
-   :align: middle
-   :height: 139px
-""" % (
-    "docs/figures/cube4health_logo.png"
-    if on_rtd
-    else "_static/cube4health_logo.png"
-)
-
 import sys
 
 # Add the 'src' directory to sys.path so Sphinx can find cube4health
