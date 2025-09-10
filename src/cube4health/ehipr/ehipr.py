@@ -1398,7 +1398,7 @@ def publish_data(layers: List[Dict[str, str]],
         print("... Done")
      
     # Publishing data in STAC
-    print('\nPUBLISHING DATA IN STAC...')
+    print('\nPUBLISHING DATA IN STAC...') 
 
     stac_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
                'stac/v1/' if hostname != 'localhost' else stac_url

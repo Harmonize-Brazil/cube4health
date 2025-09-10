@@ -142,7 +142,8 @@ class GeoServer:
             
             self.db = db_settings.get('db', 'public')
             self.db_user = db_settings.get('user', 'postgres')
-            self.db_port = db_settings.get('port', 5432)
+            db_port = db_settings.get('port', 5432)
+            self.db_port = int(db_port) if str(db_port).isdigit() else 5432
             self.db_schema = db_settings.get('schema', 'postgres')
 
             self.db_password = getpass.getpass(f'Enter password for database user ('+ self.db_user +'): ')
@@ -359,7 +360,8 @@ class GeoServer:
                 store_exists = True
 
         except GeoserverException as e:
-            store_exists = self.create_feature_store(schema=pg_schema)
+            store_exists = self.create_feature_store(store=store, 
+                                                     workspace=workspace)
 
         # Publish feature layers
         if store_exists:
