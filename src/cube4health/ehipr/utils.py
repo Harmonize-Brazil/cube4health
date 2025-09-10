@@ -9,19 +9,21 @@ from datetime import datetime
 def shp_to_zip(input_path: str, 
                output_path: Optional[str] = None) -> str:
     """
-        This function converts shapefiles to zip.
+    Converts a shapefile to a ZIP archive.
 
     Parameters
     ----------
-        input_path : str,
-            Path of the shapefile.
-        output_path : str, defaulta value is None,
-            Path of the output zip file.
+    input_path : str
+        Path of the shapefile.
+    output_path : str, optional
+        Path of the output ZIP file. If not provided, a ZIP will be created in the same directory as the input.
 
-     Returns
+    Returns
     -------
-        Path of the zip file
+    str
+        Path to the created ZIP file.
     """
+    
     files_to_zip = []
     suffixs = ['cpg', 'dbf', 'prj', 'shp', 'shx']
     files = os.listdir(input_path)

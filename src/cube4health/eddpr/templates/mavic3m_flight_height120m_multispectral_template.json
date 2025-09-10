@@ -1,11 +1,11 @@
 {
-    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
+    "name": "Mavic3M_FlightHeight120m_MS",
     "title": "Mavic3M_120m_MS",
-    "description": "Collection of mosaics from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) images produced with OpenDroneMap.",
+    "description": "Collection of images from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) and NDVI projected using GPS center coordinates, flight height (120 meters) and flight yaw degree information.",
     "temporal_composition_schema": null,
     "composition_function": null,
     "grid_ref_sys": null,
-    "collection_type": "mosaic",
+    "collection_type": "collection",
     "summaries": {
         "gsd": [0.05547021676053935], 
         "sensor_dim_x_mm": [5.2],
@@ -32,13 +32,9 @@
                     "name": "cube4health",
                     "version": "0.0.1"
                     },
-        "wms": {
-                "url": "http://localhost:10190/geoserver/mosaics/wms",
-                "layerName": "mosaics:Mavic3M_FlightHeight120m_MS_Mosaic"
-                },
         "sources": [{
-                    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
-                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS_Mosaic-1",
+                    "name": "Mavic3M_FlightHeight120m_MS",
+                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS-1",
                     "descriptionUri": null
                     }
                 ]
@@ -48,17 +44,60 @@
     "version": 1,
     "version_predecessor": null,
     "version_successor": null,
-    "bdc:type": "mosaic",
+    "bdc:type": "collection",
     "category": "eo",
     "properties": {
+        "renders": {
+            "rgb": {
+                "title": "True Color",
+                "assets": [
+                    "RED",
+                    "NIR",
+                    "GREEN"
+                ],
+                "rescale": [
+                            [
+                            235,
+                            96287
+                            ],
+                            [
+                            301,
+                            73538
+                            ],
+                            [
+                            363,
+                            107809
+                            ]
+                ],
+                "resampling": "nearest"
+            }
+
+        },
         "bdc:visual": {
             "rgb": [
                 "RED",
                 "NIR",
                 "GREEN"
+                ],
+                "rescale": [
+                            [
+                            235,
+                            96287
+                            ],
+                            [
+                            301,
+                            73538
+                            ],
+                            [
+                            363,
+                            107809
+                            ]
                 ]
-                    }
+        } 
     },
+    "bdc:applications": [
+        "BDCExplorer"
+    ],
     "bands": [
         {
             "name": "GREEN",
@@ -139,6 +178,26 @@
                     "resolution_unit": "Meter"
                 }
             }            
+        },
+        {
+            "name": "NDVI",
+            "common_name": "ndvi",
+            "description": "Normalized Difference Vegetation Index",
+            "min_value": -10000,
+            "max_value": 10000,
+            "nodata": -9999,
+            "scale": 0.0001,
+            "data_type": "int16",
+            "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
+            "metadata": {
+                "eo": {
+                    "resolution_x": 0.055470216760466,
+                    "resolution_y": 0.055470216760466,
+                    "center_wavelength": null,
+                    "full_width_half_max": null,
+                    "resolution_unit": "Meter"
+                }
+            }   
         }
     ]    
 }

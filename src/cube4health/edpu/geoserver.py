@@ -45,6 +45,8 @@ from .utils import (
     _check_database_existence 
 )
 
+from .. import config #cube4health global variables
+
 
 
 ROOT_PATH = '/'.join(os.path.dirname(os.path.abspath(__file__)).split('/')[:-1])
@@ -93,8 +95,12 @@ class GeoServer:
 
             for try_connect in range(1, 4): 
                 # If the hostname is not localhost, it will ask for the username and password
-                self._hostusername = input('Enter host username: ')
-                self._hostpassword = getpass.getpass('Enter host password: ')
+                if config.ssh_username == None:
+                    self._hostusername = input('Enter host username: ')
+                    self._hostpassword = getpass.getpass('Enter host password: ')
+                else:
+                    self._hostusername = config.ssh_username
+                    self._hostpassword = config.ssh_passwd
 
                 connected, connection = connect_ssh(hostname=self.hostname, 
                                                     username=self._hostusername, 
@@ -102,6 +108,9 @@ class GeoServer:
 
                 if connected:
                     self.connection = connection
+                    if config.ssh_username == None:
+                        config.ssh_username = self._hostusername
+                        config.ssh_passwd = self._hostpassword
                     break
                 print(f'{connection}, \ntry {try_connect}/3\n')
             else:
@@ -112,8 +121,11 @@ class GeoServer:
                 print()
                 sys.exit() 
 
-        for try_connect in range(1, 4): 
-            self._password = getpass.getpass(f'\nEnter geoserver password: ')
+        for try_connect in range(1, 4):            
+            if config.geoserver_passwd == None:
+                self._password = getpass.getpass(f'\nEnter geoserver password: ')
+            else:
+                self._password = config.geoserver_passwd           
 
             try:
                 self.geoserver = Geoserver(service_url, 
@@ -127,6 +139,8 @@ class GeoServer:
                 # Verifies if the geoserver password informed is correct
                 status_geoserver = self.geoserver.get_status()
                 if status_geoserver:
+                    if config.geoserver_passwd == None:
+                        config.geoserver_passwd = self._password
                     break
             except:
                 print(f'\ntry {try_connect}/3\n')
@@ -142,14 +156,18 @@ class GeoServer:
             
             self.db = db_settings.get('db', 'public')
             self.db_user = db_settings.get('user', 'postgres')
-            db_port = db_settings.get('port', 5432)
-            self.db_port = int(db_port) if str(db_port).isdigit() else 5432
+            self.db_port = db_settings.get('port', 5432)
             self.db_schema = db_settings.get('schema', 'postgres')
 
-            self.db_password = getpass.getpass(f'Enter password for database user ('+ self.db_user +'): ')
+            if config.db_passwd == None:
+                self.db_password = getpass.getpass(f'Enter password for database user ('+ self.db_user +'): ')
+            else:
+                self.db_password = config.db_passwd           
 
             status_db = _check_database_existence(self.db, self.db_user, self.db_password, self.hostname, self.db_port)
             if status_db:
+                if config.db_passwd == None:
+                    config.db_passwd = self.db_password
                 break
             else:
                 print(f'\ntry {try_connect}/3\n')
@@ -360,8 +378,7 @@ class GeoServer:
                 store_exists = True
 
         except GeoserverException as e:
-            store_exists = self.create_feature_store(store=store, 
-                                                     workspace=workspace)
+            store_exists = self.create_feature_store(schema=pg_schema)
 
         # Publish feature layers
         if store_exists:
@@ -722,9 +739,6 @@ class GeoServer:
 
 
     def _create_datastore_properties(self, path: str) -> bool:
-                                    #  db: str, 
-                                    #  schema: Optional[str]='public', 
-                                    #  db_user: Optional[str]='postgres') -> bool:
         """
             Create indexer properties for layer.
 
@@ -738,7 +752,6 @@ class GeoServer:
             Boolean value indicating if the file was created.
         """
 
-        # db_password = getpass.getpass(f'Enter password for database: ')
         db = self.db
         pg_schema = self.db_schema
         pg_user = self.db_user
@@ -1000,10 +1013,7 @@ class GeoServer:
                 pg_schema = self.db_schema
                 pg_user = self.db_user
 
-                response = self._create_datastore_properties(path=data,
-                                                             db=db,
-                                                             schema=pg_schema,
-                                                             db_user=pg_user)
+                response = self._create_datastore_properties(path=data)
                 # Creating imagemosaic store
                 if response:
                     print("\nCreating Imagemosaic store...")
@@ -1077,7 +1087,6 @@ class GeoServer:
                                  workspace: Optional[str]=None,
                                  title: Optional[str] = None,
                                  time_regex: Optional[str]='regex=[0-9]{8}') -> Union[bool, str]:
-                                #  db_settings: Optional[dict]=None) -> Union[bool, str]:
         """
             Update Imagemosaic store
 
@@ -1162,10 +1171,7 @@ class GeoServer:
                 f"{', '.join(sorted(missing_files))}"
             )
         else:
-            response = self._create_datastore_properties(db=db,
-                                                         path=data,
-                                                         schema=pg_schema,
-                                                         db_user=pg_user)
+            response = self._create_datastore_properties(path=data)
             
         # Updating imagemosaic store
         if response:

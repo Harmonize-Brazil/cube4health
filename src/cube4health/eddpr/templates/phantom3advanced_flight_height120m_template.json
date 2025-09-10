@@ -46,15 +46,23 @@
     "version_successor": null,
     "bdc:type": "collection",
     "category": "eo",
-    "properties": {
+     "properties": {
+        "renders": {
+            "tci": {
+                "title": "True Color Image",
+                "assets": [
+                    "file"
+                ],
+                "resampling": "nearest"
+            }
+        },
         "bdc:visual": {
-            "rgb": [
-                "RED",
-                "GREEN",
-                "BLUE"
-                ]
-                    }
+            "tci": ["file"]
+        }
     },
+    "bdc:applications": [
+        "BDCExplorer"
+    ],
     "bands": [
         {
             "name": "BLUE",
@@ -64,7 +72,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -84,7 +92,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
@@ -104,7 +112,7 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {

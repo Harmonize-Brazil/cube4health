@@ -30,15 +30,12 @@ from contextlib import closing
 import itertools
 import getpass
 from tqdm import tqdm
-from psycopg2.errorcodes import UNIQUE_VIOLATION
-from psycopg2 import errors
+from .. import config #cube4health global variables
 if __name__ != "__main__":
     from ..edpu import GeoServer
     from ..edpu.utils import connect_ssh
 
 local_path = os.path.dirname(os.path.abspath(__file__))
-parent_path = Path(local_path).parent.absolute()
-
 
 # Emulates a Geoserver object instance
 class geo_object:
@@ -55,14 +52,21 @@ class geo_object:
 
             for try_connect in range(1, 4): 
                 # If the hostname is not localhost, it will ask for the username and password
-                self._hostusername = input('Enter host username: ')
-                self._hostpassword = getpass.getpass('Enter host password: ')
+                if config.ssh_username == None:
+                    self._hostusername = input('Enter host username: ')
+                    self._hostpassword = getpass.getpass('Enter host password: ')
+                else:
+                    self._hostusername = config.ssh_username
+                    self._hostpassword = config.ssh_passwd
 
                 connected, connection = connect_ssh(hostname=self.hostname, 
                                                     username=self._hostusername, 
                                                     password=self._hostpassword)
                 if connected:
                     self.connection = connection
+                    if config.ssh_username == None:
+                        config.ssh_username = self._hostusername
+                        config.ssh_passwd = self._hostpassword
                     break
                 print(f'{connection}, \ntry {try_connect}/3\n')
             else:
@@ -134,7 +138,7 @@ def check_remote_data(data_path_input,remote_root_path,geo_instance):
         sys.exit()
 
 
-def  publish_to_geoserver(service_url, workspace, root_path, layer_name, db_settings, parent_path, hostname='localhost'):
+def  publish_to_geoserver(service_url, workspace, root_path, layer_name, db_settings, local_path, hostname='localhost'):
     """
     Creates store and layers to publish drone data using Geoserver application
 
@@ -153,8 +157,8 @@ def  publish_to_geoserver(service_url, workspace, root_path, layer_name, db_sett
        :param db_settings:  is a dictionary with the database settings.
        :type db_settings: Dict
 
-       :param parent_path:  parent path name of module to access styles files.
-       :type parent_path: String
+       :param local_path:  local path name of module to access styles files.
+       :type local_path: String
 
        :param hostname:  IP address from the server where the data will be stored (default is localhost).
        :type hostname: String
@@ -164,28 +168,32 @@ def  publish_to_geoserver(service_url, workspace, root_path, layer_name, db_sett
     styles = {'Thermal':'thermal_style.sld', 'NDVI':'ndvi_style.sld','MS':'multispectral_style.sld'}
     for style_key in styles.keys():
         if style_key in layer_name:
-            style_file=os.path.join(os.path.join(parent_path,'data',styles[style_key]))
+            style_file=os.path.join(os.path.join(local_path,'templates',styles[style_key]))
             break
      
     time_regex='regex=[0-9]{8}' #daily mosaics
     if workspace != 'mosaics':
         time_regex='regex=[0-9]{8}T[0-9]{6}'
 
-    geo = GeoServer(service_url=service_url, workspace=workspace, hostname=hostname)
+    geo = GeoServer(service_url=service_url, workspace=workspace, hostname=hostname, db_settings=db_settings)
 
-    created, message = geo.create_imagemosaic_store(data=os.path.join(root_path,layer_name), layer_name=layer_name, store_name=layer_name,
-                                                    time_regex=time_regex, style=style_file, db_settings=db_settings)
+    created, message = geo.update_imagemosaic_store(data=os.path.join(root_path,layer_name), root_path=os.path.join(root_path,layer_name), layer_name=layer_name,
+                                                        store_name=layer_name, time_regex=time_regex)    
+    print('aqui:\n',created,message)
     if not created:
-        created, message = geo.update_imagemosaic_store(data=os.path.join(root_path,layer_name), root_path=root_path, layer_name=layer_name,
-                                                        store_name=layer_name, time_regex=time_regex, db_settings=db_settings)
+        created, message = geo.create_imagemosaic_store(data=os.path.join(root_path,layer_name), layer_name=layer_name, store_name=layer_name,
+                                                    time_regex=time_regex, style=style_file)
+        print('aqui:\n',created,message)
         if not created:
             print(message,'\n')
             print('Alternative - creating a shapefile with mosaic indexes to publish an ImageMosaic store and coverage!')
-            created, message = geo.create_imagemosaic_store(data=os.path.join(root_path,layer_name), layer_name=layer_name, store_name=layer_name,
-                                                    time_regex=time_regex, style=style_file)
+            created, message = geo.update_imagemosaic_store(data=os.path.join(root_path,layer_name), root_path=os.path.join(root_path,layer_name), layer_name=layer_name,
+                                                        store_name=layer_name, time_regex=time_regex)            
+            print('aqui:\n',created,message)
             if not created:
-                created, message = geo.update_imagemosaic_store(data=os.path.join(root_path,layer_name), root_path=root_path, layer_name=layer_name,
-                                                        store_name=layer_name, time_regex=time_regex)
+                created, message = geo.create_imagemosaic_store(data=os.path.join(root_path,layer_name), layer_name=layer_name, store_name=layer_name,
+                                                    time_regex=time_regex, style=style_file)
+                print('aqui:\n',created,message)
                 if not created:
                     print(message)
                     raise Exception("Impossible to publish the data on Geoserver...")
@@ -203,7 +211,6 @@ def main(argv):
     layer_name = drone_collection['name']
     if drone_collection['metadata'].get('wms'):
         service_url = drone_collection['metadata']['wms']['url'].split('geoserver')[0]+'geoserver'
-        #time_regex='regex=[0-9]{8}' #daily mosaics
         workspace = drone_collection['metadata']['wms']['url'].split('geoserver')[1].split('/')[1]    
     
     print('Publishing data from',layer_name,'collection...')
@@ -223,23 +230,11 @@ def main(argv):
         os.environ['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@{}:5432/bdc".format(geo.hostname) # visible in this process + all children
 
     print('Creating STAC catalog for',layer_name,'collection...')
-    try:
-        result = subprocess.run(['collection-cli','collection','create','--ifile',fname_drone_collection], capture_output=True, text=True, check=True) #BDC collection-register package
-        print(result.stdout)
-        if result.stderr:
-            print(result.stderr)            
-    except Exception as e:
-        if e.returncode != 1 : # Collection creation skipped because it already exists (exit code 1)
-            print(e.output) # print out the stdout messages up to the exception
-            print(e) # To print out the exception message
-            raise Exception("Impossible to create the collection...")
-        else:
-            print('Collection already exists!')       
-    subprocess.run( ['bdc-catalog','load-data','--ifile', fname_drone_collection,'-v'])
+    subprocess.run( ['bdc-catalog','load-data','--ifile', fname_drone_collection,'-v'])    
 
     if 'service_url' in locals(): # Checking that the data needs to be published at Geoserver
         db_settings={'db':'harmonize','schema':'public','user':'postgres'}
-        publish_to_geoserver(service_url, workspace, argv.data_path_input, layer_name, db_settings, parent_path)           
+        publish_to_geoserver(service_url, workspace, argv.data_path_input, layer_name, db_settings, local_path)           
 
 
 if __name__ == "__main__":

@@ -1,20 +1,20 @@
 {
-    "name": "Mavic3M_FlightHeight120m_Mosaic",
-    "title": "Mavic3M_120m_RGB",
-    "description": "Collection of mosaics from drone DJI Mavic 3M based on Visual Lens (RGB) images produced with OpenDroneMap.",
+    "name": "Phantom3Advanced_FlightHeight120m_Mosaic",
+    "title": "Phantom3Adv_120m_RGB",
+    "description": "Collection of mosaics from drone DJI Phantom 3 Advanced produced with Pix4dmapper Pro Education v3.2.23.",
     "temporal_composition_schema": null,
     "composition_function": null,
     "grid_ref_sys": null,
     "collection_type": "mosaic",
     "summaries": {
-        "sensor_dim_x_mm": [17.4],
-        "sensor_dim_y_mm": [13],
-        "focal_length_mm": [12.29]
+        "sensor_dim_x_mm": [6.248],
+        "sensor_dim_y_mm": [4.686],
+        "focal_length_mm": [3.61]
     },
     "metadata": {
         "platform": {
-            "code": "DJI Mavic 3 M",
-            "instruments": ["M3M"]
+            "code": "DJI Phantom 3 Advanced",
+            "instruments": ["FC300S"]
           },
         "contributors": [{"name": "National Institute for Space Research (INPE)",
                           "nameType": "Organizational",
@@ -33,11 +33,11 @@
                     },
         "wms": {
                 "url": "http://localhost:10190/geoserver/mosaics/wms",
-                "layerName": "mosaics:Mavic3M_FlightHeight120m_Mosaic"
+                "layerName": "mosaics:Phantom3Advanced_FlightHeight120m_Mosaic"
                 },
         "sources": [{
-                    "name": "Mavic3M_FlightHeight120m_Mosaic",
-                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_Mosaic-1",
+                    "name": "Phantom3Advanced_FlightHeight120m_Mosaic",
+                    "stacUri": "http://localhost:8080/collections/Phantom3Advanced_FlightHeight120m_Mosaic-1",
                     "descriptionUri": null
                         }]
     },
@@ -53,16 +53,16 @@
             "name": "BLUE",
             "common_name": "blue",
             "description": "",
-            "min_value": 0,
+            "min_value": 1,
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
-                    "resolution_x": 0.030955138921981,
-                    "resolution_y": 0.030955138921981,
+                    "resolution_x": 0.05465,
+                    "resolution_y": 0.05465,
                     "center_wavelength": null,
                     "full_width_half_max": null,
                     "resolution_unit": "Meter"
@@ -73,16 +73,16 @@
             "name": "GREEN",
             "common_name": "green",
             "description": "",
-            "min_value": 0,
+            "min_value": 1,
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
-                    "resolution_x": 0.030955138921981,
-                    "resolution_y": 0.030955138921981,
+                    "resolution_x": 0.05465,
+                    "resolution_y": 0.05465,
                     "center_wavelength": null,
                     "full_width_half_max": null,
                     "resolution_unit": "Meter"
@@ -93,16 +93,16 @@
             "name": "RED",
             "common_name": "red",
             "description": "",
-            "min_value": 0,
+            "min_value": 1,
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
-                    "resolution_x": 0.030955138921981,
-                    "resolution_y": 0.030955138921981,
+                    "resolution_x": 0.05465,
+                    "resolution_y": 0.05465,
                     "center_wavelength": null,
                     "full_width_half_max": null,
                     "resolution_unit": "Meter"
