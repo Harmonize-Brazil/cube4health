@@ -104,7 +104,7 @@ def check_date_format(date: str) -> bool:
 
 
 def chunk_list(list_to_chunk: list, 
-               nchunks: int) -> list:
+               nchunks: int) -> List:
     """
         Yield successive n-sized chunks from lst.
 
