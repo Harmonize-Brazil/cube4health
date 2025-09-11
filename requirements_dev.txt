@@ -11,7 +11,6 @@ twine
 ruff
 
 # EHIPR
-python==3.10
 requests
 geobr
 pandas
@@ -28,7 +27,6 @@ pyarrow
 
 # EDPU
 
-python==3.10
 bdc-catalog @ git+https://github.com/Harmonize-Brazil/bdc-catalog.git@master
 bdc-db @ git+https://github.com/brazil-data-cube/bdc-db@v0.6.3
 geoserver-rest @ git+https://github.com/YuriDomaradzki/geoserver-rest.git@dev

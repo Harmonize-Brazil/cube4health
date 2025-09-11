@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cube4health"
-version = "0.0.1"
 description = "Package cube4health is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination."
 readme = "README.rst"
 authors = [
@@ -26,6 +25,7 @@ classifiers = [
 ]
 license = {text = "GNU General Public License v3"}
 requires-python = ">= 3.10"
+
 dependencies = [
   "requests",
   "geobr",
@@ -60,7 +60,6 @@ dependencies = [
   "timezonefinder[pytz]",
   "defusedxml",
   "opencv-python",
-  "tqdm",
   "click",
   "attrs",
   "branca",
@@ -112,6 +111,10 @@ dependencies = [
   "xyzservices"
 ]
 
+dynamic = ["version"]
+[tool.setuptools_scm]
+version_file = "src/cube4health/__init__.py"
+
 # Extras Dependencies
 [project.optional-dependencies]
 dev = [
@@ -144,15 +147,14 @@ bugs = "https://github.com/Harmonize-Brazil/cube4health/issues"
 changelog = "https://github.com/Harmonize-Brazil/cube4health/blob/master/changelog.md"
 homepage = "https://github.com/Harmonize-Brazil/cube4health"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools.package-data]
 "*" = ["*.*"]
 
-
 [project.scripts]
-cube4health = "cube4health.cli:run"
+cube4health = "cube4health.cli:cli"
 
 
 # Mypy
