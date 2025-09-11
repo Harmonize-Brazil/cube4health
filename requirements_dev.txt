@@ -53,7 +53,7 @@ tqdm
 
 # ECLIMPR
 
-#GDAL==3.4.3
+GDAL==3.8.4
 Jinja2
 MarkupSafe
 SQLAlchemy

@@ -38,7 +38,7 @@ def list_climate_format_files(file_paths, output_dir, variable_input, indicator_
     type_indicator : str
         Type of indicator, which can be: "temp" (temperature), "precip" (precipitation), "dewpoint" (dewpoint temperature), to be processed.
     source: str
-        Source of climate data, can be Copernicus ERA5-Land or CPTEC (SAMeT or MERGE).
+        Source of climate data, can be Copernicus ERA5-Land 'era5land' or CPTEC (SAMeT or MERGE) 'cptec'.
 
     Returns
     -------

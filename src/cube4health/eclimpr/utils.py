@@ -3,13 +3,15 @@ import os
 import re
 import csv
 import shutil
-from datetime import datetime, timedelta
-from datetime import datetime, timedelta
-from epiweeks import Week
 import zipfile
 import pandas as pd
 import numpy as np
 import geopandas as gpd
+from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+from epiweeks import Week
+from importlib import resources
+from typing import Literal
 from natsort import natsorted  # Correct order of filenames
 from tqdm import tqdm
 
@@ -167,7 +169,7 @@ def write_epiweeks_to_file(year_file, save_dir):
         return f.name
 
 
-def create_epiweek_dir(epi_week_file, tifs_dir, epi_week_dir, years_epi_week):
+def create_epiweek_dir(epi_week_file, tifs_dir, epi_week_dir, years):
     """
     Create a set of epidemiological week folders based on the provided CSV file with epidemiological dates.
 
@@ -179,7 +181,7 @@ def create_epiweek_dir(epi_week_file, tifs_dir, epi_week_dir, years_epi_week):
         Path to the directory containing the TIFF files.
     epi_week_dir : str
         Path to the directory where the epidemiological week folders will be created.
-    years_epi_week : list of int
+    years : list of int
         List of years to process (e.g., [2019, 2020]).
 
     Returns
@@ -188,12 +190,12 @@ def create_epiweek_dir(epi_week_file, tifs_dir, epi_week_dir, years_epi_week):
     """
     print("\nCreating epidemiological week folders ...\n")
 
-    # Ensure years_epi_week is a list since if is declared as year or [year]
-    if isinstance(years_epi_week, int):
-        years_epi_week = [years_epi_week]
+    # Ensure years is a list since if is declared as year or [year]
+    if isinstance(years, int):
+        years = [years]
 
     # Generate epidemiological weeks file as CSV
-    #temp_file = write_epiweeks_to_file(years_epi_week, os.path.dirname(epi_week_dir))
+    #temp_file = write_epiweeks_to_file(years, os.path.dirname(epi_week_dir))
 
     # Read the CSV file with epidemiological dates
     week_data = pd.read_csv(epi_week_file) #temp_file)
@@ -210,7 +212,7 @@ def create_epiweek_dir(epi_week_file, tifs_dir, epi_week_dir, years_epi_week):
     week_data["Week"] = week_data["Week"].apply(lambda x: str(x).zfill(2))  # Add leading zero to weeks 1-9
 
     # Filter data for the specified years
-    year_data = week_data[week_data["Year"].isin(years_epi_week)]
+    year_data = week_data[week_data["Year"].isin(years)]
 
     # Check if "dewpoint" and "temp" folders exist
     dewpoint_exists = os.path.exists(os.path.join(tifs_dir, "dewpoint"))
@@ -278,7 +280,7 @@ def remove_empty_directories(directory):
                 print(f"Processing error {dir_path}: {e}")
 
 
-def create_months_dir(tifs_dir, month_dir, years_month):
+def create_months_dir(tifs_dir, month_dir, years):
     """
     Create a set of month folders based on dates and move TIFF files into the corresponding folders.
 
@@ -288,7 +290,7 @@ def create_months_dir(tifs_dir, month_dir, years_month):
         Path to the directory containing the TIFF files.
     month_dir : str
         Path to the directory where the month folders will be created.
-    years_month : list of int
+    years : list of int
         List of years to process (e.g., [2019, 2020]).
 
     Returns
@@ -319,7 +321,7 @@ def create_months_dir(tifs_dir, month_dir, years_month):
     unique_months = sorted(set(datetime.strptime(date, "%Y-%m-%d").strftime("%Y-%m") for date in all_dates))
 
     # Filter months by the specified years
-    unique_months = [month for month in unique_months if int(month.split("-")[0]) in years_month]
+    unique_months = [month for month in unique_months if int(month.split("-")[0]) in years]
 
     # Move daily TIFFs to each folder with month
     for month in unique_months:
@@ -391,7 +393,7 @@ def create_new_dir(output_dir, folder_name):
     return new_dir
 
 
-def move_indicators_cog_files(main_dir, indicator_name_local, color_png_file, extension_folder, extension_spatial, aggregation="all"):
+def move_indicators_cog_files(main_dir, output_final_dir, indicator_name_local, color_png_file, extension_folder, extension_spatial, source, aggregation="all"):
     """
     Move COG files to new folders based on specified max, min, and/or mean indicators.
 
@@ -399,6 +401,8 @@ def move_indicators_cog_files(main_dir, indicator_name_local, color_png_file, ex
     ----------
     main_dir : str
         Folder containing epiweeks or months with TIFF files.
+    output_final_dir : str
+        Directory path where the indicators generated will be stored. 
     indicator_name_local : list of str
         List containing the indicator name to add in output files.
     color_png_file : str
@@ -409,6 +413,8 @@ def move_indicators_cog_files(main_dir, indicator_name_local, color_png_file, ex
         Aggregation spatial ("municipality", "mun", "health region", "hr", or "state") to add in output files.
     aggregation : str or list of str, optional
         Aggregations to process: "all", or list containing any of ["max", "min", "mean"].
+    source: str
+        Source of climate data, can be Copernicus ERA5-Land 'era5land' or CPTEC (SAMeT or MERGE) 'cptec'.    
 
     Returns
     -------
@@ -434,7 +440,7 @@ def move_indicators_cog_files(main_dir, indicator_name_local, color_png_file, ex
     dirs = {}
     img_dirs = {}
     for agg in aggregation:
-        agg_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_{agg}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}")
+        agg_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_{agg}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}_{source}")
         agg_img_dir = os.path.join(agg_dir, "images")
         os.makedirs(agg_dir, exist_ok=True)
         os.makedirs(agg_img_dir, exist_ok=True)
@@ -463,6 +469,14 @@ def move_indicators_cog_files(main_dir, indicator_name_local, color_png_file, ex
     df.sort()
 
     np.savetxt(os.path.join(main_dir, "timeline_indicator.txt"), df, fmt='%s')
+
+    # Copy created aggregation folders to output_final_dir
+    for agg, agg_dir in dirs.items():
+        dest_dir = os.path.join(output_final_dir, os.path.basename(agg_dir))
+        if os.path.exists(dest_dir):
+            shutil.rmtree(dest_dir)  # Remove if already exists, to avoid mixing old/new files
+        shutil.copytree(agg_dir, dest_dir)
+        print(f"\nCopied {agg_dir} -> {dest_dir}")
 
     print("... Done\n")
 
@@ -648,7 +662,7 @@ def create_shp_from_epiweek(main_dir, shapefile_path, dates_col, indicator_name_
     print(f"\n... Created {count_shp} Shapefiles. Done.")
 
 
-def move_indicators_shapefiles_files(main_dir, indicator_name_local, color_png_file, extension_folder, extension_spatial, dates_col, anomaly_data=None, aggregation="all", data_source = None):
+def move_indicators_shapefiles_files(main_dir, output_final_dir, indicator_name_local, color_png_file, extension_folder, extension_spatial, dates_col, source, anomaly_data=None, aggregation="all", data_source = None):
     """
     Move shapefiles to new folders with max, min and/or mean data.
 
@@ -656,6 +670,8 @@ def move_indicators_shapefiles_files(main_dir, indicator_name_local, color_png_f
     ----------
     main_dir : str
         Folder with epiweeks and TIFs.
+    output_final_dir : str
+        Directory path where the indicators generated will be stored. 
     indicator_name_local : List[str]
         Indicator name to add in output files.
     color_png_file : str
@@ -672,6 +688,8 @@ def move_indicators_shapefiles_files(main_dir, indicator_name_local, color_png_f
         Aggregations to process: "all" (default), or list containing any of ["max", "min", "mean"].
     data_source : str, optional
         Name of the data source used to generate the shapefiles. This information will be added to the file metadata and may include sources such as "ERA5-Land (Copernicus)", "MERGE (CPTEC/INPE)", "SAMeT (CPTEC/INPE)", or other climate or environmental datasets.
+    source: str
+        Source of climate data, can be Copernicus ERA5-Land 'era5land' or CPTEC (SAMeT or MERGE) 'cptec'.    
 
     Returns
     -------
@@ -700,7 +718,7 @@ def move_indicators_shapefiles_files(main_dir, indicator_name_local, color_png_f
     # Create directories for each aggregation
     dirs = {}
     for agg in aggregation:
-        agg_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_{agg}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}")
+        agg_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_{agg}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}_{source}")
         os.makedirs(agg_dir, exist_ok=True)
         dirs[agg] = agg_dir
 
@@ -740,6 +758,14 @@ def move_indicators_shapefiles_files(main_dir, indicator_name_local, color_png_f
                 os.remove(copied_file)
                 #print(f"{copied_file}")
 
+    # Copy created aggregation folders to output_final_dir
+    for agg, agg_dir in dirs.items():
+        dest_dir = os.path.join(output_final_dir, os.path.basename(agg_dir))
+        if os.path.exists(dest_dir):
+            shutil.rmtree(dest_dir)  # Remove if already exists, to avoid mixing old/new files
+        shutil.copytree(agg_dir, dest_dir)
+        print(f"\nCopied {agg_dir} -> {dest_dir}")
+
     print("\n... Done\n")
 
 
@@ -747,7 +773,7 @@ def move_indicators_shapefiles_files(main_dir, indicator_name_local, color_png_f
 # Functions to deal with anomaly data:
 # -----------
 
-def move_indicators_shapefiles_files_anomaly(main_dir, indicator_name_local, color_png_file,extension_folder, extension_spatial, dates_col, anomaly_data= None, data_source=None):
+def move_indicators_shapefiles_files_anomaly(main_dir, output_final_dir, indicator_name_local, color_png_file,extension_folder, extension_spatial, dates_col, source, anomaly_data= None, data_source=None):
     """
     Move shapefiles to new folders with anomaly data.
 
@@ -755,6 +781,8 @@ def move_indicators_shapefiles_files_anomaly(main_dir, indicator_name_local, col
     ----------
     main_dir : str
         Folder with epiweeks and TIFs.
+    output_final_dir : str
+        Directory path where the indicators generated will be stored.     
     indicator_name_local : List[str]
         Indicator names to add in output files (e.g., ["temp"]).
     color_png_file : str
@@ -769,6 +797,8 @@ def move_indicators_shapefiles_files_anomaly(main_dir, indicator_name_local, col
         If False, uses cut. If True, another function is used to handle anomaly data.
    data_source : str, optional
         Name of the data source used to generate the shapefiles. This information will be added to the file metadata and may include sources such as "ERA5-Land (Copernicus)", "MERGE (CPTEC/INPE)", "SAMeT (CPTEC/INPE)", or other climate or environmental datasets.
+    source: str
+        Source of climate data, can be Copernicus ERA5-Land 'era5land' or CPTEC (SAMeT or MERGE) 'cptec'.  
 
     Notes
     -----
@@ -789,8 +819,8 @@ def move_indicators_shapefiles_files_anomaly(main_dir, indicator_name_local, col
                     if os.path.isfile(os.path.join(main_dir, f)) and 'anomaly_ndays' in f]
 
     # Create target directories
-    max_con = os.path.join(main_dir, f"anomaly_cdays_{indicator_name_local[0]}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}")
-    max_num = os.path.join(main_dir, f"anomaly_ndays_{indicator_name_local[0]}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}")
+    max_con = os.path.join(main_dir, f"anomaly_cdays_{indicator_name_local[0]}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}_{source}")
+    max_num = os.path.join(main_dir, f"anomaly_ndays_{indicator_name_local[0]}_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}_{source}")
 
     os.makedirs(max_con, exist_ok=True)
     os.makedirs(max_num, exist_ok=True)
@@ -845,6 +875,14 @@ def move_indicators_shapefiles_files_anomaly(main_dir, indicator_name_local, col
             os.remove(copied_file)
             #print(f"{copied_file}")
 
+    # Copy both max_con and max_num folders to output_final_dir
+    for src_dir in (max_con, max_num):
+        dest_dir = os.path.join(output_final_dir, os.path.basename(src_dir))
+        if os.path.exists(dest_dir):
+            shutil.rmtree(dest_dir)  # Remove if already exists, to avoid mixing old/new files
+        shutil.copytree(src_dir, dest_dir)
+        print(f"\nCopied {src_dir} -> {dest_dir}")        
+
     print("\n... Done\n")
 
 
@@ -852,7 +890,7 @@ def move_indicators_shapefiles_files_anomaly(main_dir, indicator_name_local, col
 # Functions to deal with relative humidity data:
 # -----------
 
-def move_rhumidity_COG_files(main_dir, indicator_name_local, color_png_file, extension_folder, extension_spatial):
+def move_rhumidity_COG_files(main_dir, output_final_dir, indicator_name_local, color_png_file, extension_folder, extension_spatial, source):
     """
     Move COG files to new folders to relative humidity.
 
@@ -860,6 +898,8 @@ def move_rhumidity_COG_files(main_dir, indicator_name_local, color_png_file, ext
     ----------
     main_dir : str
         Folder containing epiweeks or months with TIFF files.
+    output_final_dir : str
+        Directory path where the indicators generated will be stored.    
     indicator_name_local : list of str
         List containing the indicator name to add in output files.
     color_png_file : str
@@ -868,6 +908,8 @@ def move_rhumidity_COG_files(main_dir, indicator_name_local, color_png_file, ext
         Extension folder ("epiweek" or "month") to add in output files.
     extension_spatial : str
         Aggregation spatial ("municipality", "mun", "health region", "hr", or "state") to add in output files.
+    source: str
+        Source of climate data, can be Copernicus ERA5-Land 'era5land' or CPTEC (SAMeT or MERGE) 'cptec'.      
 
     Returns
     -------
@@ -881,7 +923,7 @@ def move_rhumidity_COG_files(main_dir, indicator_name_local, color_png_file, ext
     filenames = natsorted(filenames)
 
     # Create directories for mean relative humidity
-    mean_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_percent_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}")
+    mean_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_percent_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}_{source}")
     os.makedirs(mean_dir, exist_ok=True)
 
     img_mean_dir = os.path.join(mean_dir, "images")
@@ -911,11 +953,17 @@ def move_rhumidity_COG_files(main_dir, indicator_name_local, color_png_file, ext
     # Save in directory
     np.savetxt(os.path.join(main_dir, "timeline_indicator.txt"), df, fmt='%s')
 
-    # Print a message indicating that the process was finished successfully
+    # Copy created mean_dir folder to output_final_dir        
+    dest_dir = os.path.join(output_final_dir, os.path.basename(mean_dir))
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)  # remove se já existir
+    shutil.copytree(mean_dir, dest_dir)
+    print(f"\nCopied {mean_dir} -> {dest_dir}") 
+
     print("... Done\n")
 
 
-def move_rhumidity_shapefiles_files(main_dir, indicator_name_local, color_png_file,extension_folder, extension_spatial, dates_col, data_source=None):
+def move_rhumidity_shapefiles_files(main_dir, output_final_dir, indicator_name_local, color_png_file,extension_folder, extension_spatial, dates_col, source, data_source=None):
     """
     Move shapefiles to new folders with relative humidity data.
 
@@ -923,6 +971,8 @@ def move_rhumidity_shapefiles_files(main_dir, indicator_name_local, color_png_fi
     ----------
     main_dir : str
         Folder with epiweeks and TIFs.
+    output_final_dir : str
+        Directory path where the indicators generated will be stored. 
     indicator_name_local : List[str]
         Indicator names to add in output files (e.g., ["temp"]).
     color_png_file : str
@@ -935,6 +985,8 @@ def move_rhumidity_shapefiles_files(main_dir, indicator_name_local, color_png_fi
         DataFrame with a list of epiweeks start and end dates.
     data_source : str, optional
         Name of the data source used to generate the shapefiles. This information will be added to the file metadata and may include sources such as "ERA5-Land (Copernicus)", "MERGE (CPTEC/INPE)", "SAMeT (CPTEC/INPE)", or other climate or environmental datasets.
+    source: str
+        Source of climate data, can be Copernicus ERA5-Land 'era5land' or CPTEC (SAMeT or MERGE) 'cptec'.  
 
 
     Returns
@@ -950,7 +1002,7 @@ def move_rhumidity_shapefiles_files(main_dir, indicator_name_local, color_png_fi
                     if os.path.isfile(os.path.join(main_dir, f)) and '_percent_' in f]
 
     # Create target directories
-    mean_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_percent_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}")
+    mean_dir = os.path.join(main_dir, f"{indicator_name_local[0]}_percent_{indicator_name_local[1]}_{extension_spatial}_{extension_folder}_{source}")
     os.makedirs(mean_dir, exist_ok=True)
 
     # Move relative data files
@@ -985,4 +1037,76 @@ def move_rhumidity_shapefiles_files(main_dir, indicator_name_local, color_png_fi
             os.remove(copied_file)
             #print(f"{copied_file}")
 
+    # Copy created mean_dir folder to output_final_dir        
+    dest_dir = os.path.join(output_final_dir, os.path.basename(mean_dir))
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)  # remove se já existir
+    shutil.copytree(mean_dir, dest_dir)
+    print(f"\nCopied {mean_dir} -> {dest_dir}") 
+
     print("\n... Done\n")
+
+
+# Path to colors palette used in raster and shapefiles
+
+DEFAULT_COLOR_FILES = {
+    "temperature": str(resources.files("cube4health.eclimpr.templates") / "color_temperature.txt"),
+    "precipitation": str(resources.files("cube4health.eclimpr.templates") / "color_precipitation.txt"),
+    "humidity": str(resources.files("cube4health.eclimpr.templates") / "color_relative_humidity.txt"),
+    "anomaly_epiweek": str(resources.files("cube4health.eclimpr.templates") / "color_anomaly_epiweek.txt"),
+    "anomaly_month": str(resources.files("cube4health.eclimpr.templates") / "color_anomaly_month.txt"),
+}
+
+DEFAULT_ANOMALY_FILES = {
+    "conventional_stations": str(resources.files("cube4health.eclimpr.templates") / "CatalogoEstacoesConvencionais.csv"),
+    "climatological_normal": str(resources.files("cube4health.eclimpr.templates") / "Normal-Climatologica-TMAX.xlsx"),
+}
+
+def get_default_color_file(
+    indicator: Literal["temperature", "precipitation", "humidity", "anomaly_epiweek", "anomaly_month"]) -> str:
+    """
+    Get the default color file path for a given indicator.
+
+    Parameters
+    ----------
+    indicator : {"temperature", "precipitation", "humidity", "anomaly_epiweek", "anomaly_month"}
+        The indicator for which to retrieve the default color file.
+ 
+    Returns
+    -------
+    str
+        Absolute path to the default color file corresponding to the given indicator.
+
+    Examples
+    --------
+    >>> get_default_color_file("temperature")
+    '/.../eclimpr/templates/color_temperature.txt'
+    """
+   
+    return DEFAULT_COLOR_FILES[indicator]
+
+
+def get_default_anomaly_file(
+    anomaly_files: Literal["conventional_stations", "climatological_normal"]) -> str:
+    """
+    Get the default anomaly auxiliary files path for a anomaly indicator.
+
+    Parameters
+    ----------
+    anomaly_files : {"conventional_stations", "climatological_normal"}
+        The anomaly_files for which to retrieve the default auxiliary files to deal with anomaly indicator.
+ 
+    Returns
+    -------
+    str
+        Absolute path to the default anomaly files corresponding to the anomaly indicator.
+
+    Examples
+    --------
+    >>> get_default_anomaly_file("estacoes_convencionais")
+    '/.../eclimpr/templates/CatalogoEstacoesConvencionais.csv'
+    """
+   
+    return DEFAULT_ANOMALY_FILES[anomaly_files]
+
+
