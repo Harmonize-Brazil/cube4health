@@ -1,51 +1,123 @@
-.. highlight:: shell
+..
+    This file is part of Python cube4health package.
+    Copyright (C) 2025 HARMONIZE/INPE.
 
-============
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
+
+
 Installation
 ============
 
-
-Stable release
---------------
-
-To install cube4health, run this command in your terminal:
-
-.. code-block:: console
-
-    $ pip install cube4health
-
-This is the preferred method to install cube4health, as it will always install the most recent stable release.
-
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
-
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
+The ``cube4health`` relies primarily on the Geospatial Data Abstraction Library (`GDAL <https://gdal.org/en/stable/>`_) for raster processing. Please read the instructions below to install ``cube4health``.
 
 
-From sources
-------------
+Development Installation
+------------------------
 
-The sources for cube4health can be downloaded from the `Github repo`_.
+Install the GDAL library and its development header files on your system (Linux systems):
 
-You can either clone the public repository:
+.. code-block:: shell
 
-.. code-block:: console
+        sudo apt-get update && sudo apt-get upgrade
+        sudo apt-get install -y g++ && sudo apt-get install -y gdal-bin libgdal-dev
 
-    $ git clone git://github.com/marcosmlr/cube4health
+Install the Python dependencies and build numpy-based raster support (Linux systems):
 
-Or download the `tarball`_:
+.. code-block:: shell
 
-.. code-block:: console
+        export GDAL_VERSION=$(gdal-config --version)
+        export CPLUS_INCLUDE_PATH=/usr/include/gdal
+        export C_INCLUDE_PATH=/usr/include/gdal
+        pip3 install --upgrade "pip<=25.2" wheel numpy
+        pip3 install --use-pep517 --no-build-isolation --no-cache-dir --force-reinstall gdal[numpy]==`gdal-config --version`
 
-    $ curl -OJL https://github.com/marcosmlr/cube4health/tarball/master
+Verify that numpy-based raster support has been installed:
 
-Once you have a copy of the source, you can install it with:
+.. code-block:: shell
 
-.. code-block:: console
+        python -c "from osgeo import gdal, gdal_array ; print(gdal.__version__)"
 
-    $ python setup.py install
+**Obs.:** If this command raises an ImportError, numpy-based raster support has not been properly installed. Please see these `related issues and solutions <ISSUES.rst>`_!
+
+Source code from Github:
+
+.. code-block:: shell
+
+        pip install git+https://github.com/Harmonize-Brazil/cube4health.git
+
+Alternative using *Python Virtual Environment*:
+
+1. Clone the software repository:
+
+.. code-block:: shell
+
+        git clone https://github.com/Harmonize-Brazil/cube4health.git
+
+2. Go to the source code folder:
+
+.. code-block:: shell
+
+        cd cube4health
+
+3. Create a new virtual environment linked to Python 3.10:
+
+.. code-block:: shell
+
+        python3.10 -m venv venv
+
+4. Activate the new environment:
+
+.. code-block:: shell
+
+        source venv/bin/activate
+
+5. Install using custom setup for GDAL bindings:
+
+.. code-block:: shell
+
+        ./setup_env.sh
+        
+**Obs.:** This installs the package in development mode, allowing you to modify the code without having to rebuild the package.
+
+Problems with GDAL import? Please see these `related issues and solutions <ISSUES.rst>`_!
 
 
-.. _Github repo: https://github.com/marcosmlr/cube4health
-.. _tarball: https://github.com/marcosmlr/cube4health/tarball/master
+Build the Documentation
+-----------------------
+
+You can automate the documentation process building using Sphinx. Basically, it takes the .rst files and converts them to HTML.
+
+1. Install Sphinx:
+
+.. code-block:: shell
+
+        pip install -e .[docs]
+
+
+2. Build docs:
+
+.. code-block:: shell
+
+        sphinx-build docs docs/_build/html
+
+        
+**Obs.:** The above command will generate the documentation in HTML and it will place it under: ``docs/sphinx/_build/html/``
+
+3. Access docs:
+
+.. code-block:: shell
+
+        firefox docs/_build/html/index.html
+
+Use your favorite browser (For example Firefox) to open the documentation.

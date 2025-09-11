@@ -50,11 +50,11 @@ from .lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
 from .models.db import save_data_db
 from .config import CPU_COUNT
 
-from src.cube4health.edpu import (
+from cube4health.edpu import (
     STAC,
     GeoServer
 )
-from src.cube4health.edpu.utils import (
+from cube4health.edpu.utils import (
     get_round_value,
     _check_existence_dirs,
     send_files_ssh

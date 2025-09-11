@@ -171,8 +171,10 @@ def send_files_ssh(ssh: SSHClient,
             SSH client object.
         paths : List[Dict[str, List[str]]]
             List of paths to send to the remote server.
+
     Returns
     -------
+    
         Boolean value indicating if the file was sent.
     """
 
@@ -376,24 +378,31 @@ def get_round_value(gdf: gpd.GeoDataFrame,
                     column_name: str = 'vl', 
                     only_round: bool = False) -> Union[Tuple[str, float, float, int], int]:
     """
-        Rounds a point number of a column from GeoDataFrame.
+    Rounds a point number of a column from a GeoDataFrame.
 
     Parameters
     ----------
-        gdf : gpd.GeoDataFrame, 
-            The GeoDataFrame that contains the column that will be rounded.
-        column_name : str, default value is 'vl',
-            The column name that will be rounded.
-        only_round : bool, default value is False.
-            A parameter that modifies the return value. If it's true, will return the 
-            value of decimal cases to round. If not, it will returns a column name, 
-            the minimum value, the value of the interval and the value of decimal cases
-            to round.
+    gdf : gpd.GeoDataFrame
+        The GeoDataFrame that contains the column to be rounded.
+    column_name : str, optional
+        The column name to be rounded. Default is 'vl'.
+    only_round : bool, optional
+        If True, returns only the number of decimal places to round.
+        If False, returns a tuple containing the column name, minimum value,
+        interval value, and number of decimal places.
 
-        Returns
-        --------
-            A tuple that contains the column name, the minimum value, the value of the
-            interval and the value of decimal cases to round.
+    Returns
+    -------
+    Union[int, Tuple[str, float, float, int]]
+        If `only_round` is True:
+            - An integer indicating the number of decimal places to round.
+
+        If `only_round` is False:
+            - A tuple containing:
+                - column_name (str): The name of the column.
+                - min_value (float): The minimum value in the column.
+                - interval (float): The interval value.
+                - decimals (int): Number of decimal places to round.
     """
     try:
         by_columns = gdf.filter(like=column_name, axis=1).astype('float')

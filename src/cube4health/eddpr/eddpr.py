@@ -52,12 +52,14 @@ import tempfile
 from argparse import ArgumentParser, SUPPRESS
 if __name__ !=  "__main__":
     from .drone_projection_warp import main as drone_projection_warp
+    from .drone_projection_warp import prepare_thumbnail_v2, get_xmp_info
     from .drone_correction_projection_warp import main as drone_correction_projection_warp
     from .arghelper import is_valid_file, is_valid_directory, is_valid_namefile
     from .publish_drone_data import main as publish_drone_data 
 
+
 local_path = os.path.dirname(os.path.abspath(__file__))
-parent_path = Path(local_path).parent.absolute()
+
 
 gdal.UseExceptions()  # this allows GDAL to throw Python Exceptions
 Image.MAX_IMAGE_PIXELS = None #to prevent the problem of size image
@@ -421,7 +423,8 @@ def calc_ndvi(out_fname, fname):
         NIR = arr[bands['NIR'],...]
         Red = arr[bands['Red'],...]
         ndvi = (NIR - Red)/(NIR + Red)
-        ndvi = np.where((ndvi<-1.)|(ndvi>1.),np.nan,ndvi) #remove outliers
+        ndvi = np.where((ndvi<-1.),-1.,ndvi) #remove outliers
+        ndvi = np.where((ndvi>1.),1.,ndvi) #remove outliers
         ndvi[np.isnan(ndvi)] = -9999. # define nodata
 
         driver = gdal.GetDriverByName('MEM') #To avoid error of overview creation
@@ -519,6 +522,13 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                     bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = drone_projection_warp(args)
                 else:
                     bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = get_raster_info(cog_file)
+                    # Check and create thumbnail:
+                    f_thumb_out = cog_file.replace('.tif','.png')
+                    if os.path.exists( f_thumb_out) != True:
+                         xmp_info = get_xmp_info(file)
+                         # Create a thumbnail:
+                         prepare_thumbnail_v2(f_thumb_out, file, xmp_info['flight_yaw_degree'])
+
                 
                 name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_'+'_'.join(mission.split('_')[0:2])+'_'+ date.replace('-','') + time.replace(':','')
                 start = date+'T'+time
@@ -692,7 +702,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                 
                 tmp_file = tiff_file.replace('.tif','_scalled.tif')
                 gdal.Translate(tmp_file, str(file), options="-a_nodata "+str(nodata)+" -ot Byte -outsize 10% 10%")
-                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file=os.path.join(os.path.join(parent_path,'data','temperature-color.txt')))
+                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file=os.path.join(os.path.join(local_path,'templates','temperature-color.txt')))
                 os.remove(tmp_file)
                 print('Finished thumbnail creation!')
 
@@ -860,7 +870,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                 os.environ['GDAL_PAM_ENABLED']='NO' #avoid .xml file creation             
                 tmp_file = tiff_file.replace('.tif','_scalled.tif')                
                 gdal.Translate(tmp_file, str(tiff_file), options="-ot Float32 -outsize 10% 10%")
-                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file=os.path.join(os.path.join(parent_path,'data','ndvi-color.txt')))
+                create_png_from_raster(raster_tif=tmp_file, output_file=f_out, color_png_file=os.path.join(os.path.join(local_path,'templates','ndvi-color.txt')))
                 os.remove(tmp_file)
                 print('Finished thumbnail creation!')
 
@@ -1102,7 +1112,7 @@ def main(argv):
 
     templates = {}
     # Reading templates information about collections of drones: 
-    for fname_rpa_template in Path(os.path.join(parent_path,'data')).rglob('*_template.json'):
+    for fname_rpa_template in Path(os.path.join(local_path,'templates')).rglob('*_template.json'):
         with open(fname_rpa_template, 'r') as f:
             templates[os.path.basename(fname_rpa_template).replace('_template.json','')] = json.load(f)
 

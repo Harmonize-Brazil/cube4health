@@ -21,11 +21,18 @@
 """Command line interface for the cube4health package."""
 import click
 from .cube4health import Cube4Health
+from . import config #cube4health global variables
+from . import __version__
 
+@click.group()
+@click.version_option(__version__, prog_name="cube4health CLI Tool")
+def cli():
+    """A CLI tool for cube4health package."""
+    pass
 
-@click.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
-@click.option('--module',required=True, type=click.Choice(['eddpr', 'ehipr', 'eclimpr']), help='Choose a module.')
+@cli.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
+@click.option('--module', required=True, type=click.Choice(['eddpr', 'ehipr', 'eclimpr']), help='Choose a module.')
 def run(module):
+    """Run a module: cube4health run --module eddpr"""
     cube_obj = Cube4Health()
     cube_obj.run(module=module)
-

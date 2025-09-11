@@ -1,21 +1,21 @@
 {
-    "name": "Phantom3Advanced_FlightHeight150m",
-    "title": "Phantom3Adv_150m_RGB",
-    "description": "Collection of images from drone DJI Phantom 3 Advanced projected based on GPS center coordinates, flight height (150 meters) and course angle information.",
+    "name": "Mavic3M_FlightHeight120m",
+    "title": "Mavic3M_120m_RGB",
+    "description": "Collection of images from drone DJI Mavic 3M based on Visual Lens (RGB) projected using GPS center coordinates, flight height (120 meters) and flight yaw degree information.",
     "temporal_composition_schema": null,
     "composition_function": null,
     "grid_ref_sys": null,
     "collection_type": "collection",
     "summaries": {
-                  "gsd": [0.06490304709141274],
-                  "sensor_dim_x_mm": [6.248],
-                  "sensor_dim_y_mm": [4.686],
-                  "focal_length_mm": [3.61]
+        "gsd": [0.032176936163917453], 
+        "sensor_dim_x_mm": [17.4],
+        "sensor_dim_y_mm": [13],
+        "focal_length_mm": [12.29]
     },
     "metadata": {
         "platform": {
-            "code": "DJI Phantom 3 Advanced",
-            "instruments": ["FC300S"]
+            "code": "DJI Mavic 3 M",
+            "instruments": ["M3M"]
           },
         "contributors": [{"name": "National Institute for Space Research (INPE)",
                         "nameType": "Organizational",
@@ -33,13 +33,13 @@
                     "version": "0.0.1"
                     },
         "sources": [{
-                    "name": "Phantom3Advanced_FlightHeight150m",
-                    "stacUri": "http://localhost:8080/collections/Phantom3Advanced_FlightHeight150m-1",
+                    "name": "Mavic3M_FlightHeight120m",
+                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m-1",
                     "descriptionUri": null
                     }
-                ]        
+                ]
     },
-    "is_public": false,
+    "is_public": true,
     "is_available": true,
     "version": 1,
     "version_predecessor": null,
@@ -47,14 +47,22 @@
     "bdc:type": "collection",
     "category": "eo",
     "properties": {
+        "renders": {
+            "tci": {
+                "title": "True Color Image",
+                "assets": [
+                    "file"
+                ],
+                "resampling": "nearest"
+            }
+        },
         "bdc:visual": {
-            "rgb": [
-                "RED",
-                "GREEN",
-                "BLUE"
-                ]
-                    }
+            "tci": ["file"]
+        }
     },
+    "bdc:applications": [
+        "BDCExplorer"
+    ],
     "bands": [
         {
             "name": "BLUE",
@@ -64,12 +72,12 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
-                    "resolution_x": 0.06490304709141274,
-                    "resolution_y": 0.06490304709141274,
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
                     "center_wavelength": null,
                     "full_width_half_max": null,
                     "resolution_unit": "Meter"
@@ -84,12 +92,12 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
-                    "resolution_x": 0.06490304709141274,
-                    "resolution_y": 0.06490304709141274,
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
                     "center_wavelength": null,
                     "full_width_half_max": null,
                     "resolution_unit": "Meter"
@@ -104,18 +112,18 @@
             "max_value": 255,
             "nodata": 0,
             "scale": 1,
-            "data_type": "int8",
+            "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
             "metadata": {
                 "eo": {
-                    "resolution_x": 0.06490304709141274,
-                    "resolution_y": 0.06490304709141274,
+                    "resolution_x": 0.032176936163876,
+                    "resolution_y": 0.032176936163876,
                     "center_wavelength": null,
                     "full_width_half_max": null,
                     "resolution_unit": "Meter"
                 }
             }            
         }
-    ]  
+    ]    
 }
         
