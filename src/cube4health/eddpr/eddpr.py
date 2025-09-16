@@ -1105,11 +1105,6 @@ def main(argv):
     # Check required parameters:
     argv, unknown = parser.parse_known_args()
     
-    # option = None
-    # if argv.publish_data == 'True':
-    #     while(option != 'new' or option != 'update'):
-    #         option = input('Please type the required option new (to create) or update (to add new items) to a collection(s)')
-
     templates = {}
     # Reading templates information about collections of drones: 
     for fname_rpa_template in Path(os.path.join(local_path,'templates')).rglob('*_template.json'):
