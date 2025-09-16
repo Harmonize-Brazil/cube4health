@@ -4,7 +4,7 @@ import gc
 import geopandas as gpd
 from shapely.geometry import box
 
-from .utils import (
+from cube4health.eclimpr.utils import (
     write_epiweeks_to_file,
     create_new_dir,
     create_epiweek_dir,
@@ -13,12 +13,12 @@ from .utils import (
     create_months_dir,
     get_default_color_file
 )
-from .generate_cog_tiff import list_climate_format_files
-from .process_shapefile import (
+from cube4health.eclimpr.generate_cog_tiff import list_climate_format_files
+from cube4health.eclimpr.process_shapefile import (
     crop_raster_by_area,
     save_map_shapefile
 )
-from .extract_aggregations import extract_indicators_max_min_mean
+from cube4health.eclimpr.extract_aggregations import extract_indicators_max_min_mean
 
 # -----------
 # Functions:

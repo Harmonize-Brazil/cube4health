@@ -15,7 +15,7 @@ from typing import Literal
 from natsort import natsorted  # Correct order of filenames
 from tqdm import tqdm
 
-from .generate_png_file import (
+from cube4health.eclimpr.generate_png_file import (
     create_png_from_cog_file,
     create_png_from_shp_file
 )
