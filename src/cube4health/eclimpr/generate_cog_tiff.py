@@ -9,7 +9,7 @@ from osgeo import gdal
 from natsort import natsorted  # Correct order of filenames
 from tqdm import tqdm
 
-from .utils import read_files_inputs
+from cube4health.eclimpr.utils import read_files_inputs
 
 # EPSG:4326 - WGS 84/World Geodetic System 1984, used in GPS. Source: https://epsg.io/4326 - Set up transformers, unit EPSG:4326 is degree
 

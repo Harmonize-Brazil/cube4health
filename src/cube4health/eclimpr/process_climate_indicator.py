@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from . import (
+from cube4health.eclimpr import (
     process_era5land_temp,
     process_era5land_precip,
     process_era5land_anomaly,
@@ -20,39 +20,122 @@ def process_climate_indicator(main_dir, output_dir, folder_name, shapefile_path,
     Parameters
     ----------
     main_dir : str
-        Directory path where the NetCDF or GRIB files are stored.
+        Directory path where the source NetCDF/GRIB files are stored (input root).
     output_dir : str
-        Directory path where the indicators generated will be stored.
+        Directory path where outputs (rasters/vector files/PNGs) will be written.
     folder_name : str
-        Name of the folder to be created for output files.
+        Name of the output subfolder (e.g., regional scope like ``"northeast"``).
     shapefile_path : str
-        Path to the Shapefile of the study area.
+        Path to the study-area Shapefile used for clipping/aggregation.
     variable_name : str
-        Variable name in the NetCDF file (e.g., '2m_temperature', 'temp').
+        Name of the variable in the data files (e.g., ``"2m_temperature"``, ``"temp"``).
     years : iterable of int or str
-        List of years or a single year to process (e.g., [2020, 2021]).
-    color_png_file : str
-        Path to the file with color ranges for PNG output. Default is provided by package
-    aggregation_type : str or iterable of str, optional
-        Aggregations to compute (e.g., 'max', 'min', 'mean', or 'all'). Default is 'all'. Ignored by some indicators that do not support it.
+        Year or list of years to process (e.g., ``[2019, 2020]`` or ``"2020"``).
+    color_png_file : str, optional
+        Path to a color table used when exporting PNGs. If ``None``, a package default is used
+        (e.g., templates under ``eclimpr/templates``).
+    aggregation_type : {"max", "min", "mean", "all"}, optional
+        Statistical aggregation(s) to compute over the selected temporal unit.
+        If ``"all"``, every supported aggregation for that indicator is computed.
+        Default is ``"max"``. (Some indicators may ignore this parameter.)
     interval_file_path : str, optional
-        Path to a custom interval file (used when "provide_interval=True" for epidemiological week flows).
+        Path to a custom interval definition file for epidemiological weeks. Used only when
+        ``provide_interval=True``.
     provide_interval : bool, optional
-        If True, allows the user to provide a custom interval file. Default is False (use standard epidemiological weeks).
-    type_indicator : {{"temp_era5land", "precip_era5land", "anomaly_era5land", "humidity_era5land", "temp_cptec", "precip_cptec"}}, required
-        Which indicator family to process. Default is "temp_era5land".
-    spatial_aggregation : {{"epiweek", "month"}}, required
-        Temporal aggregation unit. Default is "epiweek".
+        If ``True``, enables the use of a custom epidemiological weeks calendar provided via ``interval_file_path``.
+        If ``False``, the standard epidemiological weeks calendar is used. Default is ``False``.
+    type_indicator : {"temp_era5land", "precip_era5land", "anomaly_era5land", "humidity_era5land",
+                    "temp_cptec", "precip_cptec"}, optional
+        Indicator family to process. Default is ``"temp_era5land"``.
+    spatial_aggregation : {"epiweek", "month"}, optional
+        Temporal aggregation unit. Default is ``"epiweek"``.
+    **kwargs
+        Extra keyword arguments forwarded to the specialized processing functions (e.g., resampling parameters, nodata handling, compression options, etc.).
     
     Returns
     -------
     None
-        The specialized functions perform their processing and side effects (file outputs). No value is returned.
+        The function performs side effects only (writes files to ``output_dir``) and returns nothing.
 
     Raises
     ------
     ValueError
         If an invalid combination of "type_indicator" and "spatial_aggregation" is given.
+
+    Notes
+    -----
+    - **Facade pattern**: this function does not implement processing logic; it routes to the correct specialized routine based on ``type_indicator`` and ``spatial_aggregation``.
+    - **Color tables**: when ``color_png_file`` is not provided, a default color table shipped with the package is used automatically.
+    - **Custom epiweeks**: when ``provide_interval=True``, the interval file must conform to the expected epiweek format of the specialized routines.
+    - **Outputs**: specialized functions typically export (i) aggregated rasters, (ii) vector summaries (Shapefile/GeoJSON) per administrative unit, and (iii) preview PNGs using the chosen color table.
+
+    See Also
+    --------
+    process_era5land_temp.process_era5land_temp_epiweek
+    process_era5land_temp.process_era5land_temp_month
+    process_era5land_precip.process_era5land_precip_epiweek
+    process_era5land_precip.process_era5land_precip_month
+    process_era5land_anomaly.process_era5land_anomaly_epiweek
+    process_era5land_anomaly.process_era5land_anomaly_month
+    process_era5land_rhumidity.process_era5land_rhumidity_epiweek
+    process_era5land_rhumidity.process_era5land_rhumidity_month
+    process_cptec_temp.process_cptec_temp_epiweek
+    process_cptec_temp.process_cptec_temp_month
+    process_cptec_precip.process_cptec_precip_epiweek
+    process_cptec_precip.process_cptec_precip_month
+    
+    Examples
+    --------
+
+    >>> import importlib.resources as pkg_resources
+    ... from cube4health.eclimpr.process_climate_indicator import process_climate_indicator
+
+    >>> roi = pkg_resources.files('cube4health.eclimpr.shp_malhas.northeast').joinpath('northeast.shp')
+
+    ERA5-Land temperature by epiweek (max only):
+
+    >>> process_climate_indicator(
+    ...     type_indicator="temp_era5land",
+    ...     spatial_aggregation="epiweek",
+    ...     main_dir="/path/to/data/era5land/temp all NetCDF files",
+    ...     output_dir="/outputs/indicators",
+    ...     folder_name="northeast",
+    ...     shapefile_path=roi,
+    ...     variable_name="2m_temperature",
+    ...     years=[2010, 2011],
+    ...     aggregation_type="max"
+    ... )
+    
+    ERA5-Land precipitation by month (all aggregations):
+
+    >>> process_climate_indicator(
+    ...     type_indicator="precip_era5land",
+    ...     spatial_aggregation="month",
+    ...     main_dir="/path/to/data/era5land/precip all NetCDF files",
+    ...     output_dir="/outputs/indicators",
+    ...     folder_name="northeast",
+    ...     shapefile_path=roi,
+    ...     variable_name="tp",
+    ...     years=[2020, 2021],
+    ...     aggregation_type="all"
+    ... )
+
+    CPTEC temperature by epiweek with custom epiweek calendar:
+
+    >>> process_climate_indicator(
+    ...     type_indicator="temp_cptec",
+    ...     spatial_aggregation="epiweek",
+    ...     main_dir="/path/to/data/cptec/TMAX all NetCDF files",
+    ...     output_dir="/outputs/indicators",
+    ...     folder_name="north",
+    ...     shapefile_path="/path/to/shapes/NO_municipios.shp",
+    ...     variable_name="temp",
+    ...     years=[2022],
+    ...     provide_interval=True,
+    ...     interval_file_path="/configs/epiweek_intervals.csv",
+    ...     aggregation_type="mean"
+    ... )
+
     """
 
     # Normalize/validate indicators

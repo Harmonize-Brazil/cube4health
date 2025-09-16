@@ -383,51 +383,99 @@ def crop_raster_by_area_rhumidity(data_dir, study_area_bbox):
 
 def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list_columns=None, cod_mun=None, uf_name=None, geobr_scope: Literal["municipality", "state"] = "municipality", geobr_year=2022):
     """
-    Process a shapefile (from user or geobr) and formats it, extracting specific columns. Case data is from geobr, choose a single municipality or a state code
+    Process and standardize shapefiles (user-provided or from geobr).
 
-    Process and standardize a shapefile (from user or geobr) to have exactly three attributes: 'cod_mun', 'name_mun', 'uf_mun' and 'geometry' (WGS84).
-    
+    This function processes shapefiles and ensures a standardized format with four attributes:
+    ``cod_mun`` (municipality code), ``name_mun`` (municipality name), ``uf_mun`` (state code), and ``geometry`` (EPSG:4326). It supports both user-provided shapefiles and data from the ``geobr`` package, allowing processing by municipality or state.
+
     Parameters
     ----------
     main_dir : str
         Directory where the processed shapefile will be stored.
     own_shapefile : bool, optional
-        If False, data is loaded from geobr. If True, a user-provided shapefile is used.
-        Default is False (load from geobr).
+        If False, data is loaded from ``geobr`` (default).
+        If True, a user-provided shapefile is used.
     shapefile_path : str, optional
-        Path to the user-provided shapefile (required when own_shapefile=True).
-    list_columns : list of str, optional
+        Path to the user-provided shapefile (required when ``own_shapefile=True``).
+    list_columns : dict, optional
         Mapping of column names in the user-provided shapefile to the expected ones.
-        Must have the keys: {'code_muni','name_muni','abbrev_state','geometry'}.
+        Must include the keys: ``{"code_muni","name_muni","uf_state","geometry"}``.
         Example:
+        ::
             {
-                'code_muni': 'CD_MUN',
-                'name_muni': 'NM_MUN',
-                'uf_state': 'UF',
-                'geometry': 'geometry'
-            }.
+                "code_muni": "CD_MUN",
+                "name_muni": "NM_MUN",
+                "uf_state": "SIGLA",
+                "geometry": "geometry"
+            }
     cod_mun : int, optional
-        7-digit municipality code (when loading a single municipality from geobr).
-        Required when own_shapefile=False and geobr_scope="municipality".
+        7-digit IBGE municipality code (used when loading a single municipality from ``geobr``).
+        Required if ``own_shapefile=False`` and ``geobr_scope="municipality"``.
     uf_name : str, optional
         Two-letter state code (e.g., "RJ", "RN"). Required when
-        own_shapefile=False and geobr_scope="state".
+        ``own_shapefile=False`` and ``geobr_scope="state"``.
     geobr_scope : {"municipality", "state"}, optional
-        Scope for geobr download: a single municipality by code, or all municipalities of a state.
-        Default is "municipality".
+        Scope for ``geobr`` download:
+        - ``"municipality"``: load a single municipality by code.
+        - ``"state"``: load all municipalities of a state.
+        Default is ``"municipality"``.
     geobr_year : int, optional
-        Reference year for geobr data. Default is 2022.
-
+        Reference year for ``geobr`` data. Default is 2022.
+            
     Returns
     -------
     gpd.GeoDataFrame
-        Processed GeoDataFrame with columns ['cod_mun','name_mun','uf_mun','geometry'] in EPSG:4326.
-.
+        Processed GeoDataFrame with columns:
+        ``["cod_mun","name_mun","uf_mun","geometry"]`` in EPSG:4326.
 
     Raises
     ------
     ValueError
-        If required arguments are missing or invalid.
+        If required arguments are missing, invalid, or inconsistent with the selected scope.
+    RuntimeError
+        If there is an unexpected error while loading data from ``geobr``.
+        
+    Notes
+    -----
+    - The processed shapefile is saved in ``main_dir`` with suffix ``_processed.shp``.
+    - Municipality codes are cast to ``Int64`` to preserve compatibility with missing values.
+    - All geometries are transformed to WGS84 (EPSG:4326).
+
+    Examples
+    --------
+    From a user-provided shapefile:
+    
+    >>> from cube4health.eclimpr.process_shapefile import processed_shapefile
+    
+    >>> processed_shapefile(
+    ...     main_dir="/path/to/output",
+    ...     own_shapefile=True,
+    ...     shapefile_path="/path/to/shapefile/mun_indireto_PA.shp",
+    ...     list_columns={
+    ...         "code_muni": "CD_MUN",
+    ...         "name_muni": "NM_MUN",
+    ...         "uf_state": "SIGLA",
+    ...         "geometry": "geometry"
+    ...     }
+    ... )
+
+    From geobr package by municipality:
+
+    >>> processed_shapefile(
+    ...     main_dir="/path/to/output",
+    ...     own_shapefile=False,
+    ...     geobr_scope="municipality",
+    ...     cod_mun=2501351  # Assunção - PB
+    ... )
+
+    From geobr package by state:
+
+    >>> processed_shapefile(
+    ...     main_dir="/path/to/output",
+    ...     own_shapefile=False,
+    ...     geobr_scope="state",
+    ...     uf_name="RN"  # Rio Grande do Norte
+    ... )
     """
 
     if main_dir is None:

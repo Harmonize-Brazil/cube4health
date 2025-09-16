@@ -10,6 +10,7 @@ Subpackages
    cube4health.eddpr
    cube4health.edpu
    cube4health.ehipr
+   cube4health.eclimpr
 
 Submodules
 ----------

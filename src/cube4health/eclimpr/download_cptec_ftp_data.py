@@ -5,7 +5,7 @@ import requests
 import pandas as pd
 from tqdm import tqdm
 
-from .utils import create_new_dir
+from cube4health.eclimpr.utils import create_new_dir
 
 # -----------
 # Functions:
@@ -97,20 +97,79 @@ def download_files(urls, output_dir, log_file):
 
 def get_data_ftp_cptec(output_dir, folder_name, product, period, aggregation="all"):
     """
-    Get data from FTP CPTEC/INPE for SAMeT or MERGE products.
+    Download climate data from the CPTEC/INPE FTP for SAMeT or MERGE products.
+
+    The function retrieves SAMeT (daily maximum, minimum, and mean temperature) or MERGE (precipitation) datasets directly from the official CPTEC/INPE FTP service: https://ftp.cptec.inpe.br/modelos/tempo/
+
+    The downloaded files are stored in a user-defined folder structure, and a log file is generated to record the download process.
 
     Parameters
     ----------
     output_dir : str
-        Directory path where the files will be stored.
+        Path to the directory where the files will be stored.
     folder_name : str
-        Name of the folder to be created.
+        Name of the folder to be created inside ``output_dir`` to organize the files.
     product : str
-        Product name ("SAMeT" or "MERGE").
+        Product name. Options:
+        - ``"SAMeT"``: Daily maximum, minimum, and mean temperature.
+        - ``"MERGE"``: Daily precipitation (GPM/IMERG-based).
     period : list of str
-        List with start and end dates in format ["YYYY-MM-DD", "YYYY-MM-DD"].
-    aggregation : list of str
-        List of aggregations for SAMeT ("max", "min", "mean", or "all").
+        List with start and end dates in the format ``["YYYY-MM-DD", "YYYY-MM-DD"]``.
+        Example: ``["2010-01-01", "2010-03-31"]``.
+    aggregation : str or list of str, optional
+        Aggregations available only for ``SAMeT``:
+        - ``"max"`` - Maximum temperature (TMAX).
+        - ``"min"`` - Minimum temperature (TMIN).
+        - ``"mean"`` - Mean temperature (TMED).
+        - ``"all"`` - Downloads all three indicators (default).
+        If ``MERGE`` is selected, this parameter is ignored.
+
+    Raises
+    ------
+    ValueError
+        If required parameters are missing or incorrectly defined.
+        If an invalid product or aggregation is provided.
+
+    Returns
+    -------
+    None
+        The function saves NetCDF (.nc) files for SAMeT or GRIB2 (.grib2) files for MERGE in the specified directory and generates a log file with the download status.
+
+    Notes
+    -----
+    - Data is downloaded directly from the CPTEC/INPE FTP service.
+    - For SAMeT, files are stored in subfolders by indicator (TMAX, TMIN, TMED).
+    - For MERGE, files are saved in the specified ``folder_name`` directory.
+    - A log file named ``<folder_name>_YYYYMMDD.log`` is created to record the process.
+    - The function automatically generates text files listing the requested file names and links.
+    
+    Examples
+    --------
+    >>> from cube4health.eclimpr.download_cptec_ftp_data import get_data_ftp_cptec
+
+    Download SAMeT (temperature) data
+    
+    >>> get_data_ftp_cptec(
+    ...     output_dir="/path/to/save",
+    ...     folder_name="temperature_samet",
+    ...     product="SAMeT",
+    ...     aggregation="all",
+    ...     period=["2010-01-01", "2010-03-31"]
+    ... )
+
+    This will create a folder ``temperature_samet`` containing subfolders ``TMAX``, ``TMIN``, and ``TMED`` with the corresponding NetCDF files for the defined period.
+
+    Download MERGE (precipitation) data
+
+    >>> get_data_ftp_cptec(
+    ...     output_dir="/path/to/save",
+    ...     folder_name="precipitation_merge",
+    ...     product="MERGE",
+    ...     period=["2025-01-14", "2025-02-14"]
+    ... )
+
+    This will create a folder ``precipitation_merge`` containing the daily GRIB2 precipitation files from 14 January 2025 to 14 February 2025.
+
     """
     print("\n--- Starting download data ...\n")
 

@@ -17,7 +17,7 @@ from rasterio.mask import mask
 from shapely.geometry import box
 from shapely.geometry import Polygon
 
-from .generate_cog_tiff import (
+from cube4health.eclimpr.generate_cog_tiff import (
     convert_to_cog_gdal,
     save_raster
 )
