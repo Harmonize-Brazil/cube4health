@@ -2,22 +2,8 @@
 import os
 import re
 import zipfile
-from typing import Dict, List, Optional
+from typing import List, Optional
 from datetime import datetime 
-from concurrent.futures import (
-    as_completed,
-    ThreadPoolExecutor
-)
-
-
-# third-party libraries
-from tqdm import tqdm
-from paramiko import SSHClient
-
-
-# custom libraries
-from .config import CPU_COUNT
-#from edpu.utils import files_ssh
 
 
 def shp_to_zip(input_path: str, 
@@ -104,7 +90,7 @@ def check_date_format(date: str) -> bool:
 
 
 def chunk_list(list_to_chunk: list, 
-               nchunks: int) -> List:
+               nchunks: int) -> List: # type: ignore
     """
         Yield successive n-sized chunks from lst.
 

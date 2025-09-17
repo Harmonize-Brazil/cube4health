@@ -331,12 +331,8 @@ class GeoServer:
 
     def publish_feature_data(self, 
                              layers: List[dict], 
-                             db: str, 
-                             pg_username: str, 
-                             pg_password: str, 
                              time_regex: str,
-                             attribute: str = "date",
-                             schema: Optional[str] = None, 
+                             attribute: str = "date", 
                              workspace: Optional[str]=None, 
                              store: Optional[str]=None,
                              dynamic_style: bool=False,
