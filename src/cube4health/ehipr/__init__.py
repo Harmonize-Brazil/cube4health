@@ -4,6 +4,7 @@ from .ehipr import *
 from .utils import *
 from .infodengue import *
 from .lis import *
+from .db import *
 
 __author__ = """Yuri Domaradzki"""
 __email__ = 'yuri.nunes@inpe.br'

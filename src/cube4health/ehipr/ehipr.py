@@ -49,7 +49,7 @@ from .utils import (
     check_date_format
 )
 from .lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
-from .models.db import save_data_db
+from .db import save_data_db
 from .config import CPU_COUNT
 
 from src.cube4health.edpu import (
