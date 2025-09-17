@@ -9,7 +9,7 @@ from osgeo import gdal
 from natsort import natsorted  # Correct order of filenames
 from tqdm import tqdm
 
-from .utils import read_files_inputs
+from cube4health.eclimpr.utils import read_files_inputs
 
 # EPSG:4326 - WGS 84/World Geodetic System 1984, used in GPS. Source: https://epsg.io/4326 - Set up transformers, unit EPSG:4326 is degree
 
@@ -38,7 +38,7 @@ def list_climate_format_files(file_paths, output_dir, variable_input, indicator_
     type_indicator : str
         Type of indicator, which can be: "temp" (temperature), "precip" (precipitation), "dewpoint" (dewpoint temperature), to be processed.
     source: str
-        Source of climate data, can be Copernicus ERA5-Land or CPTEC (SAMeT or MERGE).
+        Source of climate data, can be Copernicus ERA5-Land 'era5land' or CPTEC (SAMeT or MERGE) 'cptec'.
 
     Returns
     -------

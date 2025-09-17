@@ -6,7 +6,8 @@ import pandas as pd
 import cdsapi # to ERA5-land data - https://cds.climate.copernicus.eu/how-to-api
 from datetime import datetime, timedelta
 from tqdm import tqdm   # progress bar
-from .utils import create_new_dir
+
+from cube4health.eclimpr.utils import create_new_dir
 
 # -----------
 # Function to download from Zenodo repository Raphael Saldanha (https://rfsaldanha.github.io/data-projects/era5land-daily-latin-america.html) and ERA5-Land post-processed daily statistics from 1950 to present (https://cds.climate.copernicus.eu/datasets/derived-era5-land-daily-statistics?tab=overview):
@@ -14,18 +15,60 @@ from .utils import create_new_dir
 
 def get_data_zenodo(output_dir, folder_name, file_list, zenodo_record_url):
     """
-    Download NetCDF files from Zenodo based on a list of files.
+    Download NetCDF files from a Zenodo repository based on a list of files.
+
+    The function retrieves files stored in a Zenodo record and saves them in a local folder. A log file is also generated to track the download process.  
+
+    This function is useful to download datasets from Zenodo repository maintained by Raphael Saldanha: https://rfsaldanha.github.io/data-projects/era5land-daily-latin-america.html - year: 2024 https://zenodo.org/records/15748090. 
 
     Parameters
     ----------
     output_dir : str
-        Directory where the files will be stored.
+        Path to the directory where the files will be stored.
     folder_name : str
-        Name of the folder that will be created.
+        Name of the folder that will be created inside ``output_dir`` to organize the downloaded files.
     file_list : str or list
-        Path to a CSV/TXT file containing the list of files or a list of file names.
+        Either:
+        - Path to a CSV/TXT file containing the list of file names to download (one per line).
+        - A Python list of file names.
     zenodo_record_url : str
-        URL of the Zenodo repository.
+        URL of the Zenodo repository record (without the ``/files/...`` suffix).
+        Example: ``https://zenodo.org/records/15741854``.
+
+    Raises
+    ------
+    ValueError
+        If any required parameter is missing (empty string, None, etc.).
+    requests.RequestException
+        If a download request fails (e.g., connection error, timeout, file not found).
+
+    Returns
+    -------
+    None
+        The function saves NetCDF (.nc) files in the specified folder and writes a log file recording the download status.
+
+    Notes
+    -----
+    - If ``file_list`` is provided as a file path (CSV/TXT), it must contain one file name per line.
+    - A log file named ``<folder_name>_YYYYMMDD.log`` is created in the output folder,  
+      storing the start time, download attempts, and completion message.
+    - If a download fails, the error is printed in the console, but the process continues for the remaining files.
+
+    Examples
+    --------
+    >>> from cube4health.eclimpr.download_era5land_data import get_data_zenodo
+
+    >>> get_data_zenodo(
+    ...     output_dir="/path/to/save",
+    ...     folder_name="temp_2024_test",
+    ...     file_list=["2m_temperature_2024-01-01_2024-01-31_day_max.nc",
+    ...                "2m_temperature_2024-02-01_2024-02-29_day_max.nc",
+    ...                "2m_temperature_2024-03-01_2024-03-31_day_max.nc"],
+    ...     zenodo_record_url="https://zenodo.org/records/15741854"
+    ... )
+
+    A folder named ``temp_2024_test`` will be created inside ``/path/to/save`` to store the downloaded files. A log file (e.g., ``temp_2024_test_YYYYMMDD.log``) will also be generated to document the download process.
+
     """
     if not all([output_dir, folder_name, file_list, zenodo_record_url]):
         raise ValueError("Error: All parameters must be defined.")
@@ -175,11 +218,10 @@ def is_leap_year(year):
 
 def get_data_era5land(output_dir, period, token, var, stat, area=None):
     """
-    Download NetCDF files using the Climate Data Store (CDS) API to retrieve ERA5-Land daily temperature statistics data. (https://cds.climate.copernicus.eu/datasets/derived-era5-land-daily-statistics?tab=overview)
+    Download NetCDF files using the Climate Data Store (CDS) API to retrieve ERA5-Land daily temperature statistics data (https://cds.climate.copernicus.eu/datasets/derived-era5-land-daily-statistics?tab=overview).
 
     The data is downloaded from the Copernicus Climate Data Store (CDS) service. More information:
-    https://cds.climate.copernicus.eu/how-to-api
-    https://cds.climate.copernicus.eu/datasets/derived-era5-land-daily-statistics?tab=overview
+    https://cds.climate.copernicus.eu/how-to-api and https://cds.climate.copernicus.eu/datasets/derived-era5-land-daily-statistics?tab=overview
 
     Parameters
     ----------
@@ -192,10 +234,10 @@ def get_data_era5land(output_dir, period, token, var, stat, area=None):
         User's personal CDS API key (authentication token).
     var : str
         Name of the variable to be downloaded.
-        Example: "2m_temperature" or "2m_dewpoint_temperature", with underscore _
+        Example: ``2m_temperature`` or ``2m_dewpoint_temperature``, with underscore _
     stat : str
         Daily statistic to be retrieved.
-        Options: "daily_mean", "daily_maximum", or "daily_minimum".
+        Options: ``daily_mean``, ``daily_maximum``, or ``daily_minimum``.
     area : list of float, optional
         Geographic bounding box to subset the data, specified as [North, West, South, East].
         Coordinates must follow the order: North latitude, West longitude, South latitude, East longitude.
@@ -224,6 +266,8 @@ def get_data_era5land(output_dir, period, token, var, stat, area=None):
 
     Examples
     --------
+    >>> from cube4health.eclimpr.download_era5land_data import get_data_era5land
+    
     >>> get_data_era5land(
     ...     output_dir="/path/to/save",
     ...     period=["2025-01", "2025-04"],
@@ -232,6 +276,9 @@ def get_data_era5land(output_dir, period, token, var, stat, area=None):
     ...     stat="daily_mean",
     ...     area=[10, -60, -10, -30]
     ... )
+
+    A folder named ``2m_temperature_2025-01_2025-04_daily_mean`` will be created to store the monthly files, from `2m_temperature_2025-01-01_2025-01-31_daily_mean.nc`` through `2m_temperature_2025-04-01_2025-04-30_daily_mean.nc``.
+
     """
     print("\n--- Starting data download...\n")
 

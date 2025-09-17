@@ -58,7 +58,6 @@ dependencies = [
   "timezonefinder[pytz]",
   "defusedxml",
   "opencv-python",
-  "tqdm",
   "click",
   "attrs",
   "branca",

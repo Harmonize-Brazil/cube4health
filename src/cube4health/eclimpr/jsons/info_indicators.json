@@ -1,0 +1,316 @@
+{
+    "ERA5-Land": {
+        "name": "ERA5-Land indicators daily aggregates for Latin America",
+        "provider": "Copernicus Climate Data Store (CDS)",
+        "url": "https://rfsaldanha.github.io/data-projects/era5land-daily-latin-america.html",
+        "country": "Brazil",
+        "format" : "NetCDF",
+        "spatial_resolution": "0.1° (~9 km)",
+        "temporal_resolution": "daily, aggregated to epiweek/month",
+        "indicators":[
+            {
+                "name": "temperature_max_epiweek",
+                "title": "Maximum Temperature by Epidemiological Week",
+                "description": "Maximum daily temperature aggregated by epidemiological week.",
+                "indicator_type": "Maximum temperature",
+                "aggregation": "Epidemiological week",
+                "variable":"2m_temperature",
+                "unit": "°C",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "temperature_max_month",
+                "title": "Maximum Temperature by Month",
+                "description": "Maximum daily temperature aggregated by month.",
+                "indicator_type": "Maximum temperature",
+                "aggregation": "Month",
+                "variable":"2m_temperature",
+                "unit": "°C",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "temperature_min_epiweek",
+                "title": "Minimum Temperature by Epidemiological Week",
+                "description": "Minimum daily temperature aggregated by epidemiological week.",
+                "indicator_type": "Minimum temperature",
+                "aggregation": "Epidemiological week",
+                "variable":"2m_temperature",
+                "unit": "°C",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "temperature_min_month",
+                "title": "Minimum Temperature by Month",
+                "description": "Minimum daily temperature aggregated by month.",
+                "indicator_type": "Minimum temperature",
+                "aggregation": "Month",
+                "variable":"2m_temperature",
+                "unit": "°C",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "temperature_mean_epiweek",
+                "title": "Mean Temperature by Epidemiological Week",
+                "description": "Mean daily temperature aggregated by epidemiological week.",
+                "indicator_type": "Mean temperature",
+                "aggregation": "Epidemiological week",
+                "variable":"2m_temperature",
+                "unit": "°C",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "temperature_mean_month",
+                "title": "Mean Temperature by Month",
+                "description": "Mean daily temperature aggregated by month.",
+                "indicator_type": "Mean temperature",
+                "aggregation": "Month",
+                "variable":"2m_temperature",
+                "unit": "°C",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "precipitation_max_epiweek",
+                "title": "Maximum Precipitation by Epidemiological Week",
+                "description": "Maximum daily precipitation aggregated by epidemiological week.",
+                "indicator_type": "Maximum precipitation",
+                "aggregation": "Epidemiological week",
+                "variable":"total_precipitation",
+                "unit": "mm",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "precipitation_max_month",
+                "title": "Maximum Precipitation by Month",
+                "description": "Maximum daily precipitation aggregated by month.",
+                "indicator_type": "Maximum precipitation",
+                "aggregation": "Month",
+                "variable":"total_precipitation",
+                "unit": "mm",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "precipitation_min_epiweek",
+                "title": "Minimum Precipitation by Epidemiological Week",
+                "description": "Minimum daily precipitation aggregated by epidemiological week.",
+                "indicator_type": "Minimum precipitation",
+                "aggregation": "Epidemiological week",
+                "variable":"total_precipitation",
+                "unit": "mm",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "precipitation_min_month",
+                "title": "Minimum Precipitation by Month",
+                "description": "Minimum daily precipitation aggregated by month.",
+                "indicator_type": "Minimum precipitation",
+                "aggregation": "Month",
+                "variable":"total_precipitation",
+                "unit": "mm",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "precipitation_mean_epiweek",
+                "title": "Mean Precipitation by Epidemiological Week",
+                "description": "Mean daily precipitation aggregated by epidemiological week.",
+                "indicator_type": "Mean precipitation",
+                "aggregation": "Epidemiological week",
+                "variable":"total_precipitation",
+                "unit": "mm",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "precipitation_mean_month",
+                "title": "Mean Precipitation by Month",
+                "description": "Mean daily precipitation aggregated by month.",
+                "indicator_type": "Mean precipitation",
+                "aggregation": "Month",
+                "variable":"total_precipitation",
+                "unit": "mm",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "anomaly_temperature_max_epiweek",
+                "title": "Maximum Temperature Anomaly by Epidemiological Week",
+                "description": "Number of consecutive days in which the maximum temperature exceeds the climatological normal for maximum temperature, aggregated by municipality and epidemiological week.",
+                "indicator_type": "Anomaly",
+                "aggregation": "Epidemiological week",
+                "variable":"2m_temperature",
+                "unit": "days",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "anomaly_temperature_max_month",
+                "title": "Maximum Temperature Anomaly by Month",
+                "description": "Number of consecutive days in which the maximum temperature exceeds the climatological normal for maximum temperature, aggregated by municipality and month.",
+                "indicator_type": "Anomaly",
+                "aggregation": "Month",
+                "variable":"2m_temperature",
+                "unit": "days",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "humidity_percent_epiweek",
+                "title": "Relative Humidity by Epidemiological Week",
+                "description": "Relative humidity (percent) computed from 2m dewpoint temperature and 2m mean temperature, aggregated by epidemiological week.",
+                "indicator_type": "Relative Humidity",
+                "aggregation": "Epidemiological week",
+                "variable":"2m_temperature,2m_dewpoint_temperature",
+                "unit": "%",
+                "source": "ERA5-Land (Copernicus)"
+            },
+            {
+                "name": "humidity_percent_month",
+                "title": "Relative Humidity by Month",
+                "description": "Relative humidity (percent) computed from 2m dewpoint temperature and 2m mean temperature, aggregated by month.",
+                "indicator_type": "Relative Humidity",
+                "aggregation": "Month",
+                "variable":"2m_temperature,2m_dewpoint_temperature",
+                "unit": "%",
+                "source": "ERA5-Land (Copernicus)"
+            }                     
+        ]
+    },
+    "SAMET-CPTEC": {
+        "name": "South American Mapping of Temperature (SAMeT)",
+        "provider": "Center for Weather Forecasting and Climate Studies - National Institute for Space Research (CPTEC/INPE)",
+        "url": "https://ftp.cptec.inpe.br/modelos/tempo/SAMeT/DAILY/",
+        "country": "Brazil",
+        "format" : "NetCDF",
+        "spatial_resolution": "0.05° (~5 km)",
+        "temporal_resolution": "daily, aggregated to epiweek/month",
+        "indicators":[
+            {
+                "name": "temperature_max_epiweek",
+                "title": "Maximum Temperature by Epidemiological Week",
+                "description": "Maximum daily temperature aggregated by epidemiological week.",
+                "indicator_type": "Maximum temperature",
+                "aggregation": "Epidemiological week",
+                "variable":"tmax",
+                "unit": "°C",
+                "source": "SAMeT (CPTEC/INPE)"
+            },
+            {
+                "name": "temperature_max_month",
+                "title": "Maximum Temperature by Month",
+                "description": "Maximum daily temperature aggregated by month.",
+                "indicator_type": "Maximum temperature",
+                "aggregation": "Month",
+                "variable":"tmax",
+                "unit": "°C",
+                "source": "SAMeT (CPTEC/INPE)"
+            },
+            {
+                "name": "temperature_min_epiweek",
+                "title": "Minimum Temperature by Epidemiological Week",
+                "description": "Minimum daily temperature aggregated by epidemiological week.",
+                "indicator_type": "Minimum temperature",
+                "aggregation": "Epidemiological week",
+                "variable":"tmin",
+                "unit": "°C",
+                "source": "SAMeT (CPTEC/INPE)"
+            },
+            {
+                "name": "temperature_min_month",
+                "title": "Minimum Temperature by Month",
+                "description": "Minimum daily temperature aggregated by month.",
+                "indicator_type": "Minimum temperature",
+                "aggregation": "Month",
+                "variable":"tmin",
+                "unit": "°C",
+                "source": "SAMeT (CPTEC/INPE)"
+            },
+            {
+                "name": "temperature_mean_epiweek",
+                "title": "Mean Temperature by Epidemiological Week",
+                "description": "Mean daily temperature aggregated by epidemiological week.",
+                "indicator_type": "Mean temperature",
+                "aggregation": "Epidemiological week",
+                "variable":"tmed",
+                "unit": "°C",
+                "source": "SAMeT (CPTEC/INPE)"
+            },
+            {
+                "name": "temperature_mean_month",
+                "title": "Mean Temperature by Month",
+                "description": "Mean daily temperature aggregated by month.",
+                "indicator_type": "Mean temperature",
+                "aggregation": "Month",
+                "variable":"tmed",
+                "unit": "°C",
+                "source": "SAMeT (CPTEC/INPE)"
+            }
+
+        ]
+    },
+    "MERGE-CPTEC": {
+        "name": "Precipitation for all of South America - MERGE",
+        "provider": "Center for Weather Forecasting and Climate Studies - National Institute for Space Research (CPTEC/INPE)",
+        "url": "https://ftp.cptec.inpe.br/modelos/tempo/MERGE/GPM/DAILY/",
+        "country": "Brazil",
+        "format" : "GRIB2",
+        "spatial_resolution": "0.1° (~10 km)",
+        "temporal_resolution": "daily, aggregated to epiweek/month",
+        "indicators":[
+            {
+                "name": "precipitation_max_epiweek",
+                "title": "Maximum Precipitation by Epidemiological Week",
+                "description": "Maximum daily precipitation aggregated by epidemiological week.",
+                "indicator_type": "Maximum precipitation",
+                "aggregation": "Epidemiological week",
+                "variable":"rdp",
+                "unit": "mm",
+                "source": "MERGE (CPTEC/INPE)"
+            },
+            {
+                "name": "precipitation_max_month",
+                "title": "Maximum Precipitation by Month",
+                "description": "Maximum daily precipitation aggregated by month.",
+                "indicator_type": "Maximum precipitation",
+                "aggregation": "Month",
+                "variable":"rdp",
+                "unit": "mm",
+                "source": "MERGE (CPTEC/INPE)"
+            },
+            {
+                "name": "precipitation_min_epiweek",
+                "title": "Minimum Precipitation by Epidemiological Week",
+                "description": "Minimum daily precipitation aggregated by epidemiological week.",
+                "indicator_type": "Minimum precipitation",
+                "aggregation": "Epidemiological week",
+                "variable":"rdp",
+                "unit": "mm",
+                "source": "MERGE (CPTEC/INPE)"
+            },
+            {
+                "name": "precipitation_min_month",
+                "title": "Minimum Precipitation by Month",
+                "description": "Minimum daily precipitation aggregated by month.",
+                "indicator_type": "Minimum precipitation",
+                "aggregation": "Month",
+                "variable":"rdp",
+                "unit": "mm",
+                "source": "MERGE (CPTEC/INPE)"
+            },
+            {
+                "name": "precipitation_mean_epiweek",
+                "title": "Mean Precipitation by Epidemiological Week",
+                "description": "Mean daily precipitation aggregated by epidemiological week.",
+                "indicator_type": "Mean precipitation",
+                "aggregation": "Epidemiological week",
+                "variable":"rdp",
+                "unit": "mm",
+                "source": "MERGE (CPTEC/INPE)"
+            },
+            {
+                "name": "precipitation_mean_month",
+                "title": "Mean Precipitation by Month",
+                "description": "Mean daily precipitation aggregated by month.",
+                "indicator_type": "Mean precipitation",
+                "aggregation": "Month",
+                "variable":"rdp",
+                "unit": "mm",
+                "source": "MERGE (CPTEC/INPE)"
+            }
+        ]
+    }  
+}

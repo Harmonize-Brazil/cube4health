@@ -4,26 +4,27 @@ import gc
 import geopandas as gpd
 from shapely.geometry import box
 
-from .utils import (
+from cube4health.eclimpr.utils import (
     write_epiweeks_to_file,
     create_new_dir,
     create_epiweek_dir,
     move_indicators_cog_files,
     move_indicators_shapefiles_files,
-    create_months_dir
+    create_months_dir,
+    get_default_color_file
 )
-from .generate_cog_tiff import list_climate_format_files
-from .process_shapefile import (
+from cube4health.eclimpr.generate_cog_tiff import list_climate_format_files
+from cube4health.eclimpr.process_shapefile import (
     crop_raster_by_area,
     save_map_shapefile
 )
-from .extract_aggregations import extract_indicators_max_min_mean
+from cube4health.eclimpr.extract_aggregations import extract_indicators_max_min_mean
 
 # -----------
 # Functions:
 # -----------
 
-def process_cptec_temp_epiweek(main_dir, folder_name, shapefile_path, variable_name, years_epi_week, indicator_name, color_png_file, aggregation_type = "all", interval_file_path=None, provide_interval=False):
+def process_cptec_temp_epiweek(main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name = "temp", color_png_file=None, aggregation_type = "all", interval_file_path=None, provide_interval=False):
     """
     Process SAMeT/CPTEC temperature data by epidemiological week.
 
@@ -31,18 +32,20 @@ def process_cptec_temp_epiweek(main_dir, folder_name, shapefile_path, variable_n
     ----------
     main_dir : str
         Directory path where the NetCDF files are stored.
+    output_dir : str
+        Directory path where the indicators generated will be stored.
     folder_name : str
         Name of the folder to be created for output files.
     shapefile_path : str
         Path to the Shapefile of the study area.
     variable_name : str
         Variable name in the NetCDF file.
-    years_epi_week : list or str
+    years : list or str
         List of years or a single year to process.
     indicator_name : str
         Indicator name for output files (max 20 characters).
     color_png_file : str
-        Path to the file with color ranges for PNG output.
+        Path to the file with color ranges for PNG output. Default is provided by package
     aggregation_type : list of str
         List of aggregations to compute ("max", "min", "mean", or "all"). Default is "all".
     interval_file_path : str, optional
@@ -57,15 +60,36 @@ def process_cptec_temp_epiweek(main_dir, folder_name, shapefile_path, variable_n
     print("\n--- Starting processing SAMeT/CPTEC temperature by epidemiological week ...\n")
 
     # Validate input parameters
-    if None in [main_dir, folder_name, shapefile_path, variable_name, years_epi_week, indicator_name, color_png_file]:
+    if None in [main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name]:
         raise ValueError("Error: All parameters must be defined.")
 
-    # Ensure years_epi_week is a list since if is declared as year or [year]
-    if isinstance(years_epi_week, int):
-        years_epi_week = [years_epi_week]  # Convert a single integer in a list
+    # Check if main_dir exists (input data directory)
+    if not os.path.exists(main_dir):
+        raise FileNotFoundError(f"Input directory '{main_dir}' does not exist.")
 
-    if not isinstance(years_epi_week, list):
-        raise ValueError("Erro: years_epi_week must a list of integers.")
+    # Ensure output_dir exists (create if missing)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Created output directory: {output_dir}")
+
+    # Create subfolder 'output_climate_dir' inside output_dir
+    output_climate_dir = os.path.join(output_dir, "output_climate_dir")
+    os.makedirs(output_climate_dir, exist_ok=True)
+    output_dir = output_climate_dir
+    print(f"Created climate output directory: {output_climate_dir}")
+
+    # Ensure color_png_file   
+    if color_png_file is None:
+        color_png_file = get_default_color_file("temperature")  # epiweek vs month not change
+    
+    color_png_file = os.path.normpath(color_png_file)    
+
+    # Ensure years is a list since if is declared as year or [year]
+    if isinstance(years, int):
+        years = [years]  # Convert a single integer in a list
+
+    if not isinstance(years, list):
+        raise ValueError("Erro: years must a list of integers.")
 
     # Ensure aggregation is a list and standardized
     if isinstance(aggregation_type, str):
@@ -104,7 +128,7 @@ def process_cptec_temp_epiweek(main_dir, folder_name, shapefile_path, variable_n
     indic_name = indicator_name.lower()[:20]  # limit to 20 characters
 
     # Create a set of cog images from NetCDF files - generate_COG.py
-    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years_epi_week, extension_folder = "epiweek", type_indicator = "temp", source="cptec")
+    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years, extension_folder = "epiweek", type_indicator = "temp", source="cptec")
 
     # Create a set of folders with epiweek pattern - utils.py
     # Load custom interval file if provided
@@ -113,12 +137,12 @@ def process_cptec_temp_epiweek(main_dir, folder_name, shapefile_path, variable_n
             raise ValueError("provide_interval is True, but interval_file_path is not provided.")
         else:
             print(f"Loaded custom interval data from {interval_file_path}.")
-            create_epiweek_dir(epi_week_file = interval_file_path, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years_epi_week = years_epi_week)
+            create_epiweek_dir(epi_week_file = interval_file_path, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years = years)
     else:
         # Generate epidemiological weeks file as CSV
-        temporarily_file = write_epiweeks_to_file(years_epi_week, os.path.dirname(epiweek_dir))
+        temporarily_file = write_epiweeks_to_file(years, os.path.dirname(epiweek_dir))
         # Load epidemiological week data
-        create_epiweek_dir(epi_week_file = temporarily_file, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years_epi_week = years_epi_week)
+        create_epiweek_dir(epi_week_file = temporarily_file, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years = years)
 
     # Create a set of stack raster for each epiweek folder - process_shapefile.py
     stack_from_muni = crop_raster_by_area(data_dir = epiweek_dir, study_area_bbox = bounding_box)
@@ -128,12 +152,12 @@ def process_cptec_temp_epiweek(main_dir, folder_name, shapefile_path, variable_n
     #print(dates_shapefile_col)
 
     # Move COG files to new folder - utils.py
-    move_indicators_cog_files(main_dir = indicator_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "epiweek", extension_spatial = "mun", aggregation = aggregation_type)
+    move_indicators_cog_files(main_dir = indicator_dir, output_final_dir = output_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "epiweek", extension_spatial = "mun", aggregation = aggregation_type, source="cptec")
 
     # Move shapefiles files to new folder - utils.py
-    move_indicators_shapefiles_files(main_dir = indicator_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "epiweek", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = False, aggregation = aggregation_type, data_source = "SAMeT (CPTEC/INPE)")
+    move_indicators_shapefiles_files(main_dir = indicator_dir, output_final_dir = output_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "epiweek", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = False, aggregation = aggregation_type, data_source = "SAMeT (CPTEC/INPE)", source="cptec")
 
-    del main_dir, folder_name, shapefile_path, variable_name, years_epi_week, indicator_name, color_png_file
+    del main_dir, folder_name, shapefile_path, variable_name, years, indicator_name, color_png_file
     gc.collect()
 
     print("\nProcessing finished successfully!\n")
@@ -141,7 +165,7 @@ def process_cptec_temp_epiweek(main_dir, folder_name, shapefile_path, variable_n
 
 
 
-def process_cptec_temp_month(main_dir, folder_name, shapefile_path, variable_name, years_month, indicator_name, color_png_file, aggregation_type = "all"):
+def process_cptec_temp_month(main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name = "temp", color_png_file=None, aggregation_type = "all"):
     """
     Process SAMeT/CPTEC temperature data by month.
 
@@ -149,18 +173,20 @@ def process_cptec_temp_month(main_dir, folder_name, shapefile_path, variable_nam
     ----------
     main_dir : str
         Directory path where the NetCDF files are stored.
+    output_dir : str
+        Directory path where the indicators generated will be stored.
     folder_name : str
         Name of the folder to be created for output files.
     shapefile_path : str
         Path to the Shapefile of the study area.
     variable_name : str
         Variable name in the NetCDF file.
-    years_month : list or str
+    years : list or str
         List of years or a single year to process.
     indicator_name : str
         Indicator name for output files (max 20 characters).
     color_png_file : str
-        Path to the file with color ranges for PNG output.
+        Path to the file with color ranges for PNG output. Default is provided by package
     aggregation_type : list of str
         List of aggregations to compute ("max", "min", "mean", or "all"). Default is "all".
 
@@ -171,15 +197,36 @@ def process_cptec_temp_month(main_dir, folder_name, shapefile_path, variable_nam
     print("\n--- Starting processing SAMeT/CPTEC temperature by month ...\n")
 
     # Validate input parameters
-    if None in [main_dir, folder_name, shapefile_path, variable_name, years_month, indicator_name, color_png_file]:
+    if None in [main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name]:
         raise ValueError("Error: All parameters must be defined.")
 
-    # Ensure years_month is a list since if is declared as year or [year]
-    if isinstance(years_month, int):
-        years_month = [years_month]  # Convert a single integer in a list
+    # Check if main_dir exists (input data directory)
+    if not os.path.exists(main_dir):
+        raise FileNotFoundError(f"Input directory '{main_dir}' does not exist.")
 
-    if not isinstance(years_month, list):
-        raise ValueError("Erro: years_month must a list of integers.")
+    # Ensure output_dir exists (create if missing)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Created output directory: {output_dir}")
+
+    # Create subfolder 'output_climate_dir' inside output_dir
+    output_climate_dir = os.path.join(output_dir, "output_climate_dir")
+    os.makedirs(output_climate_dir, exist_ok=True)
+    output_dir = output_climate_dir
+    print(f"Created climate output directory: {output_climate_dir}")
+
+    # Ensure color_png_file   
+    if color_png_file is None:
+        color_png_file = get_default_color_file("temperature")  # epiweek vs month not change
+    
+    color_png_file = os.path.normpath(color_png_file)
+
+    # Ensure years is a list since if is declared as year or [year]
+    if isinstance(years, int):
+        years = [years]  # Convert a single integer in a list
+
+    if not isinstance(years, list):
+        raise ValueError("Erro: years must a list of integers.")
 
     # Ensure aggregation is a list and standardized
     if isinstance(aggregation_type, str):
@@ -218,10 +265,10 @@ def process_cptec_temp_month(main_dir, folder_name, shapefile_path, variable_nam
     indic_name = indicator_name.lower()[:20]  # limit to 20 characters
 
     # Create a set of cog images from NetCDF files - generate_COG.py
-    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years_month, extension_folder = "month", type_indicator = "temp", source="cptec")
+    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years, extension_folder = "month", type_indicator = "temp", source="cptec")
 
     # Create a set of folders with month pattern
-    create_months_dir(tifs_dir = daily_tifs_dir, month_dir = month_dir, years_month = years_month)
+    create_months_dir(tifs_dir = daily_tifs_dir, month_dir = month_dir, years = years)
 
     # Create a set of stack raster for each month folder - process_shapefile.py
     stack_from_muni = crop_raster_by_area(data_dir = month_dir, study_area_bbox = bounding_box)
@@ -231,12 +278,12 @@ def process_cptec_temp_month(main_dir, folder_name, shapefile_path, variable_nam
     #print(dates_shapefile_col)
 
     # Move COG files to new folder - utils.py
-    move_indicators_cog_files(main_dir = indicator_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "month", extension_spatial = "mun", aggregation=aggregation_type)
+    move_indicators_cog_files(main_dir = indicator_dir, output_final_dir = output_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "month", extension_spatial = "mun", aggregation=aggregation_type, source="cptec")
 
     # Move shapefiles files to new folder - utils.py
-    move_indicators_shapefiles_files(main_dir = indicator_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "month", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = False, aggregation=aggregation_type, data_source = "SAMeT (CPTEC/INPE)")
+    move_indicators_shapefiles_files(main_dir = indicator_dir, output_final_dir = output_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "month", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = False, aggregation=aggregation_type, data_source = "SAMeT (CPTEC/INPE)", source="cptec")
 
-    del main_dir, folder_name, shapefile_path, variable_name, years_month, indicator_name, color_png_file
+    del main_dir, folder_name, shapefile_path, variable_name, years, indicator_name, color_png_file
     gc.collect()
 
     print("\nProcessing finished successfully!\n")

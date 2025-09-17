@@ -3,20 +3,23 @@ import os
 import gc
 import geopandas as gpd
 from shapely.geometry import box
+from importlib import resources
 
-from .utils import (
+from cube4health.eclimpr.utils import (
     write_epiweeks_to_file,
     create_new_dir,
     create_epiweek_dir,
     move_indicators_shapefiles_files_anomaly,
-    create_months_dir
+    create_months_dir,
+    get_default_color_file,
+    get_default_anomaly_file
 )
-from .generate_cog_tiff import list_climate_format_files
-from .process_shapefile import (
+from cube4health.eclimpr.generate_cog_tiff import list_climate_format_files
+from cube4health.eclimpr.process_shapefile import (
     crop_raster_by_area,
     save_map_shapefile
 )
-from .extract_aggregations import (
+from cube4health.eclimpr.extract_aggregations import (
     select_stations_from_area,
     extract_anomaly
 )
@@ -25,7 +28,7 @@ from .extract_aggregations import (
 # Functions:
 # -----------
 
-def process_era5land_anomaly_epiweek(main_dir, folder_name, shapefile_path, variable_name, years_epi_week, indicator_name, color_png_file, conventional_stations_file, climatological_normals_file, interval_file_path=None, provide_interval=False):
+def process_era5land_anomaly_epiweek(main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name = "temp", color_png_file=None, conventional_stations_file=None, climatological_normals_file=None, interval_file_path=None, provide_interval=False):
     """
     Process ERA5-Land anomaly data by epidemiological week.
 
@@ -33,22 +36,24 @@ def process_era5land_anomaly_epiweek(main_dir, folder_name, shapefile_path, vari
     ----------
     main_dir : str
         Directory path where the NetCDF files are stored.
+    output_dir : str
+        Directory path where the indicators generated will be stored.
     folder_name : str
         Name of the folder to be created for output files.
     shapefile_path : str
         Path to the Shapefile of the study area.
     variable_name : str
         Variable name in the NetCDF file.
-    years_epi_week : list or str
+    years : list or str
         List of years or a single year to process.
     indicator_name : str
         Indicator name for output files (max 20 characters).
     color_png_file : str
-        Path to the file with color ranges for PNG output.
+        Path to the file with color ranges for PNG output. Default is provided by package
     conventional_stations_file : str
-        CSV file with conventional stations from INMET.
+        CSV file with conventional stations from INMET. Default is provided by package
     climatological_normals_file : str
-        XLSX file with climatological normal values from INMET.
+        XLSX file with climatological normal values from INMET. Default is provided by package
     interval_file_path : str, optional
         Path to the custom interval file, if provide_interval is True.
     provide_interval : bool, optional
@@ -61,15 +66,46 @@ def process_era5land_anomaly_epiweek(main_dir, folder_name, shapefile_path, vari
     print("\n--- Starting processing era5land anomaly max temperature by epidemiological week ...\n")
 
     # Validate input parameters
-    if None in [main_dir, folder_name, shapefile_path, variable_name, years_epi_week, indicator_name, color_png_file, conventional_stations_file, climatological_normals_file]:
+    if None in [main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name]:
         raise ValueError("Error: All parameters must be defined.")
 
-    # Ensure years_epi_week is a list since if is declared as year or [year]
-    if isinstance(years_epi_week, int):
-        years_epi_week = [years_epi_week]  # Convert a single integer in a list
+    # Check if main_dir exists (input data directory)
+    if not os.path.exists(main_dir):
+        raise FileNotFoundError(f"Input directory '{main_dir}' does not exist.")
 
-    if not isinstance(years_epi_week, list):
-        raise ValueError("Erro: years_epi_week must a list of integers.")
+    # Ensure output_dir exists (create if missing)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Created output directory: {output_dir}")
+
+    # Create subfolder 'output_climate_dir' inside output_dir
+    output_climate_dir = os.path.join(output_dir, "output_climate_dir")
+    os.makedirs(output_climate_dir, exist_ok=True)
+    output_dir = output_climate_dir
+    print(f"Created climate output directory: {output_climate_dir}")
+
+    # Ensure color_png_file   
+    if color_png_file is None:
+        color_png_file = get_default_color_file("anomaly_epiweek")  # epiweek 
+    
+    color_png_file = os.path.normpath(color_png_file)
+
+    if conventional_stations_file is None:
+        conventional_stations_file = get_default_anomaly_file("conventional_stations") 
+
+    conventional_stations_file = os.path.normpath(conventional_stations_file)    
+
+    if climatological_normals_file is None:
+        climatological_normals_file = get_default_anomaly_file("climatological_normal") 
+
+    climatological_normals_file = os.path.normpath(climatological_normals_file)  
+
+    # Ensure years is a list since if is declared as year or [year]
+    if isinstance(years, int):
+        years = [years]  # Convert a single integer in a list
+
+    if not isinstance(years, list):
+        raise ValueError("Erro: years must a list of integers.")
 
     # Normalize paths
     main_dir = os.path.normpath(main_dir)
@@ -95,7 +131,7 @@ def process_era5land_anomaly_epiweek(main_dir, folder_name, shapefile_path, vari
     indic_name = indicator_name.lower()[:20]  # limit to 20 characters
 
     # Create a set of cog images from NetCDF files - generate_COG.py
-    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years_epi_week, extension_folder = "epiweek", type_indicator = "temp", source="era5land")
+    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years, extension_folder = "epiweek", type_indicator = "temp", source="era5land")
 
     # Create a set of folders with epiweek pattern - utils.py
     # Load custom interval file if provided
@@ -104,12 +140,12 @@ def process_era5land_anomaly_epiweek(main_dir, folder_name, shapefile_path, vari
             raise ValueError("provide_interval is True, but interval_file_path is not provided.")
         else:
             print(f"Loaded custom interval data from {interval_file_path}.")
-            create_epiweek_dir(epi_week_file = interval_file_path, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years_epi_week = years_epi_week)
+            create_epiweek_dir(epi_week_file = interval_file_path, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years = years)
     else:
         # Generate epidemiological weeks file as CSV
-        temporarily_file = write_epiweeks_to_file(years_epi_week, os.path.dirname(epiweek_dir))
+        temporarily_file = write_epiweeks_to_file(years, os.path.dirname(epiweek_dir))
         # Load epidemiological week data
-        create_epiweek_dir(epi_week_file = temporarily_file, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years_epi_week = years_epi_week)
+        create_epiweek_dir(epi_week_file = temporarily_file, tifs_dir = daily_tifs_dir, epi_week_dir = epiweek_dir, years = years)
 
     # Create a set of stack raster for each epiweek folder - process_shapefile.py
     stack_from_muni = crop_raster_by_area(data_dir = epiweek_dir, study_area_bbox = bounding_box)
@@ -122,9 +158,9 @@ def process_era5land_anomaly_epiweek(main_dir, folder_name, shapefile_path, vari
     dates_shapefile_col = extract_anomaly(data_dir = epiweek_dir, shapefile_idw_nc = study_area_muni_shp, indicator_name_local = [indic_name, folder_name], extension_folder = "epiweek", extension_spatial = "mun")
 
     # Move shapefiles files to new folder - utils.R
-    move_indicators_shapefiles_files_anomaly(main_dir = indicator_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "epiweek", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = True, data_source = "ERA5-Land (Copernicus)")
+    move_indicators_shapefiles_files_anomaly(main_dir = indicator_dir, output_final_dir = output_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "epiweek", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = True, data_source = "ERA5-Land (Copernicus)", source="era5land")
 
-    del main_dir, folder_name, shapefile_path, variable_name, years_epi_week, indicator_name, color_png_file
+    del main_dir, folder_name, shapefile_path, variable_name, years, indicator_name, color_png_file
     gc.collect()
 
     print("\nProcessing finished successfully!\n")
@@ -132,7 +168,7 @@ def process_era5land_anomaly_epiweek(main_dir, folder_name, shapefile_path, vari
 
 
 
-def process_era5land_anomaly_month(main_dir, folder_name, shapefile_path, variable_name, years_month, indicator_name, color_png_file, conventional_stations_file, climatological_normals_file):
+def process_era5land_anomaly_month(main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name = "temp", color_png_file=None, conventional_stations_file=None, climatological_normals_file=None):
     """
     Process ERA5-Land anomaly data by epidemiological week.
 
@@ -140,22 +176,24 @@ def process_era5land_anomaly_month(main_dir, folder_name, shapefile_path, variab
     ----------
     main_dir : str
         Directory path where the NetCDF files are stored.
+    output_dir : str
+        Directory path where the indicators generated will be stored.
     folder_name : str
         Name of the folder to be created for output files.
     shapefile_path : str
         Path to the Shapefile of the study area.
     variable_name : str
         Variable name in the NetCDF file.
-    years_month : list or str
+    years : list or str
         List of years or a single year to process.
     indicator_name : str
         Indicator name for output files (max 20 characters).
     color_png_file : str
-        Path to the file with color ranges for PNG output.
+        Path to the file with color ranges for PNG output. Default is provided by package
     conventional_stations_file : str
-        CSV file with conventional stations from INMET.
+        CSV file with conventional stations from INMET. Default is provided by package
     climatological_normals_file : str
-        XLSX file with climatological normal values from INMET.
+        XLSX file with climatological normal values from INMET. Default is provided by package
 
     Returns
     -------
@@ -164,15 +202,46 @@ def process_era5land_anomaly_month(main_dir, folder_name, shapefile_path, variab
     print("\n--- Starting processing era5land anomaly max temperature by month ...\n")
 
     # Validate input parameters
-    if None in [main_dir, folder_name, shapefile_path, variable_name, years_month, indicator_name, color_png_file, conventional_stations_file, climatological_normals_file]:
+    if None in [main_dir, output_dir, folder_name, shapefile_path, variable_name, years, indicator_name]:
         raise ValueError("Error: All parameters must be defined.")
+    
+    # Check if main_dir exists (input data directory)
+    if not os.path.exists(main_dir):
+        raise FileNotFoundError(f"Input directory '{main_dir}' does not exist.")
 
-    # Ensure years_month is a list since if is declared as year or [year]
-    if isinstance(years_month, int):
-        years_month = [years_month]  # Convert a single integer in a list
+    # Ensure output_dir exists (create if missing)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Created output directory: {output_dir}")
 
-    if not isinstance(years_month, list):
-        raise ValueError("Erro: years_month must a list of integers.")
+    # Create subfolder 'output_climate_dir' inside output_dir
+    output_climate_dir = os.path.join(output_dir, "output_climate_dir")
+    os.makedirs(output_climate_dir, exist_ok=True)
+    output_dir = output_climate_dir
+    print(f"Created climate output directory: {output_climate_dir}")
+
+    # Ensure color_png_file   
+    if color_png_file is None:
+        color_png_file = get_default_color_file("anomaly_month")  # month 
+    
+    color_png_file = os.path.normpath(color_png_file)
+
+    if conventional_stations_file is None:
+        conventional_stations_file = get_default_anomaly_file("conventional_stations") 
+
+    conventional_stations_file = os.path.normpath(conventional_stations_file)    
+
+    if climatological_normals_file is None:
+        climatological_normals_file = get_default_anomaly_file("climatological_normal") 
+
+    climatological_normals_file = os.path.normpath(climatological_normals_file)    
+
+    # Ensure years is a list since if is declared as year or [year]
+    if isinstance(years, int):
+        years = [years]  # Convert a single integer in a list
+
+    if not isinstance(years, list):
+        raise ValueError("Erro: years must a list of integers.")
 
     # Normalize paths
     main_dir = os.path.normpath(main_dir)
@@ -198,10 +267,10 @@ def process_era5land_anomaly_month(main_dir, folder_name, shapefile_path, variab
     indic_name = indicator_name.lower()[:20]  # limit to 20 characters
 
     # Create a set of cog images from NetCDF files - generate_COG.py
-    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years_month, extension_folder = "month", type_indicator = "temp", source="era5land")
+    list_climate_format_files(file_paths = main_dir, output_dir = indicator_dir, variable_input = variable_name, indicator_name_local = indic_name, years_work = years, extension_folder = "month", type_indicator = "temp", source="era5land")
 
     # Create a set of folders with month pattern
-    create_months_dir(tifs_dir = daily_tifs_dir, month_dir = month_dir, years_month = years_month)
+    create_months_dir(tifs_dir = daily_tifs_dir, month_dir = month_dir, years = years)
 
     # Create a set of stack raster for each month folder - process_shapefile.py
     stack_from_muni = crop_raster_by_area(data_dir = month_dir, study_area_bbox = bounding_box)
@@ -214,9 +283,9 @@ def process_era5land_anomaly_month(main_dir, folder_name, shapefile_path, variab
     dates_shapefile_col = extract_anomaly(data_dir = month_dir, shapefile_idw_nc = study_area_muni_shp, indicator_name_local = [indic_name, folder_name], extension_folder = "month", extension_spatial = "mun")
 
     # Move shapefiles files to new folder - utils.R
-    move_indicators_shapefiles_files_anomaly(main_dir = indicator_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "month", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = True, data_source = "ERA5-Land (Copernicus)")
+    move_indicators_shapefiles_files_anomaly(main_dir = indicator_dir, output_final_dir = output_dir, indicator_name_local = [indic_name, folder_name], color_png_file = color_png_file, extension_folder = "month", extension_spatial = "mun", dates_col = dates_shapefile_col, anomaly_data = True, data_source = "ERA5-Land (Copernicus)", source="era5land")
 
-    del main_dir, folder_name, shapefile_path, variable_name, years_month, indicator_name, color_png_file
+    del main_dir, folder_name, shapefile_path, variable_name, years, indicator_name, color_png_file
     gc.collect()
 
     print("\nProcessing finished successfully!\n")

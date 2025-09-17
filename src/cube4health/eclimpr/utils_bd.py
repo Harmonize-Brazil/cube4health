@@ -8,179 +8,70 @@ from geoalchemy2 import Geometry # to use .to_postgis()
 from tqdm import tqdm
 
 
-# def process_climate_postgres(indicator_name, shapefile_path, name_db, table_new_db,ncol_epiweek=4, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db="postgres", agg_spat_name="municipality", agg_time_name="epi_week", overwrite=False):
-#     """
-#     Populate PostgreSQL table from shapefile with temporal and spatial aggregation.
-
-#     Parameters
-#     ----------
-#     indicator_name : str
-#         Name of the indicator to be inserted in the table.
-#     shapefile_path : str
-#         Path to the input shapefile of the interesting area.
-#     name_db : str
-#         Name of the PostgreSQL database.
-#     table_new_db : str
-#         Name of the new table to be created in PostgreSQL.
-#     ncol_epiweek : int, optional
-#         The number in Attribute Table that starts column with pattern 'w_YYYYMMDD' start. Default is 4.
-#     schema_db : str, optional
-#         Name of the schema to use. Default is 'climate'.
-#     host_db : str, optional
-#         Host name or IP of the PostgreSQL server. Default is 'localhost'.
-#     port_db : int, optional
-#         Port number of the PostgreSQL server. Default is 5432.
-#     user_db : str, optional
-#         Username for the database. Default is 'postgres'.
-#     pass_db : str, optional
-#         Password for the database. Default is 'postgres'.
-#     agg_spat_name : str, optional
-#         Spatial aggregation name. Default is 'municipality'.
-#     agg_time_name : str, optional
-#         Temporal aggregation name. Default is 'epi_week'.
-#     overwrite : bool, optional
-#         If True, allows delete the table before, and replace existing data. Default is False, and maintaining existing data.
-
-#     Raises
-#     ------
-#     ValueError
-#         If any required parameters are not defined.
-
-#     Returns
-#     -------
-#     None
-#     """
-
-#     if None in [shapefile_path, name_db, table_new_db, indicator_name]:
-#         raise ValueError("Error: shapefile_path, name_db, table_new_db, and indicator_name must be defined.")
-
-#     # Load shapefile
-#     study_area_shp = gpd.read_file(shapefile_path)
-#     study_area_shp = study_area_shp.to_crs("EPSG:4326")
-
-#     # Lowercase table name
-#     table_new_db = table_new_db.lower()
-
-#     # Create SQLAlchemy engine
-#     engine = create_engine(
-#         f"postgresql+psycopg2://{user_db}:{pass_db}@{host_db}:{port_db}/{name_db}"
-#     )
-
-#     with engine.begin() as connection:
-#         # Create schema and PostGIS extension if necessary
-#         connection.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_db};"))
-#         connection.execute(text(f"CREATE EXTENSION IF NOT EXISTS postgis SCHEMA {schema_db};"))
-#         connection.execute(text("UPDATE pg_extension SET extrelocatable = TRUE WHERE extname = 'postgis';"))
-#         connection.execute(text(f"ALTER EXTENSION postgis SET SCHEMA {schema_db};"))
-#         connection.execute(text(f"ALTER DATABASE {name_db} SET search_path TO public, {schema_db};"))
-
-#         # Create table
-#         create_query = f"""
-#         CREATE TABLE IF NOT EXISTS {schema_db}.{table_new_db} (
-#             gid SERIAL PRIMARY KEY,
-#             cod_mun VARCHAR(8) NOT NULL,
-#             name_mun VARCHAR(35) NOT NULL,
-#             uf_mun VARCHAR(2) NOT NULL,
-#             agg_spat VARCHAR(15) NOT NULL,
-#             agg_time VARCHAR(15) NOT NULL,
-#             indicator VARCHAR(40) NOT NULL,
-#             value NUMERIC(10, 2) NOT NULL,
-#             date TIMESTAMP NOT NULL,
-#             geom geometry(Polygon, 4326)
-#         );
-#         """
-#         connection.execute(text(create_query))
-
-#         # Clear existing data, only if overwrite=True
-#         if overwrite:
-#             print(f"\nATTENTION: clearing table {schema_db}.{table_new_db} ...\n")
-#             connection.execute(text(f"DELETE FROM {schema_db}.{table_new_db};"))
-
-#     print("\nPopulating database with Shapefile values ...")
-#     records = []
-
-#     for _, row in tqdm(study_area_shp.iterrows(), total=len(study_area_shp)):
-#         if pd.isna(row.get("cod_mun")):
-#             continue
-
-#         columns_of_interest = study_area_shp.columns[ncol_epiweek:]
-#         date_columns = [col for col in columns_of_interest if re.search(r"\d{8}", col)]
-
-#         for col in date_columns:
-#             match = re.search(r"\d{8}", col)
-#             if match:
-#                 date_val = pd.to_datetime(match.group(), format="%Y%m%d", errors='coerce')
-#                 try:
-#                     value = float(row[col])
-#                 except (ValueError, TypeError):
-#                     continue
-
-#                 if pd.isna(value):
-#                     continue
-
-#                 records.append({
-#                     "cod_mun": row["cod_mun"],
-#                     "name_mun": row["name_mun"],
-#                     "uf_mun": row["uf_mun"],
-#                     "agg_spat": agg_spat_name,
-#                     "agg_time": agg_time_name,
-#                     "indicator": indicator_name,
-#                     "value": value,
-#                     "date": date_val,
-#                     "geometry": row["geometry"]
-#                 })
-
-#     if records:
-#         gdf = gpd.GeoDataFrame(records, geometry="geometry", crs="EPSG:4326")
-#         gdf.rename(columns={"geometry": "geom"}, inplace=True) # rename column to geom
-#         gdf.set_geometry("geom", inplace=True) # define the active geometry
-#         gdf.set_crs("EPSG:4326", allow_override=True, inplace=True)
-#         gdf.to_postgis(
-#             name=table_new_db,
-#             con=engine,
-#             schema=schema_db,
-#             if_exists="append",
-#             index=False,
-#             dtype={"geom": Geometry(geometry_type="POLYGON", srid=4326)}
-#         )
-
-#     print(f"\nDatabase {table_new_db} created successfully!\n")
-
-
-
 def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db="postgres", overwrite=False):
     """
-    Populate PostgreSQL table from GeoJSON with temporal and spatial aggregation.
+    Populate a PostgreSQL/PostGIS table from GeoJSON files with temporal and spatial aggregation.
+
+    The function reads GeoJSON files containing climate indicators (with either "epiweek" or "month" as the temporal aggregation unit) and inserts them into a PostgreSQL/PostGIS database table.
+    It automatically creates the schema (if not existing), ensures PostGIS is enabled, and handles insertion with overwrite control.
 
     Parameters
     ----------
     geojson_path : str
-        Path to the input GeoJSON of the interesting area.
+        Path to the main directory containing the GeoJSON files. The directory name must contain either "epiweek" or "month" to define the temporal aggregation.
     name_db : str
         Name of the PostgreSQL database.
-    table_new_db : str
-        Name of the new table to be created in PostgreSQL. Used last directory, if table name is not provided
+    table_new_db : str, optional
+        Name of the new table to be created in PostgreSQL. If not provided, the last directory name in `geojson_path` is used. Default is None.
     schema_db : str, optional
         Name of the schema to use. Default is 'climate'.
     host_db : str, optional
-        Host name or IP of the PostgreSQL server. Default is 'localhost'.
+        Host name or IP address of the PostgreSQL server. Default is 'localhost'.
     port_db : int, optional
         Port number of the PostgreSQL server. Default is 5432.
     user_db : str, optional
-        Username for the database. Default is 'postgres'.
+        Username for the PostgreSQL database. Default is 'postgres'.
     pass_db : str, optional
-        Password for the database. Default is 'postgres'.
+        Password for the PostgreSQL database. Default is 'postgres'.
     overwrite : bool, optional
-        If True, allows delete the table before, and replace existing data. Default is False, and maintaining existing data.
+        If True, clears the table before insertion, replacing existing data.
+        If False, appends new data without removing existing records. Default is False.
 
     Raises
     ------
     ValueError
-        If any required parameters are not defined.
+        If `geojson_path` or `name_db` are not defined.
+        If the directory name does not contain "epiweek" or "month".
+    FileNotFoundError
+        If the "shapefiles" subdirectory does not exist inside `geojson_path`.
 
     Returns
     -------
     None
+        The function does not return a value. Data are inserted directly into the PostgreSQL/PostGIS database.
+
+    Notes
+    -----
+    - PostGIS extension is created and assigned to the schema if not already present.
+    - Geometry column is always stored as `geom geometry(Polygon, 4326)`.
+
+    Examples
+    --------
+    Populate PostgreSQL with monthly climate indicators:
+
+    >>> from cube4health.eclimpr.utils_bd import process_climate_postgres
+
+    >>> process_climate_postgres(
+    ...     geojson_path="/path/to/temp_max_NE_mun_month_era5land",
+    ...     name_db="harmonize",
+    ...     table_new_db="temp_max_NE_mun_month_era5land",
+    ...     schema_db="climate",
+    ...     host_db="localhost",
+    ...     port_db=5432,
+    ...     user_db="postgres",
+    ...     pass_db="postgres",
+    ...     overwrite=True
+    ... )
     """
 
     if None in [geojson_path, name_db]:

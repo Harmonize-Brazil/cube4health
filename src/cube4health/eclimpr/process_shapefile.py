@@ -13,6 +13,7 @@ from natsort import natsorted  # Correct order of filenames
 from tqdm import tqdm  # To progress bar
 import folium
 from shapely.geometry import box
+from typing import Literal
 import warnings
 
 
@@ -380,33 +381,101 @@ def crop_raster_by_area_rhumidity(data_dir, study_area_bbox):
 # Functions to prepare a shapefile to use in the processing:
 # -----------
 
-def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list_columns=None, cod_mun=None):
+def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list_columns=None, cod_mun=None, uf_name=None, geobr_scope: Literal["municipality", "state"] = "municipality", geobr_year=2022):
     """
-    Process a shapefile (from user or geobr) and formats it, extracting specific columns.
+    Process and standardize shapefiles (user-provided or from geobr).
+
+    This function processes shapefiles and ensures a standardized format with four attributes:
+    ``cod_mun`` (municipality code), ``name_mun`` (municipality name), ``uf_mun`` (state code), and ``geometry`` (EPSG:4326). It supports both user-provided shapefiles and data from the ``geobr`` package, allowing processing by municipality or state.
 
     Parameters
     ----------
     main_dir : str
         Directory where the processed shapefile will be stored.
     own_shapefile : bool, optional
-        If True, loads the shapefile from geobr using 'cod_mun'. Default is False.
+        If False, data is loaded from ``geobr`` (default).
+        If True, a user-provided shapefile is used.
     shapefile_path : str, optional
-        Path to the shapefile to be processed.
-    list_columns : list of str, optional
-        List of columns to extract from the shapefile. Must contain exactly four elements:
-        ['column_code_municipality', 'column_name_municipality', 'column_UF', 'column_geometry'].
+        Path to the user-provided shapefile (required when ``own_shapefile=True``).
+    list_columns : dict, optional
+        Mapping of column names in the user-provided shapefile to the expected ones.
+        Must include the keys: ``{"code_muni","name_muni","uf_state","geometry"}``.
+        Example:
+        ::
+            {
+                "code_muni": "CD_MUN",
+                "name_muni": "NM_MUN",
+                "uf_state": "SIGLA",
+                "geometry": "geometry"
+            }
     cod_mun : int, optional
-        The 7-digit municipality code for loading a shapefile from geobr if 'own_shapefile' is True.
-
+        7-digit IBGE municipality code (used when loading a single municipality from ``geobr``).
+        Required if ``own_shapefile=False`` and ``geobr_scope="municipality"``.
+    uf_name : str, optional
+        Two-letter state code (e.g., "RJ", "RN"). Required when
+        ``own_shapefile=False`` and ``geobr_scope="state"``.
+    geobr_scope : {"municipality", "state"}, optional
+        Scope for ``geobr`` download:
+        - ``"municipality"``: load a single municipality by code.
+        - ``"state"``: load all municipalities of a state.
+        Default is ``"municipality"``.
+    geobr_year : int, optional
+        Reference year for ``geobr`` data. Default is 2022.
+            
     Returns
     -------
     gpd.GeoDataFrame
-        Processed GeoDataFrame with renamed columns.
+        Processed GeoDataFrame with columns:
+        ``["cod_mun","name_mun","uf_mun","geometry"]`` in EPSG:4326.
 
     Raises
     ------
     ValueError
-        If required arguments are missing or invalid.
+        If required arguments are missing, invalid, or inconsistent with the selected scope.
+    RuntimeError
+        If there is an unexpected error while loading data from ``geobr``.
+        
+    Notes
+    -----
+    - The processed shapefile is saved in ``main_dir`` with suffix ``_processed.shp``.
+    - Municipality codes are cast to ``Int64`` to preserve compatibility with missing values.
+    - All geometries are transformed to WGS84 (EPSG:4326).
+
+    Examples
+    --------
+    From a user-provided shapefile:
+    
+    >>> from cube4health.eclimpr.process_shapefile import processed_shapefile
+    
+    >>> processed_shapefile(
+    ...     main_dir="/path/to/output",
+    ...     own_shapefile=True,
+    ...     shapefile_path="/path/to/shapefile/mun_indireto_PA.shp",
+    ...     list_columns={
+    ...         "code_muni": "CD_MUN",
+    ...         "name_muni": "NM_MUN",
+    ...         "uf_state": "SIGLA",
+    ...         "geometry": "geometry"
+    ...     }
+    ... )
+
+    From geobr package by municipality:
+
+    >>> processed_shapefile(
+    ...     main_dir="/path/to/output",
+    ...     own_shapefile=False,
+    ...     geobr_scope="municipality",
+    ...     cod_mun=2501351  # Assunção - PB
+    ... )
+
+    From geobr package by state:
+
+    >>> processed_shapefile(
+    ...     main_dir="/path/to/output",
+    ...     own_shapefile=False,
+    ...     geobr_scope="state",
+    ...     uf_name="RN"  # Rio Grande do Norte
+    ... )
     """
 
     if main_dir is None:
@@ -414,50 +483,98 @@ def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list
 
     # Normalize path
     main_dir = os.path.abspath(main_dir)
+    os.makedirs(main_dir, exist_ok=True)
 
     if own_shapefile is False:
-        if main_dir is None and cod_mun is None:
-            raise ValueError("If 'own_shapefile' is True, 'main_dir' and 'cod_mun' must be defined.")
+        # --- Load from geobr data loading to a single municipality or state ---
+        if geobr_scope == "municipality":
+            if cod_mun is None:
+                raise ValueError("For geobr_scope='municipality', 'cod_mun' must be provided.")
+            try:
+                study_area_shp_muni = geobr.read_municipality(code_muni=cod_mun, year=geobr_year)
+            except ValueError as e:
+                raise ValueError(
+                    f" Municipality code '{cod_mun}' is not valid for year {geobr_year}. "
+                    f"Check if the code is correct or try another year.\n"
+                    f"Original error: {e}"
+                )
+            except Exception as e:
+                raise RuntimeError(
+                    f" Unexpected error while loading municipality '{cod_mun}' from geobr: {e}"
+                )
 
-        # Simulate geobr data loading
-        # study_area_shp_new = gpd.read_file(f"https://geobr_api/{cod_mun}")
-        # Example placeholder
-        study_area_shp_muni = geobr.read_municipality(code_muni=cod_mun, year=2022)
-        # Select columns
-        study_area_shp_new = study_area_shp_muni[["code_muni", "name_muni", "abbrev_state", "geometry"]]
-        # Rename
-        study_area_shp_new = study_area_shp_new.rename(columns={
-            "code_muni": "cod_mun",
-            "name_muni": "name_mun",
-            "abbrev_state": "uf_mun",
-            "geometry": "geometry"
-        })
+        elif geobr_scope == "state":
+            if uf_name is None or not isinstance(uf_name, str) or len(uf_name) != 2:
+                raise ValueError("For geobr_scope='state', 'uf' must be a two-letter string (e.g., 'RJ').")
+            try:
+                study_area_shp_muni = geobr.read_municipality(code_muni=uf_name.upper(), year=geobr_year)
+            except ValueError as e:
+                raise ValueError(
+                    f" UF name '{uf_name.upper()}' is not valid for year {geobr_year}. "
+                    f"Check if the code is correct or try another year.\n"
+                    f"Original error: {e}"
+                )
+            except Exception as e:
+                raise RuntimeError(
+                    f" Unexpected error while loading UF municipalities '{uf_name.upper()}' from geobr: {e}"
+                )
+        else:
+            raise ValueError("geobr_scope must be 'municipality' or 'state'.")
+
+        study_area_shp_new = study_area_shp_muni[["code_muni", "name_muni", "abbrev_state", "geometry"]].copy()
+        # Ensure integer code (Int64 allows NA if any)
+        study_area_shp_new["code_muni"] = study_area_shp_new["code_muni"].astype("Int64")
+
+        study_area_shp_new = study_area_shp_new.rename(
+            columns={
+                "code_muni": "cod_mun",
+                "name_muni": "name_mun",
+                "abbrev_state": "uf_mun",
+                "geometry": "geometry"
+            }
+        )
+
+        # Output path
+        if geobr_scope == "municipality":
+            out_name = f"geobr_{int(cod_mun)}_processed"
+        else:
+            out_name = f"geobr_{uf_name.upper()}_processed"
 
         # Transform to WGS84
         study_area_shp_new = study_area_shp_new.to_crs("EPSG:4326")
 
         # Export processed shapefile
-        output_path = os.path.join(main_dir, f"geobr_{cod_mun}_processed.shp")
+        output_path = os.path.join(main_dir, f"{out_name}.shp")
         study_area_shp_new.to_file(output_path, driver="ESRI Shapefile")
 
     else:
-        # if shapefile_path is None or list_columns is None or len(list_columns) != 4:
-        #     raise ValueError("If 'own_shapefile' is False, 'shapefile_path' and 'list_columns' must be properly defined.")
+        # --- User-provided shapefile ---
         # As dictionary
-        if shapefile_path is None or list_columns is None or not all(key in list_columns for key in ['code_muni', 'name_muni', 'abbrev_state', 'geometry']):
-            raise ValueError("If 'own_shapefile' is False, 'shapefile_path' and 'list_columns' with the necessary keys must be properly defined.")
+        if shapefile_path is None or list_columns is None:
+            raise ValueError("When own_shapefile=True, 'shapefile_path' and 'list_columns' are required.")
+
+        required_keys = {"code_muni", "name_muni", "uf_state", "geometry"}
+        if not required_keys.issubset(set(list_columns.keys())):
+            raise ValueError("list_columns must contain keys: 'code_muni', 'name_muni', 'uf_state', 'geometry'.")
 
         # Load the user-provided shapefile
         study_area_shp = gpd.read_file(shapefile_path)
 
-        # Select and rename columns
-        #study_area_shp_new = study_area_shp[list_columns]
         # Extract columns based on user-provided dictionary
-        user_columns = [list_columns['code_muni'], list_columns['name_muni'], list_columns['abbrev_state'], list_columns['geometry']]
-        study_area_shp_new = study_area_shp[user_columns]
+        user_columns = [
+            list_columns["code_muni"],
+            list_columns["name_muni"],
+            list_columns["uf_state"],
+            list_columns["geometry"],
+        ]
+        study_area_shp_new = study_area_shp[user_columns].copy()
 
         # Rename columns to standard names
-        study_area_shp_new.columns = ['cod_mun', 'name_mun', 'uf_mun', 'geometry']
+        study_area_shp_new.columns = ["cod_mun", "name_mun", "uf_mun", "geometry"]
+
+        # Ensure integer municipality code if possible
+        # (use Int64 to preserve missing values if any)
+        study_area_shp_new["cod_mun"] = study_area_shp_new["cod_mun"].astype("Int64")
 
         # Transform to WGS84
         study_area_shp_new = study_area_shp_new.to_crs("EPSG:4326")
@@ -467,12 +584,7 @@ def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list
         output_path = os.path.join(main_dir, f"{shp_layer}_processed.shp")
         study_area_shp_new.to_file(output_path, driver="ESRI Shapefile")
 
-    print("New Shapefile Done")
+    print("Created New Shapefile - Done")
     return study_area_shp_new
 
-# main_dir = "/home/adeline/Dropbox/github_projects/BDC_Harmonize/eclimpr_tests/"
-# shapefile_path = "/home/adeline/Dropbox/github_projects/BDC_Harmonize/eclimpr_tests/shapefiles/Areas_Harmonize_mun/mun_indireto_PA.shp"
-# cod_mun = 2501351
-# own_shapefile = True
-# list_columns = ["CD_MUN", "NM_MUN", "SIGLA", "geometry"]
 
