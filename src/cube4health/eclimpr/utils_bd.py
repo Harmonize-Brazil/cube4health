@@ -4,8 +4,9 @@ import pandas as pd
 from glob import glob
 from natsort import natsorted  # Correct order of filenames
 from sqlalchemy import create_engine, text
-from geoalchemy2 import Geometry # to use .to_postgis()
 from tqdm import tqdm
+from psycopg2.extras import execute_values
+from shapely.wkb import dumps as wkb_dumps
 
 
 def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db="postgres", overwrite=False):
@@ -100,12 +101,9 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
 
     with engine.begin() as connection:
         # Create schema and PostGIS extension if necessary
+        connection.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
         connection.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_db};"))
-        connection.execute(text(f"CREATE EXTENSION IF NOT EXISTS postgis SCHEMA {schema_db};"))
-        connection.execute(text("UPDATE pg_extension SET extrelocatable = TRUE WHERE extname = 'postgis';"))
-        connection.execute(text(f"ALTER EXTENSION postgis SET SCHEMA {schema_db};"))
-        connection.execute(text(f"ALTER DATABASE {name_db} SET search_path TO public, {schema_db};"))
-
+        
         if temporal_unit == "epiweek":
             temporal_fields = """
                 epiweek_number VARCHAR(2) NOT NULL,
@@ -130,7 +128,7 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
             time_agg VARCHAR(20) NOT NULL,
             spatial_agg VARCHAR(20) NOT NULL,
             value NUMERIC(10, 4) NOT NULL,
-            geom geometry(Polygon, 4326)
+            geom geometry(MULTIPOLYGON, 4326) NOT NULL
         );
         """
 
@@ -194,20 +192,72 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
             records.append(record)
 
     if records:
+        # mount gdf with CRS 4326
         gdf = gpd.GeoDataFrame(records, geometry="geometry", crs="EPSG:4326")
-        gdf.rename(columns={"geometry": "geom"}, inplace=True) # rename column to geom
-        gdf.set_geometry("geom", inplace=True) # define the active geometry
-        gdf.set_crs("EPSG:4326", allow_override=True, inplace=True)
-        gdf.to_postgis(
-            name=table_new_db,
-            con=engine,
-            schema=schema_db,
-            if_exists="append",
-            index=False,
-            dtype={"geom": Geometry(geometry_type="POLYGON", srid=4326)}
-        )
+        if gdf.crs is None:
+            gdf = gdf.set_crs(4326, allow_override=True)
+
+        # Define columns according to the temporal unit (keeping names compatible with your CREATE TABLE)
+        if temporal_unit == "epiweek": # epiweek
+            db_columns = [
+                "cod_mun","name_mun","uf_mun","data_source","name_indicator",
+                "epiweek_number","epiweek_start_date","time_agg","spatial_agg",
+                "value","geom"
+            ]
+        else:  # month
+            db_columns = [
+                "cod_mun","name_mun","uf_mun","data_source","name_indicator",
+                "month_number","month_start_date","time_agg","spatial_agg",
+                "value","geom"
+            ]
+
+        # Reorder/rename to match db_columns: your table uses 'geom' (not 'geometry')
+        gdf = gdf.rename(columns={"geometry": "geom"})
+        gdf = gdf[db_columns]
+
+        # Prepare records: last positions will be WKB of geometry
+        records_wkb = []
+        for row in gdf.itertuples(index=False, name=None):
+            *attrs, geom = row
+            if geom is None:
+                wkb = None
+            else:
+                # WKB bytes; SRID handled on the database side via ST_GeomFromWKB(..., 4326)
+                wkb = wkb_dumps(geom)
+            records_wkb.append(tuple(attrs + [wkb]))
+
+        # Assembles SQL with placeholders; converts geom to database and forces Multi
+        cols_sql = ", ".join(db_columns)
+        values_sql = "VALUES %s"
+        insert_sql = f"""
+            INSERT INTO {schema_db}.{table_new_db} ({cols_sql})
+            {values_sql}
+        """
+
+        # Template: all columns as %s except the last one (geom) wrapped by ST_*
+        ncols = len(db_columns)
+        template_placeholders = ",".join(["%s"] * (ncols - 1))
+        geom_expr = "ST_Multi(ST_GeomFromWKB(%s, 4326))"
+        template = f"({template_placeholders}, {geom_expr})"
+
+        # Use SQLAlchemy (psycopg2) raw connection for execute_values
+        raw_conn = engine.raw_connection()
+        try:
+            cur = raw_conn.cursor()
+            try:
+                execute_values(
+                    cur,
+                    insert_sql,
+                    records_wkb,
+                    template=template,
+                    page_size=10000
+                )
+            finally:
+                cur.close()
+            raw_conn.commit()
+        finally:
+            raw_conn.close()
 
     print(f"\nDatabase {table_new_db} created successfully!\n")
     print(f"\nInsertion completed: {len(records)} records added to the table '{schema_db}.{table_new_db}'\n")
-
 
