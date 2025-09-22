@@ -79,10 +79,15 @@ def get_data_zenodo(output_dir, folder_name, file_list, zenodo_record_url):
     # Read a file list
     if isinstance(file_list, str) and file_list.endswith(('csv', 'txt')):
         files_df = pd.read_csv(file_list, header=None, names=['files'])
+        # Remove spaces and empty lines
+        files_df['files'] = files_df['files'].astype(str).str.strip()
+        files_df = files_df[files_df['files'] != '']
     else:
-        files_df = pd.DataFrame({'files': file_list})
+        # Remove spaces and empty lines in list
+        clean_list = [str(f).strip() for f in file_list if str(f).strip()]
+        files_df = pd.DataFrame({'files': clean_list})
 
-     # Create a log file
+    # Create a log file
     log_file = os.path.join(zenodo_dir, f"{folder_name}_{datetime.now().strftime('%Y%m%d')}.log")
     with open(log_file, "w") as log:
         log.write(f"\n--- Starting download files from {zenodo_record_url} ...\n")
@@ -90,10 +95,10 @@ def get_data_zenodo(output_dir, folder_name, file_list, zenodo_record_url):
     print(files_df)
 
     for file_name in tqdm(files_df['files'], desc="Downloading files", unit="file"):
+        ze_link = f"{zenodo_record_url}/files/{file_name}?download=1"
+        ze_output_dir = os.path.join(zenodo_dir, file_name)
+        
         try:
-            ze_link = f"{zenodo_record_url}/files/{file_name}?download=1"
-            ze_output_dir = os.path.join(zenodo_dir, file_name)
-
             response = requests.get(ze_link, stream=True, timeout=10)
             response.raise_for_status()
             total_size = int(response.headers.get('content-length', 0))
