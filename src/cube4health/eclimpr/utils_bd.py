@@ -1,15 +1,19 @@
 import os
 import geopandas as gpd
 import pandas as pd
+import getpass
+import sys
+from urllib.parse import quote_plus
 from glob import glob
 from natsort import natsorted  # Correct order of filenames
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError
 from tqdm import tqdm
 from psycopg2.extras import execute_values
 from shapely.wkb import dumps as wkb_dumps
 
 
-def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db="postgres", overwrite=False):
+def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db=None, overwrite=False):
     """
     Populate a PostgreSQL/PostGIS table from GeoJSON files with temporal and spatial aggregation.
 
@@ -33,7 +37,9 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
     user_db : str, optional
         Username for the PostgreSQL database. Default is 'postgres'.
     pass_db : str, optional
-        Password for the PostgreSQL database. Default is 'postgres'.
+        Password for the PostgreSQL database.
+        If not provided, the function will prompt the user to enter it securely.
+        Default is None.
     overwrite : bool, optional
         If True, clears the table before insertion, replacing existing data.
         If False, appends new data without removing existing records. Default is False.
@@ -54,7 +60,7 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
     Notes
     -----
     - PostGIS extension is created and assigned to the schema if not already present.
-    - Geometry column is always stored as `geom geometry(Polygon, 4326)`.
+    - Geometry column is always stored as `geom geometry(MULTIPOLYGON, 4326)`.
 
     Examples
     --------
@@ -92,10 +98,41 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
     # Always lowercase the table name
     table_new_db = table_new_db.lower()
 
-    # Create SQLAlchemy engine
-    engine = create_engine(
-        f"postgresql+psycopg2://{user_db}:{pass_db}@{host_db}:{port_db}/{name_db}"
-    )
+    max_attempts = 3
+    engine = None
+
+    for attempt in range(1, max_attempts + 1): 
+        # If username/password is missing, request it securely
+        if user_db is None or user_db == "":
+            user_db = input("Enter DB username: ").strip()
+        if pass_db is None or pass_db == "":
+            pass_db = getpass.getpass("Enter DB password: ")
+
+        # URL-encode for credentials with special characters
+        user_enc = quote_plus(user_db)
+        pass_enc = quote_plus(pass_db)
+
+        # Create SQLAlchemy engine
+        engine = create_engine(
+            f"postgresql+psycopg2://{user_enc}:{pass_enc}@{host_db}:{port_db}/{name_db}",
+            connect_args={"connect_timeout": 5},
+            pool_pre_ping=True,  # validate connections
+        )
+    
+        try:
+            with engine.connect() as conn:
+                _ = conn.execute(text("SELECT now();"))
+                print("Connection OK.")
+            break  # sucess
+        except OperationalError as e:
+            print(f"Connection failed (attempt {attempt}/{max_attempts}): {e}")
+            # Clear password to force new prompt on next attempt
+            pass_db = None
+            if attempt == max_attempts:
+                print("-" * 120)
+                print("You've reached the maximum number of efforts. Run the script again.")
+                print("-" * 120)
+                sys.exit(1)
 
     temporal_fields = ""
 
