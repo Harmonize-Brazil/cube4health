@@ -1,27 +1,27 @@
 <?xml version='1.0' encoding='utf-8'?>
 <ns0:StyledLayerDescriptor xmlns:ns0="http://www.opengis.net/sld" xmlns:ns2="http://www.opengis.net/ogc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0.0" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd">
   <ns0:NamedLayer>
-    <ns0:Name>Temperature</ns0:Name>
+    <ns0:Name>Precipitation</ns0:Name>
     <ns0:UserStyle>
-      <ns0:Title>Temperature Style</ns0:Title>
+      <ns0:Title>Precipitation Style</ns0:Title>
       <ns0:FeatureTypeStyle>
         <!-- Rule 1:  nodata -->
         <ns0:Rule>
           <ns0:Name>Rule 1</ns0:Name>
-          <ns0:Title>nodata</ns0:Title>
+          <ns0:Title>0.0000 mm</ns0:Title>
           <ns2:Filter>
             <ns2:PropertyIsEqualTo>
               <ns2:PropertyName>value</ns2:PropertyName>
-              <ns2:Literal>0</ns2:Literal>
+              <ns2:Literal>0.0000</ns2:Literal>
             </ns2:PropertyIsEqualTo>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
             <ns0:Fill>
-              <ns0:CssParameter name="fill">#ffffff</ns0:CssParameter>
+              <ns0:CssParameter name="fill">#FFFFFF</ns0:CssParameter>
               <ns0:CssParameter name="fill-opacity">0.7</ns0:CssParameter>
             </ns0:Fill>
             <ns0:Stroke>
-              <ns0:CssParameter name="stroke">#ffffff</ns0:CssParameter>
+              <ns0:CssParameter name="stroke">#FFFFFF</ns0:CssParameter>
               <ns0:CssParameter name="fill-opacity">0</ns0:CssParameter>
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
@@ -29,16 +29,16 @@
         <!-- Rule 2: 5 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 2</ns0:Name>
-          <ns0:Title>5 mm</ns0:Title>
+          <ns0:Title>0.0001 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>0</ns2:Literal>
+                <ns2:Literal>0.0000</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>5</ns2:Literal>
+                <ns2:Literal>0.0001</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -55,16 +55,16 @@
         <!-- Rule 3: 10 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 3</ns0:Name>
-          <ns0:Title>10 mm</ns0:Title>
+          <ns0:Title>0.1 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>5</ns2:Literal>
+                <ns2:Literal>0.0001</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>10</ns2:Literal>
+                <ns2:Literal>0.1</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -81,16 +81,16 @@
         <!-- Rule 4: 20 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 4</ns0:Name>
-          <ns0:Title>20 mm</ns0:Title>
+          <ns0:Title>1 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>10</ns2:Literal>
+                <ns2:Literal>0.1</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>20</ns2:Literal>
+                <ns2:Literal>1</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -107,16 +107,16 @@
         <!-- Rule 5: 30 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 5</ns0:Name>
-          <ns0:Title>30 mm</ns0:Title>
+          <ns0:Title>2 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>20</ns2:Literal>
+                <ns2:Literal>1</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>30</ns2:Literal>
+                <ns2:Literal>2</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -133,42 +133,42 @@
         <!-- Rule 6: 40 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 6</ns0:Name>
-          <ns0:Title>40 mm</ns0:Title>
+          <ns0:Title>3 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>30</ns2:Literal>
+                <ns2:Literal>2</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>40</ns2:Literal>
+                <ns2:Literal>3</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
             <ns0:Fill>
-              <ns0:CssParameter name="fill">#59FFCF</ns0:CssParameter>
+              <ns0:CssParameter name="fill">#D2FE03</ns0:CssParameter>
               <ns0:CssParameter name="fill-opacity">0.7</ns0:CssParameter>
             </ns0:Fill>
             <ns0:Stroke>
-              <ns0:CssParameter name="stroke">#59FFCF</ns0:CssParameter>
+              <ns0:CssParameter name="stroke">#D2FE03</ns0:CssParameter>
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
         <!-- Rule 7: 50 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 7</ns0:Name>
-          <ns0:Title>50 mm</ns0:Title>
+          <ns0:Title>4 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>40</ns2:Literal>
+                <ns2:Literal>3</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>50</ns2:Literal>
+                <ns2:Literal>4</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -185,16 +185,16 @@
         <!-- Rule 8: 100 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 8</ns0:Name>
-          <ns0:Title>100 mm</ns0:Title>
+          <ns0:Title>5 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>50</ns2:Literal>
+                <ns2:Literal>4</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>100</ns2:Literal>
+                <ns2:Literal>5</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -211,16 +211,16 @@
         <!-- Rule 9: 150 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 9</ns0:Name>
-          <ns0:Title>150 mm</ns0:Title>
+          <ns0:Title>10 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>100</ns2:Literal>
+                <ns2:Literal>5</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>150</ns2:Literal>
+                <ns2:Literal>10</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -237,16 +237,16 @@
         <!-- Rule 10: 200 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 10</ns0:Name>
-          <ns0:Title>200 mm</ns0:Title>
+          <ns0:Title>20 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>150</ns2:Literal>
+                <ns2:Literal>10</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>200</ns2:Literal>
+                <ns2:Literal>20</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -263,16 +263,16 @@
         <!-- Rule 11: 250 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 11</ns0:Name>
-          <ns0:Title>250 mm</ns0:Title>
+          <ns0:Title>30 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>200</ns2:Literal>
+                <ns2:Literal>20</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>250</ns2:Literal>
+                <ns2:Literal>30</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -289,16 +289,16 @@
         <!-- Rule 12: 300 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 12</ns0:Name>
-          <ns0:Title>300 mm</ns0:Title>
+          <ns0:Title>40 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>250</ns2:Literal>
+                <ns2:Literal>30</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>300</ns2:Literal>
+                <ns2:Literal>40</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -315,16 +315,16 @@
         <!-- Rule 13: 350 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 13</ns0:Name>
-          <ns0:Title>350 mm</ns0:Title>
+          <ns0:Title>50 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>300</ns2:Literal>
+                <ns2:Literal>40</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>350</ns2:Literal>
+                <ns2:Literal>50</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -341,16 +341,16 @@
         <!-- Rule 14: 400 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 14</ns0:Name>
-          <ns0:Title>400 mm</ns0:Title>
+          <ns0:Title>100 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>350</ns2:Literal>
+                <ns2:Literal>50</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>400</ns2:Literal>
+                <ns2:Literal>100</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -367,16 +367,16 @@
         <!-- Rule 15: 500 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 15</ns0:Name>
-          <ns0:Title>500 mm</ns0:Title>
+          <ns0:Title>200 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>400</ns2:Literal>
+                <ns2:Literal>100</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>500</ns2:Literal>
+                <ns2:Literal>200</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -393,16 +393,16 @@
         <!-- Rule 16: 600 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 16</ns0:Name>
-          <ns0:Title>600 mm</ns0:Title>
+          <ns0:Title>300 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>500</ns2:Literal>
+                <ns2:Literal>200</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>600</ns2:Literal>
+                <ns2:Literal>300</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -419,16 +419,16 @@
         <!-- Rule 17: 700 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 17</ns0:Name>
-          <ns0:Title>700 mm</ns0:Title>
+          <ns0:Title>400 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>600</ns2:Literal>
+                <ns2:Literal>300</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>700</ns2:Literal>
+                <ns2:Literal>400</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -445,16 +445,16 @@
         <!-- Rule 17: 800 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 17</ns0:Name>
-          <ns0:Title>800 mm</ns0:Title>
+          <ns0:Title>500 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>700</ns2:Literal>
+                <ns2:Literal>400</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>800</ns2:Literal>
+                <ns2:Literal>500</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -471,16 +471,16 @@
         <!-- Rule 17: 900 mm -->
         <ns0:Rule>
           <ns0:Name>Rule 17</ns0:Name>
-          <ns0:Title>900 mm</ns0:Title>
+          <ns0:Title>700 mm</ns0:Title>
           <ns2:Filter>
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>800</ns2:Literal>
+                <ns2:Literal>500</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>900</ns2:Literal>
+                <ns2:Literal>700</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -502,7 +502,7 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>900</ns2:Literal>
+                <ns2:Literal>750</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
@@ -524,3 +524,4 @@
     </ns0:UserStyle>
   </ns0:NamedLayer>
 </ns0:StyledLayerDescriptor>
+
