@@ -82,18 +82,28 @@ def list_climate_format_files(file_paths, output_dir, variable_input, indicator_
                                                                  show_vars=(i == 0))  # Only first file is how the list of variables into netCDF
 
         elif type_indicator == "rhumidity":
-            # Define temp and dewpoint local with input data
-            temp_paths = os.path.join(file_paths, "temp")
+            # Define temperature and dewpoint local with input data
+            temp_paths = os.path.join(file_paths, "temperature")
             dewpoint_paths = os.path.join(file_paths, "dewpoint")
 
             # Check if both directories exist
             if not os.path.isdir(temp_paths):
-                raise FileNotFoundError(f"Temperature directory not found: {temp_paths}")
+                raise FileNotFoundError(
+                    f"Temperature directory not found: {temp_paths}\n"
+                    "For 'humidity_era5land', two subfolders are required inside 'main_dir':\n"
+                    "  - 'temperature': must contain data with '2m_temperature_day_mean'.\n"
+                    "  - 'dewpoint': must contain data with '2m_dewpoint_temperature_day_mean'."
+                )
 
             if not os.path.isdir(dewpoint_paths):
-                raise FileNotFoundError(f"Dewpoint directory not found: {dewpoint_paths}")
+                raise FileNotFoundError(
+                    f"Dewpoint directory not found: {dewpoint_paths}\n"
+                    "For 'humidity_era5land', two subfolders are required inside 'main_dir':\n"
+                    "  - 'temperature': must contain data with '2m_temperature_day_mean'.\n"
+                    "  - 'dewpoint': must contain data with '2m_dewpoint_temperature_day_mean'."
+                )
 
-            # List all temperature NetCDF files in the directory 'temp'
+            # List all temperature NetCDF files in the directory 'temperature'
             temp_files = [os.path.join(temp_paths, f) for f in os.listdir(temp_paths) if f.endswith(".nc")]
             temp_files = natsorted(temp_files)
 
@@ -101,8 +111,8 @@ def list_climate_format_files(file_paths, output_dir, variable_input, indicator_
             dewpoint_files = [os.path.join(dewpoint_paths, f) for f in os.listdir(dewpoint_paths) if f.endswith(".nc")]
             dewpoint_files = natsorted(dewpoint_files)
 
-            # create temp and dewpoint dirs
-            output_temp_dir = os.path.join(output_dir, "aux_tifs", "temp")
+            # create temperature and dewpoint dirs
+            output_temp_dir = os.path.join(output_dir, "aux_tifs", "temperature")
             os.makedirs(output_temp_dir, exist_ok=True)
             output_dewpoint_dir = os.path.join(output_dir, "aux_tifs", "dewpoint")
             os.makedirs(output_dewpoint_dir, exist_ok=True)
