@@ -216,12 +216,12 @@ def create_epiweek_dir(epi_week_file, tifs_dir, epi_week_dir, years):
 
     # Check if "dewpoint" and "temp" folders exist
     dewpoint_exists = os.path.exists(os.path.join(tifs_dir, "dewpoint"))
-    temp_exists = os.path.exists(os.path.join(tifs_dir, "temp"))
+    temp_exists = os.path.exists(os.path.join(tifs_dir, "temperature"))
 
     # Get list of TIFF files
     if dewpoint_exists and temp_exists:
         dewpoint_path = os.path.join(tifs_dir, "dewpoint")
-        temp_path = os.path.join(tifs_dir, "temp")
+        temp_path = os.path.join(tifs_dir, "temperature")
         filenames = (
             [os.path.join(dewpoint_path, f) for f in os.listdir(dewpoint_path) if f.endswith(".tif")] +
             [os.path.join(temp_path, f) for f in os.listdir(temp_path) if f.endswith(".tif")]
@@ -301,12 +301,12 @@ def create_months_dir(tifs_dir, month_dir, years):
 
     # Check if there are two folders "dewpoint" and "temp" in case of relative humidity
     dewpoint_exists = os.path.exists(os.path.join(tifs_dir, "dewpoint"))
-    temp_exists = os.path.exists(os.path.join(tifs_dir, "temp"))
+    temp_exists = os.path.exists(os.path.join(tifs_dir, "temperature"))
 
     # Get list of TIFF files
     if dewpoint_exists and temp_exists:
         dewpoint_path = os.path.join(tifs_dir, "dewpoint")
-        temp_path = os.path.join(tifs_dir, "temp")
+        temp_path = os.path.join(tifs_dir, "temperature")
         filenames = (
             [os.path.join(dewpoint_path, f) for f in os.listdir(dewpoint_path) if f.endswith(".tif")] +
             [os.path.join(temp_path, f) for f in os.listdir(temp_path) if f.endswith(".tif")]

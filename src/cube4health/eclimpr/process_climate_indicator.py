@@ -21,6 +21,10 @@ def process_climate_indicator(main_dir, output_dir, folder_name, shapefile_path,
     ----------
     main_dir : str
         Directory path where the source NetCDF/GRIB files are stored (input root).
+        For most indicators, this should be a single folder containing the relevant files.
+        For ``humidity_era5land``, however, two subfolders are required inside ``main_dir``:
+            - ``temperature``: must contain data with ``2m_temperature_day_mean``.
+            - ``dewpoint``: must contain data with ``2m_dewpoint_temperature_day_mean``.
     output_dir : str
         Directory path where outputs (rasters/vector files/PNGs) will be written.
     folder_name : str

@@ -37,6 +37,9 @@ def process_era5land_rhumidity_epiweek(main_dir, output_dir, folder_name, shapef
     ----------
     main_dir : str
         Directory path where the NetCDF files are stored.
+        For ``relative humidity``, two subfolders are required inside ``main_dir``:
+            - ``temperature``: must contain data with ``2m_temperature_day_mean``.
+            - ``dewpoint``: must contain data with ``2m_dewpoint_temperature_day_mean``.
     output_dir : str
         Directory path where the indicators generated will be stored. 
     folder_name : str
@@ -183,6 +186,9 @@ def process_era5land_rhumidity_month(main_dir, output_dir, folder_name, shapefil
     ----------
     main_dir : str
         Directory path where the NetCDF files are stored.
+        For ``relative humidity``, two subfolders are required inside ``main_dir``:
+            - ``temperature``: must contain data with ``2m_temperature_day_mean``.
+            - ``dewpoint``: must contain data with ``2m_dewpoint_temperature_day_mean``.
     output_dir : str
         Directory path where the indicators generated will be stored. 
     folder_name : str
