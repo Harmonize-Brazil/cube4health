@@ -1,4 +1,5 @@
 # inbuilt libraries
+from copy import deepcopy
 import os
 import json
 import requests
@@ -15,6 +16,7 @@ from typing import (
     Optional
 )
 from concurrent.futures import (
+    ProcessPoolExecutor,
     as_completed,
     ThreadPoolExecutor
 )
@@ -47,14 +49,14 @@ from .utils import (
     check_date_format
 )
 from .lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
-from .models.db import save_data_db
+from .db import save_data_db
 from .config import CPU_COUNT
 
-from cube4health.edpu import (
+from src.cube4health.edpu import (
     STAC,
     GeoServer
 )
-from cube4health.edpu.utils import (
+from src.cube4health.edpu.utils import (
     get_round_value,
     _check_existence_dirs,
     send_files_ssh
@@ -292,6 +294,23 @@ def __crop_geometry(gdf: gpd.GeoDataFrame,
     # FUNCTION TO CREATE MUNICIPALITY GRID FROM 2010
     #return gpd.sjoin(gdf, gdf_crop, how='inner', predicate='intersects')[gdf.columns]
 
+def __process_crop(df_polygon, grid_info, crop_info, file_crop_geom):
+    grid_info_cod = grid_info.get('cod_mun', grid_info['cod'])
+    crop_info_cod = crop_info.get('cod_mun', crop_info['cod'])
+
+    df_cropped = __crop_geometry(
+        gdf=df_polygon,
+        file_path=file_crop_geom,
+        columns={'grid': grid_info_cod, 'crop': crop_info_cod}
+    )
+
+    # df_cropped = df_cropped.astype({grid_info['cod']: int})
+    # cod_polygon = df_cropped[grid_info['cod']].unique()
+
+    return df_cropped
+    # return df_cropped, cod_polygon
+
+
 
 '''def aggregate_data(indicators: List[str],
                     input_path: str,
@@ -498,7 +517,7 @@ def aggregate_data(indicators: List[str],
                 return f"Error: Indicator name {indicator} must be a string"
 
             directory = os.path.join(input_path, indicator)
-            print(directory)
+            # print(directory)
 
             try:
                 _check_existence_dirs([directory])
@@ -581,8 +600,8 @@ def aggregate_data(indicators: List[str],
                 if len(dfs) != 0:
                     print("... Done")
 
-                print("\norganizing the datasets...".upper())
-                for df in tqdm(dfs):
+                # print("\norganizing the datasets...".upper())
+                for df in tqdm(dfs, total=len(dfs), desc='Organizing the datasets...'.upper()):
                     dicts = []
                     cods = df.loc[df[cod_col].notna()][cod_col].unique()
                     for cod in cods:
@@ -697,7 +716,7 @@ def spatialize_data(indicators: List[str],
     region_crop = None
 
     # AGGREGATE DATA
-    print('input_path: ', input_path)
+    # print('input_path: ', input_path)
     dataframes = aggregate_data(indicators=indicators, 
                                 input_path=input_path, 
                                 github_settings=github_settings, 
@@ -751,7 +770,8 @@ def spatialize_data(indicators: List[str],
         gdf = gdf.copy()
 
     # SPATIALIZE DATA
-    print(f'\nSPATIALIZING AND SAVING DATA IN DATABASE...')
+    print(f'\nSPATIALIZING DATA...')
+    
     # Suppressing Shapely deprecation and Future warnings
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
@@ -772,7 +792,7 @@ def spatialize_data(indicators: List[str],
                     return f"Error: file_crops_geom must be a list with tuples where each tuple has two"\
                             " elements: the path to the shapefile and a dictionary with the columns names."
 
-            for df_indi in tqdm(dataframes):
+            for df_indi in tqdm(dataframes, total=len(dataframes), desc="Processing dataframes..."):
                 try:
                     df = df_indi['df']
                     name = df_indi['info']['name']
@@ -895,13 +915,16 @@ def spatialize_data(indicators: List[str],
 
                         # Crop the polygon if the user specifies to do it
                         if region_crop:
-                            grid_info_cod = grid_info['cod_mun'] if 'cod_mun' in grid_info.keys() else grid_info['cod']
-                            crop_info = crop_info['cod_mun'] if 'cod_mun' in crop_info.keys() else crop_info['cod']
+                            with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
+                                future = executor.submit(__process_crop, df_polygon, grid_info, crop_info, file_crop_geom)
+                                df_polygon = future.result()
+                            # grid_info_cod = grid_info['cod_mun'] if 'cod_mun' in grid_info.keys() else grid_info['cod']
+                            # crop_info = crop_info['cod_mun'] if 'cod_mun' in crop_info.keys() else crop_info['cod']
 
-                            df_polygon = __crop_geometry(gdf=df_polygon, 
-                                                        file_path=file_crop_geom,
-                                                        columns={'grid': grid_info_cod, 'crop': crop_info})
-
+                            # df_polygon = __crop_geometry(gdf=df_polygon, 
+                            #                             file_path=file_crop_geom,
+                            #                             columns={'grid': grid_info_cod, 'crop': crop_info})
+                    
                         df_polygon = df_polygon.astype({grid_info['cod']: int})
                         cod_polygon = df_polygon[grid_info['cod']].unique()
 
@@ -910,7 +933,6 @@ def spatialize_data(indicators: List[str],
                     # Filtrando o DataFrame para manter apenas as linhas com códigos presentes em cod_polygon
                     df = df[df[cod_col].isin(cod_polygon)]
 
-
                     if df.empty:
                         return "Error: No data found for the selected codes in the grid."
 
@@ -918,11 +940,11 @@ def spatialize_data(indicators: List[str],
                         df_polygon.set_index(grid_info["cod"])[grid_info["name"]]
                     )
 
-                    print(grid_info)
+                    # print(grid_info)
                     df["uf_mun"] = df[cod_col].map(
                         df_polygon.set_index(grid_info["cod"])[grid_info["uf"]]
                     )
-                    print(df.head(1))
+                    # print(df.head(1))
 
                     # Criando um DataFrame com apenas as colunas necessárias para o merge
                     cols_merge = [cod_name for cod_name in [grid_info.get("cod", None), grid_info.get("name", None), grid_info.get("uf", None)] if cod_name]
@@ -936,7 +958,7 @@ def spatialize_data(indicators: List[str],
                         right_on=grid_info["cod"],
                         suffixes=("", "_polygon")
                     )
-                    print(df.head(1))
+                    # print(df.head(1))
                     # Criando um dicionário para mapear cada código à sua geometria correspondente
                     cod_geometry_dict = {}
 
@@ -974,7 +996,7 @@ def spatialize_data(indicators: List[str],
                         # Submit each chunk to the executor
                         futures = [executor.submit(get_geometry, chunk) for chunk in unique_codes_chunks]
 
-                        for i, future in enumerate(tqdm(as_completed(futures), desc="Processing chunks...")):
+                        for i, future in enumerate(tqdm(as_completed(futures), total=len(futures))): #, desc="Processing chunks...")):
                             geometries.update(future.result())
 
                     # Adicionando a coluna de geometria ao DataFrame original
@@ -999,7 +1021,6 @@ def spatialize_data(indicators: List[str],
                     name_date_col = ""
 
                     if len(time_aggregations) == 1 and time_aggregations[0] == 'week':
-
                         name_date_col = 'epiweek_start_date'
                         name_date_number_col = "epiweek_number"
 
@@ -1041,27 +1062,22 @@ def spatialize_data(indicators: List[str],
 
                         # Changes 'week' to 'epiweek' in the column temp_agg
                         gdf[temp_col] = TEMPORAL_AGG_ABBR[time_aggregations[0]]
-
                     elif len(time_aggregations) == 1 and time_aggregations[0] == 'month':
                         name_date_col = 'month_start_date'
                         name_date_number_col = "month_number"
-                        add_to_data = relativedelta(months=+1)
-                        for index, row in gdf.iterrows():
-                            date_row = row[date_col]
-                            gdf.loc[index, date_col] = f"{date_row}-01"
-                            gdf.loc[index, name_date_number_col] = date_row[-2:]
-                        # gdf[name_date_number_col] = gdf[date_col].dt.month
+                        add_to_data = relativedelta(months=1)
+
+                        gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y-%m') + pd.offsets.MonthBegin(1) - pd.offsets.MonthBegin(1)
+                        gdf[name_date_number_col] = gdf[date_col].dt.month
                     else:
                         name_date_col = 'year_start_date'
                         name_date_number_col = "year_number"
                         add_to_data = timedelta(days=365)
-                        for index, row in gdf.iterrows():
-                            date_row = row[date_col]
-                            gdf.loc[index, date_col] = f"{date_row}-01-01"
-                            gdf.loc[index, name_date_number_col] = date_row[:3]
-                        # gdf[name_date_number_col] = gdf[date_col].dt.year
 
-                    # Casting the date column to datetime with the format '%Y-%m-%d %H:%M:%S'
+                        gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y')
+                        gdf[name_date_number_col] = gdf[date_col].dt.year
+
+                    # Casting the date column to datetime with the format '%Y-%m-%d'
                     gdf[date_col] = pd.to_datetime(gdf[date_col], format='%Y-%m-%d',
                                                    errors='coerce')
                     # Sorting the dataframe by the date column
@@ -1107,11 +1123,9 @@ def spatialize_data(indicators: List[str],
                             "time_agg", "spatial_agg", "value", "geometry"
                         ]
                     ]
-
-                    print(gdf.head(1))
                     # Creating the items files for each date
-                    for index, date in enumerate(dates):
-                        temp_gdf = gdf.loc[gdf[name_date_col] == date]
+                    for index, date in tqdm(enumerate(dates), total=len(dates), desc='Creating the items files for each date'):
+                        temp_gdf = deepcopy(gdf.loc[gdf[name_date_col] == date])
 
                         if index+1 < len(dates):
                             end_date = datetime.strptime(dates[index+1], 
@@ -1129,7 +1143,6 @@ def spatialize_data(indicators: List[str],
                         filename_date = f"{filename}_{''.join(only_date.split('-'))}_"\
                                         f"{''.join(end_date.split('-'))}"
                         
-
                         # CREATING .geojson, .zip(from shp) and parquet items files
                         for extension in ['.geojson', '.shp', df_indi['extension']]:
                             file_path = os.path.join(final_path, 'items', only_date)
@@ -1142,13 +1155,13 @@ def spatialize_data(indicators: List[str],
                             asset_path = os.path.join(file_path, f"{filename_date}{extension}")
                             if extension == '.parquet':
                                 asset_path.replace('.parquet', '')
-                                gdf.drop(columns=["geometry"]).to_parquet(
+                                temp_gdf.drop(columns=["geometry"]).to_parquet(
                                     asset_path
                                 )
                             elif extension == '.csv':
-                                gdf.to_csv(asset_path, index=False)
+                                temp_gdf.to_csv(asset_path, index=False)
                             else:
-                                gdf.to_file(asset_path, driver=driver)
+                                temp_gdf.to_file(asset_path, driver=driver)
                                 if extension == '.shp':
                                     asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
                                                                                 f"{extension}", ''))
@@ -1225,7 +1238,8 @@ def spatialize_data(indicators: List[str],
                         'bbox': bbox,
                         'path': file_path,
                         'keywords': keywords,
-                        'gdf': gdf
+                        'gdf': gdf,
+                        'attribute_data': name_date_col
                     }
 
                     layers.append(layer_info)
@@ -1236,18 +1250,13 @@ def spatialize_data(indicators: List[str],
 
 
 def publish_data(layers: List[Dict[str, str]], 
-                 db: str, 
-                 db_schema: str,
                  gs_store: str,
                  time_regex: str,
                  root_data_path: str,
                  gs_service_url: Optional[str] = 'http://localhost:10190/geoserver', 
                  gs_username: Optional[str] = 'admin', 
-                 gs_password: Optional[str] = 'geoserver',
                  workspace: Optional[str] = 'bdc_lcc',
-                 db_username: Optional[str] = 'postgres',
-                 db_password: Optional[str] = 'postgres',
-                 db_port: Optional[int] = 5432,
+                 db_settings: Optional[dict] = None,
                  stac_url: Optional[str] = 'http://localhost:8080/',
                  hostname: Optional[str] = 'localhost',
                  additional_path: Optional[str] = None) -> Union[List[int], str]:
@@ -1296,19 +1305,41 @@ def publish_data(layers: List[Dict[str, str]],
     if not isinstance(layers, list):
         return "Error: The 'layers' parameter must be a list with dictionaries!"
 
-    all_saved = []
+    all_saved = []    
+    gs_service_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
+                     'geoserver' if hostname != 'localhost' else gs_service_url
+    
+    geo = GeoServer(
+        service_url=gs_service_url, 
+        workspace=workspace, 
+        hostname=hostname,
+        username=gs_username,
+        store=gs_store,
+        db_settings=db_settings
+    )
 
-    for layer in tqdm(layers, desc='Saving data in the database'):
+    db = geo.db
+    pg_schema = geo.db_schema
+    pg_username = geo.db_user
+    pg_password = geo.db_password
+    pg_port = geo.db_port
+
+    print(f'\nSAVING  DATA IN DATABASE...')
+    for layer in tqdm(layers, total=len(layers), desc='Saving data in the database'):
         # Saving data in the database
         response = save_data_db(
-            db=db,
-            schema=db_schema,
-            hostname=hostname, 
-            replace_table=True,
             gdf=layer['gdf'], 
             name=layer['name'],
-            db_columns=layer["gdf"].keys()
+            schema=pg_schema,
+            db_columns=layer["gdf"].keys(),
+            hostname=hostname, 
+            port=pg_port,
+            db=db,
+            user=pg_username,
+            password=pg_password,
+            replace_table=True,
         )
+
         response = True
         all_saved.append(response)
 
@@ -1319,31 +1350,19 @@ def publish_data(layers: List[Dict[str, str]],
             paths = [(path, f"{root_data_path}{path.split(root_data_path)[1]}") 
                       for path in local_paths]
 
-
     if not all(all_saved):
         return "Error: Some layer was not saved. Something went wrong with the database!"
 
 
     # Publishing data in GeoServer
     print('\nPUBLISHING DATA IN GEOSERVER AND MAKING THUMBNAILS...')
-    gs_service_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
-                     'geoserver' if hostname != 'localhost' else gs_service_url
-
-    geo = GeoServer(service_url=gs_service_url, 
-                    username=gs_username,
-                    password=gs_password, 
-                    store=gs_store, 
-                    schema=db_schema, 
-                    workspace=workspace, 
-                    hostname=hostname)
-
+    
     # Publishing feature data in GeoServer
     try:
+        attribute_date = layer.get("attribute_data", 'date')
         geo.publish_feature_data(layers=layers, 
-                                 db=db, 
-                                 pg_username=db_username, 
-                                 pg_password=db_password, 
-                                 time_regex=time_regex, 
+                                 time_regex=time_regex,
+                                 attribute=attribute_date, 
                                  dynamic_style=True,
                                  add_tile_cache=False)
     except GeoserverException:
@@ -1369,7 +1388,7 @@ def publish_data(layers: List[Dict[str, str]],
      
     # Adding tile cache in GeoServer
     add_tile_cache = []
-    for layer in tqdm(layers, desc='Adding tile cache in GeoServer layers...'): 
+    for layer in tqdm(layers, total=len(layers), desc='Adding tile cache in GeoServer layers...'): 
         layer_name = layer['name']
         layer_folder = layer['remote'] if hostname != 'localhost' else layer['path']
 
@@ -1379,7 +1398,7 @@ def publish_data(layers: List[Dict[str, str]],
         print("... Done")
      
     # Publishing data in STAC
-    print('\nPUBLISHING DATA IN STAC...')
+    print('\nPUBLISHING DATA IN STAC...') 
 
     stac_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
                'stac/v1/' if hostname != 'localhost' else stac_url
@@ -1389,7 +1408,7 @@ def publish_data(layers: List[Dict[str, str]],
 
     with stac.app.app_context():
         # Publishing metadata in STAC
-        for layer in tqdm(layers):
+        for layer in tqdm(layers, total=len(layers), desc="Publishing metadata in STAC..."):
             name, description = layer['name'], layer['description']
             title = layer['title']
             keywords = layer['keywords']

@@ -3,8 +3,7 @@ import os
 import re
 import time
 import psutil
-from datetime import datetime
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # third-party libraries
@@ -17,11 +16,8 @@ from tqdm import tqdm
 # custom libraries
 from .utils import check_date_format
 from .ehipr import _check_existence_dirs, _get_indicator_info # TODO :remover importacao check_exist
-#from edpu.utils import _check_existence_dirs
 
-
-# Setting the number of cores to use (70% of the CPU) and the maximum memory usage to 80%
-CPU_COUNT = int(os.cpu_count() * 0.9)
+from .config import CPU_COUNT
 
 # URL of the API
 ROUTE = "https://api.mosqlimate.org/api/datastore/infodengue/"
@@ -183,7 +179,7 @@ def __request_data(disease: str,
                    start_date: str, 
                    end_date: str, 
                    token: str,
-                   geocode: Optional[Union[str, int]]=[None]) -> Union[list, str]:
+                   geocode: Optional[Union[str, int]]=[None]) -> Union[list, str]: # type: ignore
     """
     Fetch infoDengue indicator data from the API.
 
@@ -245,7 +241,7 @@ def __request_data(disease: str,
                         futures[executor.submit(attempt_delay, session,url, headers)] = url
                     for future in tqdm(as_completed(futures), 
                                         total=len(futures), 
-                                        desc="Processing results..."):
+                                        desc="Downloading data from Mosqlimate/Infodengue API..."):
                         _ = futures[future]
                         resp = future.result()
                         # The conditional is incorporating the first page
@@ -376,7 +372,7 @@ def get_infodengue_indicator(indicator: str,
             all_items.append(item)
             if len(all_items) == 1000:
                 df = adjust_df().drop_duplicates()
-                print(filepath)
+                # print(filepath)
                 saved = __save_to_csv(data=df, filename=filepath)
                 all_items = []
 

@@ -19,6 +19,7 @@ import stat
 import docker
 import numpy as np
 import geopandas as gpd
+import shapely
 from tqdm import tqdm
 from shapely import geometry
 from paramiko import SSHClient
@@ -583,10 +584,10 @@ def get_time_list_from_data(path: str,
         for file in tqdm(paths):
             if '.tif' in file or ('.shp' in file and is_vector):
                 matches = pattern.findall(file)
-                print('matches: ', matches)
+                # print('matches: ', matches)
                 if matches:
                     date_str = matches[0].split('_')[0]
-                    print('date_str: ', date_str)
+                    # print('date_str: ', date_str)
 
                     # Tenta converter a string usando os formatos disponíveis
                     time = None
