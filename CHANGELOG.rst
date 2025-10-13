@@ -4,13 +4,13 @@ Changelog
 (unreleased)
 ------------
 
-*
+* ehipr module implemented epidemiological week generation using the *epiweeks* package
 
 0.2.0 (2025-10-10)
 ------------------
 
 * eclimpr module improved PostgreSQL insertion using MULTIPOLYGON geometries, and fixed Zenodo data download function.
-* ?? ehipr module.
+* ehipr module optimized PostgreSQL batch insertion and enabled post-spatialization health data publication.
 * eddpr module adopted STAC extension *renders* to RGB compositon from multispectral and True Color Image (TCI) from drone data
 * Add dynamic version using Git scm
 * Fix the documentation generation using Sphinx.
