@@ -18,7 +18,7 @@ Changelog
 0.1.0 (2025-09-19)
 ------------------
 
-* Add eclimpr module included major refactoring for climate indicators processing, implemented epidemiological week generation using the *epiweeks* package, and integrated Sphinx documentation generation. 
+* Add eclimpr module and included major refactoring for climate indicators processing, implemented epidemiological week generation using the *epiweeks* package, and integrated Sphinx documentation generation. 
 * Add eddpr module.
 * Add edpu module.
 * Add ehipr module and validate InfoDengue flow.
