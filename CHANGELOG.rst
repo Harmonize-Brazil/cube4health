@@ -9,7 +9,7 @@ Changelog
 0.2.0 (2025-10-10)
 ------------------
 
-* ?? eclimpr module improved PostgreSQL insertion using MULTIPOLYGON geometries, and fixed Zenodo data download function.
+* eclimpr module improved PostgreSQL insertion using MULTIPOLYGON geometries, and fixed Zenodo data download function.
 * ?? ehipr module.
 * eddpr module adopted STAC extension *renders* to RGB compositon from multispectral and True Color Image (TCI) from drone data
 * Add dynamic version using Git scm
