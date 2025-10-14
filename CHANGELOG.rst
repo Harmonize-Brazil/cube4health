@@ -6,7 +6,7 @@ Changelog
 
 * ehipr module implemented epidemiological week generation using the *epiweeks* package
 
-0.2.0 (2025-10-10)
+0.2.0 (2025-10-14)
 ------------------
 
 * eclimpr module improved PostgreSQL insertion using MULTIPOLYGON geometries, and fixed Zenodo data download function.
