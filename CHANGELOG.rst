@@ -11,7 +11,7 @@ Changelog
 
 * eclimpr module improved PostgreSQL insertion using MULTIPOLYGON geometries, and fixed Zenodo data download function.
 * ehipr module optimized PostgreSQL batch insertion and enabled post-spatialization health data publication.
-* eddpr module adopted STAC extension *renders* to RGB compositon from multispectral and True Color Image (TCI) from drone data
+* eddpr module adopted STAC extension *renders* to RGB composition from multispectral and True Color Image (TCI) drone data
 * Add dynamic version using Git scm
 * Fix the documentation generation using Sphinx.
 
