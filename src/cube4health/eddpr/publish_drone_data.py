@@ -130,6 +130,8 @@ def check_remote_data(data_path_input,remote_root_path,geo_instance):
                             
                         except Exception as e:
                             print(f"{e}: {remote_root_path} on remote server!")
+            else:
+                raise Exception("Publish process stopped, missing files on the remote server!")
     else:
         print()
         print('-'*120)
