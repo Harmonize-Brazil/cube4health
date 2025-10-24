@@ -476,7 +476,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
        :type catalog_path: String
 
        :param prefix_geoserver_data: String with the parent path name for the data that will be published with Geoserver. For example, our address for Geoserver 
-                                     is <https://brazildatacube.dpi.inpe.br/harmonize/dev/geoserver> by default, the service points toa  path containing data using the prefix "dev".
+                                     is <https://geolab.inpe.br/big/geoserver> by default, the service points to a  path containing data using the prefix "harmonize".
        :type prefix_geoserver_data: String
 
        :param publish: String with True or False condition to publish the data collections created using STAC catalogs and Geoserver layers.
@@ -1116,7 +1116,7 @@ def main(argv):
         prefix_geoserver_data = 'harmonize'
         print('\n')
         print('-'*80)
-        wms_url = input('Please, enter the URL for the Geoserver application at the remote server.\nExample, https://geolab.inpe.br/bdc/harmonize/geoserver:\n--> ').strip()
+        wms_url = input('Please, enter the URL for the Geoserver application at the remote server.\nExample, https://geolab.inpe.br/big/geoserver:\n--> ').strip()
         print('\n')
         stac_url = input('Please, enter the URL for the STAC service at the remote server.\nExample, https://geolab.inpe.br/bdc/harmonize/stac/v1:\n--> ').strip()
         
