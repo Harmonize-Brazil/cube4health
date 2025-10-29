@@ -581,7 +581,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                         }) 
 
         # Processing RGB Mosaic:           
-        list_of_files = [str(file) for file in list(Path(os.path.join(path,'Mosaic')).rglob('*.tif')) if '_MS' not in str(file) and '_T.tif' not in str(file)]
+        list_of_files = [str(file) for file in list(Path(os.path.join(path,'Mosaics')).rglob('*.tif')) if '_MS' not in str(file) and '_T.tif' not in str(file)]
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='RGB Mosaic '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info.json')
@@ -661,7 +661,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                       })
         
         # Processing Thermal Mosaic:
-        list_of_files = list(Path(os.path.join(path,'Mosaic')).rglob('*_T.tif'))
+        list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_T.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Thermal Mosaic '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info_t.json')
@@ -747,7 +747,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                       })
             
         # Processing Multispectral Mosaic:
-        list_of_files = list(Path(os.path.join(path,'Mosaic')).rglob('*_MS*.tif'))
+        list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_MS*.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Multispectral Mosaic '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info_ms.json')
@@ -832,7 +832,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                       })
             
         # Processing Multispectral Mosaic to obtain NDVI:
-        list_of_files = list(Path(os.path.join(path,'Mosaic')).rglob('*_MS*.tif'))
+        list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_MS*.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Multispectral Mosaic to obtain NDVI '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info_ms.json')
