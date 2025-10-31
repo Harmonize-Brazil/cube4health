@@ -54,7 +54,7 @@ if __name__ !=  "__main__":
     from .drone_projection_warp import main as drone_projection_warp
     from .drone_projection_warp import prepare_thumbnail_v2, get_xmp_info
     from .drone_correction_projection_warp import main as drone_correction_projection_warp
-    from .arghelper import is_valid_file, is_valid_directory, is_valid_namefile
+    from .arghelper import is_valid_file, is_valid_directory,is_valid_data_directory, is_valid_namefile
     from .publish_drone_data import main as publish_drone_data 
 
 
@@ -1096,7 +1096,7 @@ def main(argv):
                         choices=('localhost', 'remote'), required=True)
     required.add_argument('--root_path', type=lambda x: is_valid_directory(parser, x), 
                         required=True, help='Required path to raw and mosaic images from drone. Example /home/user/Desktop/HARMONIZE-Br_Project/src/FieldWorkCampaigns')
-    required.add_argument('--data_path_output', type=lambda x: is_valid_directory(parser, x),
+    required.add_argument('--data_path_output', type=lambda x: is_valid_data_directory(parser, x),
                         required=True, help='Required path to save Cloud Optimized GeoTIFF (COG) files. Example /home/user/Docker-Compose/geoserver/data')
     required.add_argument('--publish_data', help='Required parameter to specify a supplementary processing step for automatically publishing data via the BDC STAC service and Geoserver. Note: Additional parameters will be requested after data processing.',
      choices=('True', 'False'), required=True)
@@ -1156,7 +1156,7 @@ if __name__ == "__main__":
                         choices=('localhost', 'remote'), required=True)
     required.add_argument('--root_path', type=lambda x: arghelper.is_valid_directory(parser, x), 
                         required=True, help='Required path to raw and mosaic images from drone. Example /home/user/Desktop/HARMONIZE-Br_Project/src/FieldWorkCampaigns')
-    required.add_argument('--data_path_output', type=lambda x: arghelper.is_valid_directory(parser, x),
+    required.add_argument('--data_path_output', type=lambda x: arghelper.is_valid_data_directory(parser, x),
                         required=True, help='Required path to save Cloud Optimized GeoTIFF (COG) files. Example /home/user/Docker-Compose/geoserver/data')
     required.add_argument('--publish_data', help='Required parameter to specify a supplementary processing step for automatically publishing data via the BDC STAC service and Geoserver. Note: Additional parameters will be requested after data processing.',
      choices=('True', 'False'), required=True) 

@@ -31,6 +31,29 @@ import os
 import string
 
 
+def split_path_into_strings(path):
+    """
+    Splits a given file path into a list of its individual components (directories and filename).
+
+    Args:
+        path (str): The file path to split.
+
+    Returns:
+        list: A list of strings representing the components of the path.
+    """
+    components = []
+    head, tail = os.path.split(path)
+
+    # Recursively split the head until the root is reached
+    while tail:
+        components.append(tail)
+        head, tail = os.path.split(head)
+
+    # Reverse the list to get the components in correct order
+    components.reverse()
+    return components
+
+
 def is_valid_file(parser, arg):
     if not os.path.isfile(arg):
         parser.error('The file {} does not exist!'.format(arg))
@@ -45,6 +68,21 @@ def is_valid_directory(parser, arg):
     else:
         # Directory exists so return the directory name
         return arg
+    
+    
+def is_valid_data_directory(parser, arg):
+    if not os.path.isdir(arg):
+        parser.error('The directory {} does not exist!'.format(arg))
+    elif 'data' in split_path_into_strings(arg) and split_path_into_strings(arg)[-1] != 'data' or len([word for word in split_path_into_strings(arg) if word == 'data']) > 1:
+        parser.error('The directory {} has the reserved word "data" that must be used only at the end of the path (suffix).\nFor example:\n/home/user/Docker-Compose/geoserver/data\nPlease, choose another one!'.format(arg))
+    else:
+        # The directory exists, so add the suffix 'data' if necessary for the new directory name
+        if split_path_into_strings(arg)[-1] != 'data':
+            new_arg = os.path.join(arg,'data')
+            os.makedirs(new_arg, exist_ok=True)
+            return new_arg
+        else:
+            return arg
 
 
 def is_valid_namefile(parser,arg):

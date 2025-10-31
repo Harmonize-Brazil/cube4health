@@ -5,6 +5,7 @@ Changelog
 ------------
 
 * ehipr module implemented epidemiological week generation using the *epiweeks* package
+* eddpr module changed the folder name for mosaic products
 
 0.2.0 (2025-10-14)
 ------------------
