@@ -48,6 +48,7 @@ from .utils import (
     shp_to_zip,
     check_date_format
 )
+
 from .lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
 from .db import save_data_db
 from .config import CPU_COUNT
@@ -69,6 +70,13 @@ pd.set_option('mode.chained_assignment', None)
 
 # Root path of the project
 ROOT_PATH = '/'.join(os.path.dirname(os.path.abspath(__file__)).split('/')[:-1])
+
+JSON_FOLDER_PATH = (
+    os.path.join(
+        '/'.join(os.path.dirname(os.path.abspath(__file__)).split('/')[:-1]),
+        'ehipr/jsons/temp'
+    )
+)
 
 # Abbreviations of the spatial aggregations
 SPATIAL_AGG_ABBR = {
@@ -124,7 +132,7 @@ def _check_existence_dirs(paths: List[str]) -> None:
             os.makedirs(path)
 
 
-def get_indicators_id(provider: str) -> List[str]:
+def get_indicators_id(provider: str, only_desc: bool=True) -> List[str]:
     """
         Get the identifiers of the indicators.
 
@@ -142,11 +150,17 @@ def get_indicators_id(provider: str) -> List[str]:
 
         with open(os.path.join(ROOT_PATH,'ehipr/jsons/info_indicators.json'), 'r') as my_json:
             info = json.load(my_json)
-        return {
-            "status": True,
-            "file": json.dumps({indicator['id']: indicator['description'] 
-                        for indicator in info[provider]['indicators']}, indent=4)
-        } 
+        if only_desc:
+            return {
+                "status": True,
+                "file": json.dumps({indicator['id']: indicator['description'] 
+                            for indicator in info[provider]['indicators']}, indent=4)
+            } 
+        else:
+            return {
+                "status": True,
+                "file": info.get(provider).get('indicators')
+            } 
     except Exception as err:
         return {
             "status": False,
@@ -517,7 +531,6 @@ def aggregate_data(indicators: List[str],
                 return f"Error: Indicator name {indicator} must be a string"
 
             directory = os.path.join(input_path, indicator)
-            # print(directory)
 
             try:
                 _check_existence_dirs([directory])
@@ -600,7 +613,6 @@ def aggregate_data(indicators: List[str],
                 if len(dfs) != 0:
                     print("... Done")
 
-                # print("\norganizing the datasets...".upper())
                 for df in tqdm(dfs, total=len(dfs), desc='Organizing the datasets...'.upper()):
                     dicts = []
                     cods = df.loc[df[cod_col].notna()][cod_col].unique()
@@ -613,13 +625,13 @@ def aggregate_data(indicators: List[str],
                         return f"Error: Resulting dataframe is empty for indicator {indicator}"
 
                     try:
-                        if provider == 'LIS':
-                            from ehipr.lis import SPATIAL_AGG_LIS
-                            agg_spt = [value for key, value in SPATIAL_AGG_LIS.items() 
+                        if provider == 'lis':
+                            file_agg_spt = [value for key, value in SPATIAL_AGG_LIS.items() 
                                        if new_df.loc[0][spt_col] == key][0]
                         else:
-                            agg_spt = new_df.loc[0][spt_col]
-                        agg_time = new_df.loc[0][temp_col]
+                            file_agg_spt = new_df.loc[0][spt_col]
+                        
+                        agg_spt = new_df.loc[0][spt_col]
                         agg_time = (
                             new_df.loc[0][temp_col]
                             if new_df.loc[0][temp_col] not in ['week', 'epiweek']
@@ -629,7 +641,7 @@ def aggregate_data(indicators: List[str],
                     except Exception as e:
                         return f"Error: Failed to extract metadata from the dataframe: {e}"
 
-                    final_path = os.path.join(directory, agg_time, agg_spt)
+                    final_path = os.path.join(directory, agg_time, file_agg_spt)
 
                     try:
                         _check_existence_dirs([final_path])
@@ -643,7 +655,7 @@ def aggregate_data(indicators: List[str],
 
                     indi_info = indi_info.get("indicator")
                     filename = (
-                        f"{indi_info.get(name_col)}_{agg_spt}_{agg_time}.{extension}"
+                        f"{indi_info.get(name_col)}_{file_agg_spt}_{agg_time}.{extension}"
                     )
                     filepath = os.path.join(final_path, filename)
                     new_df["name"] = indi_info.get("name")
@@ -683,6 +695,7 @@ def spatialize_data(indicators: List[str],
                     spatial_agg: Optional[List[str]] = None, 
                     temp_agg: Optional[List[str]] = None,
                     github_settings: Optional[Dict[str, str]] = None,
+                    publish_later: Optional[bool]=False,
                     requests_api: bool = False) -> Union[List[Dict[str, str]], str]:
     """
         Spatialize the data.
@@ -715,6 +728,8 @@ def spatialize_data(indicators: List[str],
     layers = []
     region_crop = None
 
+    publish_path = ''
+
     # AGGREGATE DATA
     # print('input_path: ', input_path)
     dataframes = aggregate_data(indicators=indicators, 
@@ -724,6 +739,7 @@ def spatialize_data(indicators: List[str],
                                 temp_agg=temp_agg,
                                 provider=provider,
                                 data_columns=data_columns)
+                                
 
     if isinstance(dataframes, str):
         return f"Error: failed to aggregate data. Reason: {dataframes}"
@@ -796,13 +812,12 @@ def spatialize_data(indicators: List[str],
                 try:
                     df = df_indi['df']
                     name = df_indi['info']['name']
-                    #id = df_indi['info']['id']
-                    agg_time = df_indi["temporal_agg"] if not 'week' else TEMPORAL_AGG_ABBR['week']
+                    id_indi = df_indi['info']['id']
+                    agg_time = df_indi["temporal_agg"] if df_indi["temporal_agg"] != "week" else TEMPORAL_AGG_ABBR["week"]
                     data_country = df_indi['info']['country']
                 except KeyError:
                     return "Error: The dictionary provided by aggregate_data does not contain "\
                                    "all the required keys."
-
                 try:
                     agg_spt = SPATIAL_AGG_LIS[df_indi['spatial_agg']
                                             ] if provider == 'lis' else df_indi['spatial_agg']
@@ -940,11 +955,9 @@ def spatialize_data(indicators: List[str],
                         df_polygon.set_index(grid_info["cod"])[grid_info["name"]]
                     )
 
-                    # print(grid_info)
                     df["uf_mun"] = df[cod_col].map(
                         df_polygon.set_index(grid_info["cod"])[grid_info["uf"]]
                     )
-                    # print(df.head(1))
 
                     # Criando um DataFrame com apenas as colunas necessárias para o merge
                     cols_merge = [cod_name for cod_name in [grid_info.get("cod", None), grid_info.get("name", None), grid_info.get("uf", None)] if cod_name]
@@ -958,7 +971,7 @@ def spatialize_data(indicators: List[str],
                         right_on=grid_info["cod"],
                         suffixes=("", "_polygon")
                     )
-                    # print(df.head(1))
+  
                     # Criando um dicionário para mapear cada código à sua geometria correspondente
                     cod_geometry_dict = {}
 
@@ -1004,6 +1017,9 @@ def spatialize_data(indicators: List[str],
 
                     # Convertendo o DataFrame para um GeoDataFrame com o CRS apropriado
                     gdf = gpd.GeoDataFrame(df, geometry='geometry', crs='EPSG:4326')
+
+                    if publish_later:
+                        publish_path = os.path.join(JSON_FOLDER_PATH, f"{id_indi}_{agg_spt}_{agg_time}")
 
                     # Resetando o índice
                     gdf.reset_index(drop=True, inplace=True)
@@ -1153,8 +1169,8 @@ def spatialize_data(indicators: List[str],
                                 file_path = (os.path.join(file_path, 'shapefile'))
                             _check_existence_dirs([file_path])
                             asset_path = os.path.join(file_path, f"{filename_date}{extension}")
-                            if extension == '.parquet':
-                                asset_path.replace('.parquet', '')
+                            if extension == 'parquet':
+                                asset_path = asset_path.replace('parquet', '.parquet')
                                 temp_gdf.drop(columns=["geometry"]).to_parquet(
                                     asset_path
                                 )
@@ -1190,6 +1206,7 @@ def spatialize_data(indicators: List[str],
                     file_path = os.path.join(final_path, 'items', '*')
                     if region_crop:
                         file_path = os.path.join(file_path, region_crop)
+                        publish_path = f'{publish_path}_{region_crop}'
                 except KeyError:
                     return "Error: Some column name in the grid or tabular data is wrong!"
 
@@ -1227,9 +1244,6 @@ def spatialize_data(indicators: List[str],
                     title = f"{df_indi['info']['title'].lower().replace(' ', '_')}_"\
                             f"{region_crop}_{SPATIAL_AGG_ABBR[agg_spt]}_{agg_time}"
 
-                    # column_fields = list(data_columns.values()) + ['geometry']
-                    
-
                     layer_info = {
                         'name': filename,
                         'title': title,
@@ -1241,6 +1255,18 @@ def spatialize_data(indicators: List[str],
                         'gdf': gdf,
                         'attribute_data': name_date_col
                     }
+
+                    if publish_later:
+
+                        geojson_file = f'{publish_path}.geojson'
+                        gdf.to_file(geojson_file, driver="GeoJSON")
+                        layer_info['gdf'] = geojson_file
+
+                        json_file = f'{publish_path}.json'
+                        # Salva o dicionário como JSON
+                        with open(json_file, "w", encoding="utf-8") as f:
+                            json.dump(layer_info, f, ensure_ascii=False, indent=4)
+                        layer_info = json_file
 
                     layers.append(layer_info)
             except:
@@ -1255,7 +1281,7 @@ def publish_data(layers: List[Dict[str, str]],
                  root_data_path: str,
                  gs_service_url: Optional[str] = 'http://localhost:10190/geoserver', 
                  gs_username: Optional[str] = 'admin', 
-                 workspace: Optional[str] = 'bdc_lcc',
+                 workspace: Optional[str] = 'harmonize_health',#'bdc_lcc',
                  db_settings: Optional[dict] = None,
                  stac_url: Optional[str] = 'http://localhost:8080/',
                  hostname: Optional[str] = 'localhost',
@@ -1302,8 +1328,33 @@ def publish_data(layers: List[Dict[str, str]],
         -------
         A list of collections IDs or a string with an error message.
     """
-    if not isinstance(layers, list):
-        return "Error: The 'layers' parameter must be a list with dictionaries!"
+    json_file, geojson_file = '', ''
+    remove_temp_files = False
+
+    if not isinstance(layers, (list, dict)):
+        return "Error: The 'layers' parameter must be a list with dictionaries or a dictionary!"
+
+    if isinstance(layers, dict):
+        print("READING THE FILES TO PUBLISH THE DATA...")
+        layers_dict = layers.copy()
+        layers = []
+        remove_temp_files = True
+
+        required_keys = ["name", "spatial_agg", "temporal_agg", "region"]
+        if not all(key in layers_dict for key in required_keys):
+            missing = [key for key in required_keys if key not in layers_dict]
+            raise KeyError(f"The following keys are missing from the dictionary.: {missing}")
+        json_path = os.path.join(JSON_FOLDER_PATH, f"{layers_dict.get('name')}_{layers_dict.get('spatial_agg')}_{layers_dict.get('temporal_agg')}.json")
+        if "region" in layers_dict:
+            json_file = json_path.replace('.json', f'_{layers_dict.get("region")}.json')
+            
+        # Abre e carrega o conteúdo
+        with open(json_file, "r", encoding="utf-8") as f:
+            dados = json.load(f)
+        geojson_file = dados.get('gdf')
+        gdf = gpd.read_file(geojson_file)
+        dados['gdf'] = gdf
+        layers.append(dados)        
 
     all_saved = []    
     gs_service_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
@@ -1324,7 +1375,7 @@ def publish_data(layers: List[Dict[str, str]],
     pg_password = geo.db_password
     pg_port = geo.db_port
 
-    print(f'\nSAVING  DATA IN DATABASE...')
+    print(f'\nSAVING DATA IN DATABASE...')
     for layer in tqdm(layers, total=len(layers), desc='Saving data in the database'):
         # Saving data in the database
         response = save_data_db(
@@ -1472,6 +1523,12 @@ def publish_data(layers: List[Dict[str, str]],
 
     if hasattr(stac, 'connection'):
         response = stac.close_connection()
+
+    if remove_temp_files:
+        if os.path.exists(json_file):
+            os.remove(json_file)
+        if os.path.exists(geojson_file):
+            os.remove(geojson_file)        
 
     print("... Done")
     return col_ids

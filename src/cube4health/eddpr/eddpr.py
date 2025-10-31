@@ -54,7 +54,7 @@ if __name__ !=  "__main__":
     from .drone_projection_warp import main as drone_projection_warp
     from .drone_projection_warp import prepare_thumbnail_v2, get_xmp_info
     from .drone_correction_projection_warp import main as drone_correction_projection_warp
-    from .arghelper import is_valid_file, is_valid_directory, is_valid_namefile
+    from .arghelper import is_valid_file, is_valid_directory,is_valid_data_directory, is_valid_namefile
     from .publish_drone_data import main as publish_drone_data 
 
 
@@ -476,7 +476,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
        :type catalog_path: String
 
        :param prefix_geoserver_data: String with the parent path name for the data that will be published with Geoserver. For example, our address for Geoserver 
-                                     is <https://brazildatacube.dpi.inpe.br/harmonize/dev/geoserver> by default, the service points toa  path containing data using the prefix "dev".
+                                     is <https://geolab.inpe.br/big/geoserver> by default, the service points to a  path containing data using the prefix "harmonize".
        :type prefix_geoserver_data: String
 
        :param publish: String with True or False condition to publish the data collections created using STAC catalogs and Geoserver layers.
@@ -581,7 +581,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                         }) 
 
         # Processing RGB Mosaic:           
-        list_of_files = [str(file) for file in list(Path(os.path.join(path,'Mosaic')).rglob('*.tif')) if '_MS' not in str(file) and '_T.tif' not in str(file)]
+        list_of_files = [str(file) for file in list(Path(os.path.join(path,'Mosaics')).rglob('*.tif')) if '_MS' not in str(file) and '_T.tif' not in str(file)]
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='RGB Mosaic '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info.json')
@@ -661,7 +661,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                       })
         
         # Processing Thermal Mosaic:
-        list_of_files = list(Path(os.path.join(path,'Mosaic')).rglob('*_T.tif'))
+        list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_T.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Thermal Mosaic '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info_t.json')
@@ -747,7 +747,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                       })
             
         # Processing Multispectral Mosaic:
-        list_of_files = list(Path(os.path.join(path,'Mosaic')).rglob('*_MS*.tif'))
+        list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_MS*.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Multispectral Mosaic '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info_ms.json')
@@ -832,7 +832,7 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                       })
             
         # Processing Multispectral Mosaic to obtain NDVI:
-        list_of_files = list(Path(os.path.join(path,'Mosaic')).rglob('*_MS*.tif'))
+        list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_MS*.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Multispectral Mosaic to obtain NDVI '+mission,total=len(list_of_files)):
             fname_json = os.path.join(os.path.dirname(file),'info_ms.json')
@@ -1096,7 +1096,7 @@ def main(argv):
                         choices=('localhost', 'remote'), required=True)
     required.add_argument('--root_path', type=lambda x: is_valid_directory(parser, x), 
                         required=True, help='Required path to raw and mosaic images from drone. Example /home/user/Desktop/HARMONIZE-Br_Project/src/FieldWorkCampaigns')
-    required.add_argument('--data_path_output', type=lambda x: is_valid_directory(parser, x),
+    required.add_argument('--data_path_output', type=lambda x: is_valid_data_directory(parser, x),
                         required=True, help='Required path to save Cloud Optimized GeoTIFF (COG) files. Example /home/user/Docker-Compose/geoserver/data')
     required.add_argument('--publish_data', help='Required parameter to specify a supplementary processing step for automatically publishing data via the BDC STAC service and Geoserver. Note: Additional parameters will be requested after data processing.',
      choices=('True', 'False'), required=True)
@@ -1116,7 +1116,7 @@ def main(argv):
         prefix_geoserver_data = 'harmonize'
         print('\n')
         print('-'*80)
-        wms_url = input('Please, enter the URL for the Geoserver application at the remote server.\nExample, https://geolab.inpe.br/bdc/harmonize/geoserver:\n--> ').strip()
+        wms_url = input('Please, enter the URL for the Geoserver application at the remote server.\nExample, https://geolab.inpe.br/big/geoserver:\n--> ').strip()
         print('\n')
         stac_url = input('Please, enter the URL for the STAC service at the remote server.\nExample, https://geolab.inpe.br/bdc/harmonize/stac/v1:\n--> ').strip()
         
@@ -1156,7 +1156,7 @@ if __name__ == "__main__":
                         choices=('localhost', 'remote'), required=True)
     required.add_argument('--root_path', type=lambda x: arghelper.is_valid_directory(parser, x), 
                         required=True, help='Required path to raw and mosaic images from drone. Example /home/user/Desktop/HARMONIZE-Br_Project/src/FieldWorkCampaigns')
-    required.add_argument('--data_path_output', type=lambda x: arghelper.is_valid_directory(parser, x),
+    required.add_argument('--data_path_output', type=lambda x: arghelper.is_valid_data_directory(parser, x),
                         required=True, help='Required path to save Cloud Optimized GeoTIFF (COG) files. Example /home/user/Docker-Compose/geoserver/data')
     required.add_argument('--publish_data', help='Required parameter to specify a supplementary processing step for automatically publishing data via the BDC STAC service and Geoserver. Note: Additional parameters will be requested after data processing.',
      choices=('True', 'False'), required=True) 

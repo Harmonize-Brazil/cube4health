@@ -46,4 +46,4 @@ class Cube4Health:
         elif module == 'eddpr':
             eddpr.main(self.args)
         else:
-            raise ValueError('Module ({}) not recognized as a valid module name!'.format(module))
+            raise ValueError('CLI entry point not implemented yet for {}!'.format(module))
