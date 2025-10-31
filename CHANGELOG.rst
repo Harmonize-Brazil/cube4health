@@ -4,6 +4,7 @@ Changelog
 (unreleased)
 ------------
 
+* eclimpr module added data publication workflow, improved anomaly coloring logic, fixed GeoServer style configuration used by edpu. 
 * ehipr module implemented epidemiological week generation using the *epiweeks* package
 * eddpr module changed the folder name for mosaic products
 

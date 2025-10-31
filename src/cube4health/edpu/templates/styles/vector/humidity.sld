@@ -5,15 +5,15 @@
     <ns0:UserStyle>
       <ns0:Title>Relative Humidity Style</ns0:Title>
       <ns0:FeatureTypeStyle>
-        <!-- Rule 1:  nodata -->
+        <!-- Rule 1:  0 per -->
         <ns0:Rule>
           <ns0:Name>Rule 1</ns0:Name>
           <ns0:Title>0 %</ns0:Title>
           <ns2:Filter>
-            <ns2:PropertyIsEqualTo>
+            <ns2:PropertyIsLessThanOrEqualTo>
               <ns2:PropertyName>value</ns2:PropertyName>
-              <ns2:Literal>0</ns2:Literal>
-            </ns2:PropertyIsEqualTo>
+              <ns2:Literal>5</ns2:Literal>
+            </ns2:PropertyIsLessThanOrEqualTo>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
             <ns0:Fill>
@@ -26,7 +26,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 2: 5 mm -->
+        <!-- Rule 2: 10 per -->
         <ns0:Rule>
           <ns0:Name>Rule 2</ns0:Name>
           <ns0:Title>10 %</ns0:Title>
@@ -34,11 +34,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>0</ns2:Literal>
+                <ns2:Literal>5</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>10</ns2:Literal>
+                <ns2:Literal>15</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -52,7 +52,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 3: 10 mm -->
+        <!-- Rule 3: 20 per -->
         <ns0:Rule>
           <ns0:Name>Rule 3</ns0:Name>
           <ns0:Title>20 %</ns0:Title>
@@ -60,11 +60,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>10</ns2:Literal>
+                <ns2:Literal>15</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>20</ns2:Literal>
+                <ns2:Literal>25</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -78,7 +78,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 4: 20 mm -->
+        <!-- Rule 4: 30 per -->
         <ns0:Rule>
           <ns0:Name>Rule 4</ns0:Name>
           <ns0:Title>30 %</ns0:Title>
@@ -86,11 +86,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>20</ns2:Literal>
+                <ns2:Literal>25</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>30</ns2:Literal>
+                <ns2:Literal>35</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -104,7 +104,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 5: 30 mm -->
+        <!-- Rule 5: 40 per -->
         <ns0:Rule>
           <ns0:Name>Rule 5</ns0:Name>
           <ns0:Title>40 %</ns0:Title>
@@ -112,11 +112,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>30</ns2:Literal>
+                <ns2:Literal>35</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>40</ns2:Literal>
+                <ns2:Literal>45</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -130,7 +130,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 6: 40 mm -->
+        <!-- Rule 6: 50 per -->
         <ns0:Rule>
           <ns0:Name>Rule 6</ns0:Name>
           <ns0:Title>50 %</ns0:Title>
@@ -138,11 +138,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>40</ns2:Literal>
+                <ns2:Literal>45</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>50</ns2:Literal>
+                <ns2:Literal>55</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -156,7 +156,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 7: 50 mm -->
+        <!-- Rule 7: 60 per -->
         <ns0:Rule>
           <ns0:Name>Rule 7</ns0:Name>
           <ns0:Title>60 %</ns0:Title>
@@ -164,11 +164,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>50</ns2:Literal>
+                <ns2:Literal>55</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>60</ns2:Literal>
+                <ns2:Literal>65</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -182,7 +182,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 8: 100 mm -->
+        <!-- Rule 8: 70 per -->
         <ns0:Rule>
           <ns0:Name>Rule 8</ns0:Name>
           <ns0:Title>70 %</ns0:Title>
@@ -190,11 +190,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>60</ns2:Literal>
+                <ns2:Literal>65</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>70</ns2:Literal>
+                <ns2:Literal>75</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -208,7 +208,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-		<!-- Rule 7: 50 mm -->
+		    <!-- Rule 7: 80 per -->
         <ns0:Rule>
           <ns0:Name>Rule 9</ns0:Name>
           <ns0:Title>80 %</ns0:Title>
@@ -216,11 +216,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>70</ns2:Literal>
+                <ns2:Literal>75</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>80</ns2:Literal>
+                <ns2:Literal>85</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -234,7 +234,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 8: 100 mm -->
+        <!-- Rule 8: 90 per -->
 		<ns0:Rule>
           <ns0:Name>Rule 10</ns0:Name>
           <ns0:Title>90 %</ns0:Title>
@@ -242,11 +242,11 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>80</ns2:Literal>
+                <ns2:Literal>85</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
               <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>90</ns2:Literal>
+                <ns2:Literal>95</ns2:Literal>
               </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
@@ -260,7 +260,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 8: 100 mm -->
+        <!-- Rule 8: 100 per -->
 		<ns0:Rule>
           <ns0:Name>Rule 11</ns0:Name>
           <ns0:Title>100 %</ns0:Title>
@@ -268,12 +268,8 @@
             <ns2:And>
               <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>90</ns2:Literal>
+                <ns2:Literal>95</ns2:Literal>
               </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>100</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>

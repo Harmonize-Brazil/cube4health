@@ -16,7 +16,8 @@
               <ogc:PropertyName>grid</ogc:PropertyName>
             </sld:Geometry>
             <sld:ColorMap>
-            	<sld:ColorMapEntry color="#FFFFFF" quantity="0.0000" label="nodata" opacity="0"/>
+              <sld:ColorMapEntry color="#ffffff" opacity="0" quantity="-9999" label="nodata" />
+            	<sld:ColorMapEntry color="#FFFFFF" opacity="0.85" quantity="0.0000" label="0.0000 mm"/>
               <sld:ColorMapEntry color="#F39000" opacity="0.85" quantity="0.0001" label="0.0001 mm"/>
               <sld:ColorMapEntry color="#F5B803" opacity="0.85" quantity="0.1" label="0.1 mm"/>
               <sld:ColorMapEntry color="#F7E000" opacity="0.85" quantity="1" label="1 mm"/>

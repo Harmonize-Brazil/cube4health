@@ -12,6 +12,8 @@ from tqdm import tqdm
 from psycopg2.extras import execute_values
 from shapely.wkb import dumps as wkb_dumps
 
+from .. import config #cube4health global variables 
+
 
 def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db=None, overwrite=False):
     """
@@ -104,9 +106,17 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
     for attempt in range(1, max_attempts + 1): 
         # If username/password is missing, request it securely
         if user_db is None or user_db == "":
-            user_db = input("Enter DB username: ").strip()
-        if pass_db is None or pass_db == "":
-            pass_db = getpass.getpass("Enter DB password: ")
+            user_db = input("Enter user for database: ").strip()
+        
+        if config.db_passwd is None:
+            pass_db = getpass.getpass(f'Enter password for database user ('+ user_db +'): ')
+        else:
+            pass_db = config.db_passwd
+                
+        # if user_db is None or user_db == "":
+        #     user_db = input("Enter user for database: ").strip()
+        # if pass_db is None or pass_db == "":
+        #     pass_db = getpass.getpass(f'Enter password for database user ('+ user_db +'): ')
 
         # URL-encode for credentials with special characters
         user_enc = quote_plus(user_db)

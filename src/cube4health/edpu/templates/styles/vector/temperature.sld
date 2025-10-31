@@ -5,14 +5,14 @@
     <ns0:UserStyle>
       <ns0:Title>Temperature Style</ns0:Title>
       <ns0:FeatureTypeStyle>
-        <!-- Rule 1:  nodata -->
+        <!-- Rule 0:  nodata -->
         <ns0:Rule>
           <ns0:Name>Rule 1</ns0:Name>
           <ns0:Title>nodata</ns0:Title>
           <ns2:Filter>
             <ns2:PropertyIsEqualTo>
               <ns2:PropertyName>value</ns2:PropertyName>
-              <ns2:Literal>-999000000</ns2:Literal>
+              <ns2:Literal>-9999</ns2:Literal>
             </ns2:PropertyIsEqualTo>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -26,15 +26,15 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 2: -20 C° -->
+        <!-- Rule 1: -20 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 2</ns0:Name>
           <ns0:Title>-20 C°</ns0:Title>
           <ns2:Filter>
-            <ns2:PropertyIsLessThan>
+            <ns2:PropertyIsLessThanOrEqualTo>
               <ns2:PropertyName>value</ns2:PropertyName>
               <ns2:Literal>-20</ns2:Literal>
-            </ns2:PropertyIsLessThan>
+            </ns2:PropertyIsLessThanOrEqualTo>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
             <ns0:Fill>
@@ -46,46 +46,46 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 3: 0 C° -->
+        <!-- Rule 2: 0 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 3</ns0:Name>
           <ns0:Title>0 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>-20</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>0</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>2</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
             <ns0:Fill>
-              <ns0:CssParameter name="fill">#ffb14e</ns0:CssParameter>
+              <ns0:CssParameter name="fill">#0092ED</ns0:CssParameter>
               <ns0:CssParameter name="fill-opacity">0.7</ns0:CssParameter>
             </ns0:Fill>
             <ns0:Stroke>
-              <ns0:CssParameter name="stroke">#ffb14e</ns0:CssParameter>
+              <ns0:CssParameter name="stroke">#0092ED</ns0:CssParameter>
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 4: 4 C° -->
+        <!-- Rule 3: 4 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 4</ns0:Name>
           <ns0:Title>4 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>0</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>2</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>4</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>6</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -98,20 +98,20 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 5: 8 C° -->
+        <!-- Rule 4: 8 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 5</ns0:Name>
           <ns0:Title>8 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>4</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>6</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>8</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>10</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -124,20 +124,20 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 6: 12 C° -->
+        <!-- Rule 5: 12 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 6</ns0:Name>
           <ns0:Title>12 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>8</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>10</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>12</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>14</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -150,20 +150,20 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 7: 16 C° -->
+        <!-- Rule 6: 16 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 7</ns0:Name>
           <ns0:Title>16 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>12</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>14</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>16</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>18</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -176,20 +176,20 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 8: 20 C° -->
+        <!-- Rule 7: 20 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 8</ns0:Name>
           <ns0:Title>20 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>16</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>18</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>20</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>22</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -202,20 +202,20 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 9: 24 C° -->
+        <!-- Rule 8: 24 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 9</ns0:Name>
           <ns0:Title>24 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>20</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>22</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>24</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>25</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -228,20 +228,46 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 10: 28 C° -->
+        <!-- Rule 9: 26 C° -->
         <ns0:Rule>
           <ns0:Name>Rule 10</ns0:Name>
-          <ns0:Title>24 C°</ns0:Title>
+          <ns0:Title>26 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>24</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>25</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>28</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>27</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
+            </ns2:And>
+          </ns2:Filter>
+          <ns0:PolygonSymbolizer>
+            <ns0:Fill>
+              <ns0:CssParameter name="fill">#F7FF00</ns0:CssParameter>
+              <ns0:CssParameter name="fill-opacity">0.7</ns0:CssParameter>
+            </ns0:Fill>
+            <ns0:Stroke>
+              <ns0:CssParameter name="stroke">#F7FF00</ns0:CssParameter>
+            </ns0:Stroke>
+          </ns0:PolygonSymbolizer>
+        </ns0:Rule>
+        <!-- Rule 10: 28 C° -->
+        <ns0:Rule>
+          <ns0:Name>Rule 11</ns0:Name>
+          <ns0:Title>28 C°</ns0:Title>
+          <ns2:Filter>
+            <ns2:And>
+              <ns2:PropertyIsGreaterThan>
+                <ns2:PropertyName>value</ns2:PropertyName>
+                <ns2:Literal>27</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
+                <ns2:PropertyName>value</ns2:PropertyName>
+                <ns2:Literal>29</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -256,18 +282,18 @@
         </ns0:Rule>
         <!-- Rule 11: 30 C° -->
         <ns0:Rule>
-          <ns0:Name>Rule 11</ns0:Name>
+          <ns0:Name>Rule 12</ns0:Name>
           <ns0:Title>30 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>28</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>29</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>30</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>31</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -282,18 +308,18 @@
         </ns0:Rule>
         <!-- Rule 12: 32 C° -->
         <ns0:Rule>
-          <ns0:Name>Rule 12</ns0:Name>
+          <ns0:Name>Rule 13</ns0:Name>
           <ns0:Title>32 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>30</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>31</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>32</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>33</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -306,20 +332,20 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 13: 24 C° -->
+        <!-- Rule 13: 34 C° -->
         <ns0:Rule>
-          <ns0:Name>Rule 13</ns0:Name>
+          <ns0:Name>Rule 14</ns0:Name>
           <ns0:Title>34 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>32</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>33</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>34</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>35</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -334,18 +360,18 @@
         </ns0:Rule>
         <!-- Rule 14: 36 C° -->
         <ns0:Rule>
-          <ns0:Name>Rule 14</ns0:Name>
+          <ns0:Name>Rule 15</ns0:Name>
           <ns0:Title>36 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>34</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>35</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>36</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>37</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -360,18 +386,18 @@
         </ns0:Rule>
         <!-- Rule 15: 38 C° -->
         <ns0:Rule>
-          <ns0:Name>Rule 15</ns0:Name>
+          <ns0:Name>Rule 16</ns0:Name>
           <ns0:Title>38 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>36</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>37</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>38</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>39</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -386,18 +412,18 @@
         </ns0:Rule>
         <!-- Rule 16: 40 C° -->
         <ns0:Rule>
-          <ns0:Name>Rule 16</ns0:Name>
+          <ns0:Name>Rule 17</ns0:Name>
           <ns0:Title>40 C°</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThanOrEqualTo>
+              <ns2:PropertyIsGreaterThan>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>38</ns2:Literal>
-              </ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyIsLessThan>
+                <ns2:Literal>39</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+              <ns2:PropertyIsLessThanOrEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>40</ns2:Literal>
-              </ns2:PropertyIsLessThan>
+                <ns2:Literal>50</ns2:Literal>
+              </ns2:PropertyIsLessThanOrEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -412,13 +438,15 @@
         </ns0:Rule>
         <!-- Rule 17: 60 C° -->
         <ns0:Rule>
-          <ns0:Name>Rule 17</ns0:Name>
+          <ns0:Name>Rule 18</ns0:Name>
           <ns0:Title>60 C°</ns0:Title>
           <ns2:Filter>
-            <ns2:PropertyIsGreaterThanOrEqualTo>
-              <ns2:PropertyName>value</ns2:PropertyName>
-              <ns2:Literal>60</ns2:Literal>
-            </ns2:PropertyIsGreaterThanOrEqualTo>
+            <ns2:And>
+              <ns2:PropertyIsGreaterThan>
+                <ns2:PropertyName>value</ns2:PropertyName>
+                <ns2:Literal>50</ns2:Literal>
+              </ns2:PropertyIsGreaterThan>
+            </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
             <ns0:Fill>
