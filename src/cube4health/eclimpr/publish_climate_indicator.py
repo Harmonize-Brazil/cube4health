@@ -76,7 +76,7 @@ def publish_climate_indicator_vector(
 
     Examples
     --------
-    >>> from cube4health.eclimpr.utils_publish import publish_climate_indicator
+    >>> from cube4health.eclimpr.publish_climate_indicator import publish_climate_indicator_vector
     >>> publish_climate_indicator_vector(
     ...     files_path="/path/to/temp_max_NE_mun_month_era5land",
     ...     nginx_path="/path/to/nginx_dirdata",
@@ -468,7 +468,7 @@ def publish_climate_indicator_raster(
 
     Examples
     --------
-    >>> from cube4health.eclimpr.utils_publish import publish_climate_indicator
+    >>> from cube4health.eclimpr.publish_climate_indicator import publish_climate_indicator_raster
     >>> publish_climate_indicator_raster(
     ...     files_path="/path/to/temp_max_NE_mun_month_era5land",
     ...     nginx_path="/path/to/nginx_dirdata",

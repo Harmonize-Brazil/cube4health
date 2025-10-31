@@ -44,6 +44,14 @@ cube4health.eclimpr.process_climate_indicator module
    :undoc-members:
    :show-inheritance:
 
+cube4health.eclimpr.publish_climate_indicator module
+-----------------------------
+
+.. automodule:: cube4health.eclimpr.publish_climate_indicator
+   :members: publish_climate_indicator_vector
+   :undoc-members:
+   :show-inheritance:   
+
 Module contents
 ---------------
 
