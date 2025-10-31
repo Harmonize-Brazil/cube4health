@@ -5,7 +5,7 @@
     <ns0:UserStyle>
       <ns0:Title>Anomaly Style</ns0:Title>
       <ns0:FeatureTypeStyle>
-        <!-- Rule 1:  nodata -->
+        <!-- Rule 1:  0 days -->
         <ns0:Rule>
           <ns0:Name>Rule 1</ns0:Name>
           <ns0:Title>0 days</ns0:Title>
@@ -26,20 +26,16 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 2: 5 mm -->
+        <!-- Rule 2: 1 day -->
         <ns0:Rule>
           <ns0:Name>Rule 2</ns0:Name>
           <ns0:Title>1 day</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThan>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>0</ns2:Literal>
-              </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
+              <ns2:PropertyIsEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>1</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
+              </ns2:PropertyIsEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -52,20 +48,16 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 3: 10 mm -->
+        <!-- Rule 3: 2 days -->
         <ns0:Rule>
           <ns0:Name>Rule 3</ns0:Name>
           <ns0:Title>2 days</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThan>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>1</ns2:Literal>
-              </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
+              <ns2:PropertyIsEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>2</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
+              </ns2:PropertyIsEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -78,20 +70,16 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 4: 20 mm -->
+        <!-- Rule 4: 3 days -->
         <ns0:Rule>
           <ns0:Name>Rule 4</ns0:Name>
           <ns0:Title>3 days</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThan>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>2</ns2:Literal>
-              </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
+              <ns2:PropertyIsEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>3</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
+              </ns2:PropertyIsEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -104,20 +92,16 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 5: 30 mm -->
+        <!-- Rule 5: 4 days -->
         <ns0:Rule>
           <ns0:Name>Rule 5</ns0:Name>
           <ns0:Title>4 days</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThan>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>3</ns2:Literal>
-              </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
+              <ns2:PropertyIsEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>4</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
+              </ns2:PropertyIsEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -130,20 +114,16 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 6: 40 mm -->
+        <!-- Rule 6: 5 days -->
         <ns0:Rule>
           <ns0:Name>Rule 6</ns0:Name>
           <ns0:Title>5 days</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThan>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>4</ns2:Literal>
-              </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
+              <ns2:PropertyIsEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>5</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
+              </ns2:PropertyIsEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -156,20 +136,16 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 7: 50 mm -->
+        <!-- Rule 7: 6 days -->
         <ns0:Rule>
           <ns0:Name>Rule 7</ns0:Name>
           <ns0:Title>6 days</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThan>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>5</ns2:Literal>
-              </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
+              <ns2:PropertyIsEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>6</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
+              </ns2:PropertyIsEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>
@@ -182,20 +158,16 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 8: 100 mm -->
+        <!-- Rule 8: 7 days -->
         <ns0:Rule>
           <ns0:Name>Rule 8</ns0:Name>
           <ns0:Title>7 days</ns0:Title>
           <ns2:Filter>
             <ns2:And>
-              <ns2:PropertyIsGreaterThan>
-                <ns2:PropertyName>value</ns2:PropertyName>
-                <ns2:Literal>6</ns2:Literal>
-              </ns2:PropertyIsGreaterThan>
-              <ns2:PropertyIsLessThanOrEqualTo>
+              <ns2:PropertyIsEqualTo>
                 <ns2:PropertyName>value</ns2:PropertyName>
                 <ns2:Literal>7</ns2:Literal>
-              </ns2:PropertyIsLessThanOrEqualTo>
+              </ns2:PropertyIsEqualTo>
             </ns2:And>
           </ns2:Filter>
           <ns0:PolygonSymbolizer>

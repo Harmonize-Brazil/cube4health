@@ -134,6 +134,36 @@ def create_png_from_cog_file(raster_tif=None, output_dir=None, color_png_file=No
     # print(f"PNG {output_png} was generated successfully.")
 
 
+def map_anomaly_colors(values, intervals, rgb_colors):
+    """
+    Map anomaly values to colors using interval logic.
+
+    Parameters
+    ----------
+    values : array-like
+        Array of values from the shapefile.
+    intervals : array-like
+        Array of interval thresholds.
+    rgb_colors : array-like
+        Array of RGB colors normalized to [0, 1].
+
+    Returns
+    -------
+    List of RGBA colors mapped to each value.
+    """
+    bin_indices = np.digitize(values, intervals, right=True)
+    bin_indices[np.isnan(values)] = -1  # Handle NaNs
+
+    mapped_colors = []
+    for idx in bin_indices:
+        if idx == -1:
+            mapped_colors.append([1, 1, 1, 0])  # Transparent
+        else:
+            mapped_colors.append(rgb_colors[min(idx, len(rgb_colors) - 1)])
+
+    return mapped_colors
+
+
 # Create PNG colored from SHP
 def create_png_from_shp_file(shapefile_dir, color_png_file, anomaly_data=False):
     """
@@ -177,6 +207,11 @@ def create_png_from_shp_file(shapefile_dir, color_png_file, anomaly_data=False):
         if np.isnan(value):
             colors.append([1, 1, 1, 0])  # Transparent (RGBA)
         else:
+            # Find the index of the interval closest to 'value'.
+            # For example, if intervals = [0, 10, 20, 30] and value = 18,
+            # then np.abs(intervals - value) = [18, 8, 2, 12], so argmin() returns index 2 (value 20).
+            # intervals - value = [0 - 18, 10 - 18, 20 - 18, 30 - 18] = [-18, -8, 2, 12]
+            # That index is then used to select the corresponding RGB color.
             idx = (np.abs(intervals - value)).argmin()  # Get nearest index
             colors.append(rgb_colors[idx])
 
@@ -192,10 +227,11 @@ def create_png_from_shp_file(shapefile_dir, color_png_file, anomaly_data=False):
         plt.axis('off')
     else:
         # Map values to the intervals with cut function
+        mapped_colors = map_anomaly_colors(values, intervals, rgb_colors)
         fig, ax = plt.subplots(figsize=(5, 5))
-        study_area_shp.plot(ax=ax, color=colors, edgecolor="black", linewidth=0.7)
-        ax.set_xlim(study_area_shp.total_bounds[[0, 2]])  # xmin, xmax
-        ax.set_ylim(study_area_shp.total_bounds[[1, 3]])  # ymin, ymax
+        study_area_shp.plot(ax=ax, color=mapped_colors, edgecolor="black", linewidth=0.7)
+        ax.set_xlim(study_area_shp.total_bounds[[0, 2]])
+        ax.set_ylim(study_area_shp.total_bounds[[1, 3]])
         plt.axis('off')
 
     # Save the plot as a PNG file

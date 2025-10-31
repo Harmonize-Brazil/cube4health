@@ -120,7 +120,7 @@
             "version": "1.",
             "creators": [{
                 "@type": "ResearchGroup",
-                "familyName": "Harmonize Team"
+                "familyName": "Harmonize Brazil Team"
             }],
             "language": "en",
             "subjects": [{
@@ -146,7 +146,7 @@
                     "contributorType": "HostingInstitution"
                 },
                 {
-                    "name": "Harmonize Team",
+                    "name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
                     "contributorType": "ResearchGroup"
                 }
             ],
@@ -157,7 +157,12 @@
             }],
             "geoLocations": [],
             "fundingReferences": [{
-                "funderName": "FIOTEC"
+                "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+            }],
+            "processor": [{
+                "uri": "https://github.com/Harmonize-Brazil/cube4health",
+                "name": "cube4health",
+                "version": "0.0.1"
             }],
             "relatedIdentifiers": []
         }

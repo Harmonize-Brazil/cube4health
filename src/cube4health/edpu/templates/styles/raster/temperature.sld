@@ -16,7 +16,7 @@
               <ogc:PropertyName>grid</ogc:PropertyName>
             </sld:Geometry>
             <sld:ColorMap>
-	      <sld:ColorMapEntry color="#ffffff" quantity="-999000000" label="nodata" opacity="0"/>
+	            <sld:ColorMapEntry color="#ffffff" quantity="-9999" label="nodata" opacity="0"/>
               <sld:ColorMapEntry color="#003696" opacity="0.85" quantity="-20" label="-20 C°"/>
               <sld:ColorMapEntry color="#0092ED" opacity="0.85" quantity="0" label="0 C°"/>
               <sld:ColorMapEntry color="#54BDFF" opacity="0.85" quantity="4" label="4 C°"/>
@@ -25,6 +25,7 @@
               <sld:ColorMapEntry color="#51FF88" opacity="0.85" quantity="16" label="16 C°"/>
               <sld:ColorMapEntry color="#4AFF00" opacity="0.85" quantity="20" label="20 C°"/>
               <sld:ColorMapEntry color="#BCFF00" opacity="0.85" quantity="24" label="24 C°"/>
+              <sld:ColorMapEntry color="#F7FF00" opacity="0.85" quantity="24" label="26 C°"/>
               <sld:ColorMapEntry color="#F6E300" opacity="0.85" quantity="28" label="28 C°"/>
               <sld:ColorMapEntry color="#F4C400" opacity="0.85" quantity="30" label="30 C°"/>
               <sld:ColorMapEntry color="#F3A600" opacity="0.85" quantity="32" label="32 C°"/>
