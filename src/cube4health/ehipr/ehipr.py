@@ -8,6 +8,7 @@ from datetime import (
     datetime,
     timedelta
 )
+from epiweeks import Week
 from typing import (
     Dict,
     List,
@@ -53,11 +54,11 @@ from .lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
 from .db import save_data_db
 from .config import CPU_COUNT
 
-from src.cube4health.edpu import (
+from cube4health.edpu import (
     STAC,
     GeoServer
 )
-from src.cube4health.edpu.utils import (
+from cube4health.edpu.utils import (
     get_round_value,
     _check_existence_dirs,
     send_files_ssh
@@ -759,11 +760,11 @@ def spatialize_data(indicators: List[str],
 
     # Verifies if the temporal aggregation is 'week'. If it is, the csv_week_pd will be used 
     # to format the data in the 'week' format.
-    if any([df['temporal_agg'] for df in dataframes if df['temporal_agg'] == 'epiweek']):
-        csv_week_pd = pd.read_csv(os.path.join(ROOT_PATH, 
-                                  'ehipr/templates/csv/epidemiologicalweeks_ptbr.csv'))
-    else:
-        csv_week_pd = None
+    # if any([df['temporal_agg'] for df in dataframes if df['temporal_agg'] == 'epiweek']):
+    #     csv_week_pd = pd.read_csv(os.path.join(ROOT_PATH, 
+    #                               'ehipr/templates/csv/epidemiologicalweeks_ptbr.csv'))
+    # else:
+    #     csv_week_pd = None
 
     len_crops = len(file_crops_geom) if file_crops_geom else 1
 
@@ -1040,8 +1041,8 @@ def spatialize_data(indicators: List[str],
                         name_date_col = 'epiweek_start_date'
                         name_date_number_col = "epiweek_number"
 
-                        if csv_week_pd is None:
-                            return "Error: The csv file with the weekly data isn't available."
+                        # if csv_week_pd is None:
+                        #     return "Error: The csv file with the weekly data isn't available."
 
                         if not check_date_format(date=gdf[date_col].iloc[0]):
                             gdf_copy = gdf.copy()
@@ -1056,25 +1057,40 @@ def spatialize_data(indicators: List[str],
                                     # Selectin the rows that contain the week
                                     gdf_years = gdf_copy.loc[notna & contains_year_week]
 
-                                    filtered_csv_week_pd = csv_week_pd.loc[(csv_week_pd['Year'].astype('int') == int(year)) &
-                                                            (csv_week_pd['Week'].astype('int') == int(week)), ["StartDate", "Week"]]
+                                    # Cria a semana epidemiológica a partir do ano e número da semana
+                                    epiweek = Week(int(year), int(week))
 
-                                    if not filtered_csv_week_pd.empty:
-                                        date = filtered_csv_week_pd.iloc[0]
-                                        week = filtered_csv_week_pd.iloc[1]
-                                        gdf.loc[contains_year_week, [date_col, name_date_number_col]] = [date, week]
+                                    # Pega as datas de início e fim dessa epiweek
+                                    start_date = epiweek.startdate()
+                                    end_date = epiweek.enddate()
+
+                                    # Define os valores no GeoDataFrame
+                                    gdf.loc[contains_year_week, [date_col, name_date_number_col]] = [start_date, week]
+
+                                    # filtered_csv_week_pd = csv_week_pd.loc[(csv_week_pd['Year'].astype('int') == int(year)) &
+                                    #                         (csv_week_pd['Week'].astype('int') == int(week)), ["StartDate", "Week"]]
+
+                                    # if not filtered_csv_week_pd.empty:
+                                    #     date = filtered_csv_week_pd.iloc[0]
+                                    #     week = filtered_csv_week_pd.iloc[1]
+                                    #     gdf.loc[contains_year_week, [date_col, name_date_number_col]] = [date, week]
 
                             except:
                                 return "Error: Something went wrong when trying to format the "\
                                         f"date column: {date_col}."
 
                         else:
-                            gdf = gdf.merge(
-                                csv_week_pd[["StartDate", "Week"]],
-                                left_on=date_col,
-                                right_on="StartDate",
-                                how="left"
-                            ).rename(columns={"Week": name_date_number_col}).drop(columns=["StartDate"])
+                            # gdf = gdf.merge(
+                            #     csv_week_pd[["StartDate", "Week"]],
+                            #     left_on=date_col,
+                            #     right_on="StartDate",
+                            #     how="left"
+                            # ).rename(columns={"Week": name_date_number_col}).drop(columns=["StartDate"])
+
+                            gdf[date_col] = pd.to_datetime(gdf[date_col])
+
+                            # Cria a coluna equivalente à antiga "Week" da planilha
+                            gdf[name_date_number_col] = gdf[date_col].apply(lambda d: Week.fromdate(d.date()).week)
 
                         # Changes 'week' to 'epiweek' in the column temp_agg
                         gdf[temp_col] = TEMPORAL_AGG_ABBR[time_aggregations[0]]
@@ -1281,7 +1297,7 @@ def publish_data(layers: List[Dict[str, str]],
                  root_data_path: str,
                  gs_service_url: Optional[str] = 'http://localhost:10190/geoserver', 
                  gs_username: Optional[str] = 'admin', 
-                 workspace: Optional[str] = 'harmonize_health',#'bdc_lcc',
+                 gs_workspace: Optional[str] = 'harmonize_health',
                  db_settings: Optional[dict] = None,
                  stac_url: Optional[str] = 'http://localhost:8080/',
                  hostname: Optional[str] = 'localhost',
@@ -1309,7 +1325,7 @@ def publish_data(layers: List[Dict[str, str]],
             GeoServer username
         gs_password : Optional[str], default value is 'geoserver'
             GeoServer password
-        workspace : Optional[str], default value is 'bdc_lcc'
+        gs_workspace : Optional[str], default value is 'bdc_lcc'
             GeoServer workspace
         db_username : Optional[str], default value is 'postgres'
             Database username
@@ -1362,7 +1378,7 @@ def publish_data(layers: List[Dict[str, str]],
     
     geo = GeoServer(
         service_url=gs_service_url, 
-        workspace=workspace, 
+        workspace=gs_workspace, 
         hostname=hostname,
         username=gs_username,
         store=gs_store,
@@ -1475,8 +1491,8 @@ def publish_data(layers: List[Dict[str, str]],
                 "version": version,
                 "metadata": {
                     "wms": {
-                        "url": f"{gs_service_url}/bdc_lcc/wms",
-                        "layerName": f"bdc_lcc:{name}"
+                        "url": f"{gs_service_url}/{gs_workspace}/wms",
+                        "layerName": f"{gs_workspace}:{name}"
                     },
                     "sources": [{
                         "name": f"{name}",
@@ -1485,7 +1501,7 @@ def publish_data(layers: List[Dict[str, str]],
                     "datacite": {
                         "id": f"{name}",
                         "dates": [{
-                            "date": "2024"
+                            "date": "2025"
                         }],
                         "titles": {
                             "title": f"{name}"
@@ -1513,6 +1529,7 @@ def publish_data(layers: List[Dict[str, str]],
                 items_path = layer['remote'] if hostname != 'localhost' else layer['path']
                 col_id = stac.publish_collection(data=layer_metadata, 
                                                  template='health', 
+                                                 workspace=gs_workspace,
                                                  root_data_path=root_data_path, 
                                                  asset_names=ASSET_NAMES, 
                                                  del_output_file=False, 

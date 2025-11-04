@@ -184,14 +184,16 @@ class STAC:
         return 'Connection closed'
 
 
-    def publish_collection(self, data: dict, template: str, items_path: str, 
+    def publish_collection(self, data: dict, 
+                           template: str, 
+                           items_path: str, 
                            asset_names: Dict[str, str], 
+                           workspace: str,
                            root_data_path: Optional[str]=None, 
                            additional_path: Optional[str] = None,
                            footprint: Union[List[int], Dict[str, List[int]]] = None, 
                            output_file: Optional[str] = None, 
-                           del_output_file: Optional[bool] = True, 
-                           workspace: Optional[str] = 'bdc_lcc') -> Union[int, str]:
+                           del_output_file: Optional[bool] = True) -> Union[int, str]:
         """
             Update the the collection's metadata JSON file template
 
@@ -258,7 +260,9 @@ class STAC:
 
             if data is not None:
                 print("\nUpdating the collection's metadata JSON file...")
-                new_collection = modify_json(data=data, template=template, 
+                new_collection = modify_json(data=data, 
+                                             template=template,
+                                             workspace=workspace, 
                                              stac_url=self.service_url)
                 print("...Done")
             else:

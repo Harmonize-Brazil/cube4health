@@ -636,6 +636,7 @@ def get_time_list_from_data(path: str,
 
 def modify_json(data: dict, 
                 template: dict, 
+                workspace: str,
                 stac_url: str)-> dict:
     """
         Modify the json template.
@@ -688,7 +689,7 @@ def modify_json(data: dict,
                 current = current.get(sub_key, {})
         current[keys[-1]] = values
 
-    template['metadata']['wms']['layerName'] = f'bdc_lcc:{template["name"]}'
+    template['metadata']['wms']['layerName'] = f'{workspace}:{template["name"]}'
     template['metadata']['sources'][0]['name'] = f'{template["name"]}'
     template['metadata']['sources'][0]['stacUri'] = os.path.join(stac_url, 
                                                                  f'{template["name"]}-{template["version"]}')
