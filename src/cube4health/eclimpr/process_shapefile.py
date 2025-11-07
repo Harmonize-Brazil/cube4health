@@ -385,8 +385,7 @@ def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list
     """
     Process and standardize shapefiles (user-provided or from geobr).
 
-    This function processes shapefiles and ensures a standardized format with four attributes:
-    ``cod_mun`` (municipality code), ``name_mun`` (municipality name), ``uf_mun`` (state code), and ``geometry`` (EPSG:4326). It supports both user-provided shapefiles and data from the ``geobr`` package, allowing processing by municipality or state.
+    This function processes shapefiles and ensures a standardized format with four attributes: ``cod_mun`` (municipality code), ``name_mun`` (municipality name), ``uf_mun`` (state code), and ``geometry`` (EPSG:4326). It supports both user-provided shapefiles and data from the ``geobr`` package, allowing processing by municipality or state.
 
     Parameters
     ----------
@@ -400,24 +399,14 @@ def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list
     list_columns : dict, optional
         Mapping of column names in the user-provided shapefile to the expected ones.
         Must include the keys: ``{"code_muni","name_muni","uf_state","geometry"}``.
-        Example:
-        ::
-            {
-                "code_muni": "CD_MUN",
-                "name_muni": "NM_MUN",
-                "uf_state": "SIGLA",
-                "geometry": "geometry"
-            }
+        Example: { "code_muni": "CD_MUN", "name_muni": "NM_MUN", "uf_state": "SIGLA", "geometry": "geometry" }
     cod_mun : int, optional
         7-digit IBGE municipality code (used when loading a single municipality from ``geobr``).
         Required if ``own_shapefile=False`` and ``geobr_scope="municipality"``.
     uf_name : str, optional
-        Two-letter state code (e.g., "RJ", "RN"). Required when
-        ``own_shapefile=False`` and ``geobr_scope="state"``.
+        Two-letter state code (e.g., "RJ", "RN"). Required when ``own_shapefile=False`` and ``geobr_scope="state"``.
     geobr_scope : {"municipality", "state"}, optional
-        Scope for ``geobr`` download:
-        - ``"municipality"``: load a single municipality by code.
-        - ``"state"``: load all municipalities of a state.
+        Scope for ``geobr`` download. Use ``"municipality"`` to load a single municipality by code, or ``"state"`` to load all municipalities of a state.
         Default is ``"municipality"``.
     geobr_year : int, optional
         Reference year for ``geobr`` data. Default is 2022.
@@ -443,20 +432,23 @@ def processed_shapefile(main_dir, own_shapefile=False, shapefile_path=None, list
 
     Examples
     --------
+    Mapping for a user-provided shapefile:
+
+    >>> mapping = {
+    ...     "code_muni": "CD_MUN",
+    ...     "name_muni": "NM_MUN",
+    ...     "uf_state": "SIGLA",
+    ...     "geometry": "geometry"
+    ... }
+
     From a user-provided shapefile:
     
     >>> from cube4health.eclimpr.process_shapefile import processed_shapefile
-    
     >>> processed_shapefile(
     ...     main_dir="/path/to/output",
     ...     own_shapefile=True,
     ...     shapefile_path="/path/to/shapefile/mun_indireto_PA.shp",
-    ...     list_columns={
-    ...         "code_muni": "CD_MUN",
-    ...         "name_muni": "NM_MUN",
-    ...         "uf_state": "SIGLA",
-    ...         "geometry": "geometry"
-    ...     }
+    ...     list_columns=mapping
     ... )
 
     From geobr package by municipality:

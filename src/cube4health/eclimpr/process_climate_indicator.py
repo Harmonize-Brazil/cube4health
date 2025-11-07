@@ -20,11 +20,7 @@ def process_climate_indicator(main_dir, output_dir, folder_name, shapefile_path,
     Parameters
     ----------
     main_dir : str
-        Directory path where the source NetCDF/GRIB files are stored (input root).
-        For most indicators, this should be a single folder containing the relevant files.
-        For ``humidity_era5land``, however, two subfolders are required inside ``main_dir``:
-            - ``temperature``: must contain data with ``2m_temperature_day_mean``.
-            - ``dewpoint``: must contain data with ``2m_dewpoint_temperature_day_mean``.
+        Directory path where the source NetCDF/GRIB files are stored (input root). For most indicators, this should be a single folder containing the relevant files. For ``humidity_era5land``, however, two subfolders are required inside ``main_dir``: ``temperature``: must contain data with ``2m_temperature_day_mean``, and ``dewpoint``: must contain data with ``2m_dewpoint_temperature_day_mean``.
     output_dir : str
         Directory path where outputs (rasters/vector files/PNGs) will be written.
     folder_name : str
@@ -48,12 +44,11 @@ def process_climate_indicator(main_dir, output_dir, folder_name, shapefile_path,
     provide_interval : bool, optional
         If ``True``, enables the use of a custom epidemiological weeks calendar provided via ``interval_file_path``.
         If ``False``, the standard epidemiological weeks calendar is used. Default is ``False``.
-    type_indicator : {"temp_era5land", "precip_era5land", "anomaly_era5land", "humidity_era5land",
-                    "temp_cptec", "precip_cptec"}, optional
+    type_indicator : {"temp_era5land", "precip_era5land", "anomaly_era5land", "humidity_era5land", "temp_cptec", "precip_cptec"}, optional
         Indicator family to process. Default is ``"temp_era5land"``.
     spatial_aggregation : {"epiweek", "month"}, optional
         Temporal aggregation unit. Default is ``"epiweek"``.
-    **kwargs
+    ``**kwargs``
         Extra keyword arguments forwarded to the specialized processing functions (e.g., resampling parameters, nodata handling, compression options, etc.).
     
     Returns
@@ -75,25 +70,23 @@ def process_climate_indicator(main_dir, output_dir, folder_name, shapefile_path,
 
     See Also
     --------
-    process_era5land_temp.process_era5land_temp_epiweek
-    process_era5land_temp.process_era5land_temp_month
-    process_era5land_precip.process_era5land_precip_epiweek
-    process_era5land_precip.process_era5land_precip_month
-    process_era5land_anomaly.process_era5land_anomaly_epiweek
-    process_era5land_anomaly.process_era5land_anomaly_month
-    process_era5land_rhumidity.process_era5land_rhumidity_epiweek
-    process_era5land_rhumidity.process_era5land_rhumidity_month
-    process_cptec_temp.process_cptec_temp_epiweek
-    process_cptec_temp.process_cptec_temp_month
-    process_cptec_precip.process_cptec_precip_epiweek
-    process_cptec_precip.process_cptec_precip_month
+    :func:`process_era5land_temp.process_era5land_temp_epiweek`
+    :func:`process_era5land_temp.process_era5land_temp_month`
+    :func:`process_era5land_precip.process_era5land_precip_epiweek`
+    :func:`process_era5land_precip.process_era5land_precip_month`
+    :func:`process_era5land_anomaly.process_era5land_anomaly_epiweek`
+    :func:`process_era5land_anomaly.process_era5land_anomaly_month`
+    :func:`process_era5land_rhumidity.process_era5land_rhumidity_epiweek`
+    :func:`process_era5land_rhumidity.process_era5land_rhumidity_month`
+    :func:`process_cptec_temp.process_cptec_temp_epiweek`
+    :func:`process_cptec_temp.process_cptec_temp_month`
+    :func:`process_cptec_precip.process_cptec_precip_epiweek`
+    :func:`process_cptec_precip.process_cptec_precip_month`
     
     Examples
     --------
-
     >>> import importlib.resources as pkg_resources
-    ... from cube4health.eclimpr.process_climate_indicator import process_climate_indicator
-
+    >>> from cube4health.eclimpr.process_climate_indicator import process_climate_indicator
     >>> roi = pkg_resources.files('cube4health.eclimpr.shp_malhas.northeast').joinpath('northeast.shp')
 
     ERA5-Land temperature by epiweek (max only):
@@ -139,7 +132,6 @@ def process_climate_indicator(main_dir, output_dir, folder_name, shapefile_path,
     ...     interval_file_path="/configs/epiweek_intervals.csv",
     ...     aggregation_type="mean"
     ... )
-
     """
 
     # Normalize/validate indicators

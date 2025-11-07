@@ -20,7 +20,7 @@ Usage
 =====
 
 Running the cube4health package in the Command Line
------------------------------------------------
+---------------------------------------------------
 
 The ``cube4health`` package installs a command line tool with the same name ``cube4health`` that allows processing and publishing health, climate, and drone data produced in the 
 context of the Earth Observation Data Cube tuned for Health Response Systems (EODCtHRS) component of the HARMONIZE project. Important to know that the publishing process is based on 
