@@ -43,15 +43,15 @@ from geobr import (
 
 # custom libraries
 
-from .utils import (
+from cube4health.ehipr.utils import (
     chunk_list,
     shp_to_zip,
     check_date_format
 )
 
-from .lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
-from .db import save_data_db
-from .config import CPU_COUNT
+from cube4health.ehipr.lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
+from cube4health.ehipr.db import save_data_db
+from cube4health.ehipr.config import CPU_COUNT
 
 from cube4health.edpu import (
     STAC,

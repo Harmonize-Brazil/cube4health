@@ -93,8 +93,8 @@ from concurrent.futures import (
 )
 
 # custom functions
-from .config import CPU_COUNT
-from .utils import chunk_list
+from cube4health.ehipr.config import CPU_COUNT
+from cube4health.ehipr.utils import chunk_list
 from cube4health.edpu.utils import (
     get_ip_container_db,
     get_ports_container_db
