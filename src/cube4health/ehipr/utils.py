@@ -6,6 +6,25 @@ from typing import List, Optional
 from datetime import datetime 
 
 
+def _check_existence_dirs(paths: List[str]) -> None:
+    """
+        Check the existence of directories.
+
+    Parameters
+    ----------
+        paths : List[str]
+            The directories path.
+
+    Returns
+    -------
+        None
+    """
+    for path in paths:
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+
+
 def shp_to_zip(input_path: str, 
                output_path: Optional[str] = None) -> str:
     """
@@ -29,10 +48,14 @@ def shp_to_zip(input_path: str,
     files = os.listdir(input_path)
     for file in files:
         if any(file.endswith(suffix) for suffix in suffixs):
-            files_to_zip.append(os.path.join(input_path, file))
-
-    zip_file= output_path if output_path else os.path.join(input_path, 
-                                                          f"{files_to_zip[0].split('.')[0]}.zip")
+            file_to_zip = os.path.join(input_path, file)
+            _check_existence_dirs([file_to_zip])
+            files_to_zip.append(file_to_zip)
+    if output_path:
+        _check_existence_dirs([output_path])
+        zip_file = f"{output_path}.zip"
+    else:
+        zip_file = os.path.join(input_path, f"{files_to_zip[0].split('.')[0]}.zip")
     with zipfile.ZipFile(zip_file, 'w') as zip_ref:
         for file in files_to_zip:
             zip_ref.write(file, os.path.basename(file))
