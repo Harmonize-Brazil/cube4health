@@ -17,7 +17,8 @@ from tqdm import tqdm
 from dateutil.relativedelta import relativedelta
 
 # custom functions
-from src.cube4health.edpu.utils import _check_existence_dirs
+from cube4health.edpu.utils import _check_existence_dirs
+# from src.cube4health.edpu.utils import _check_existence_dirs
 
 
 # Root path of the project
@@ -110,7 +111,8 @@ def create_LIS_boundaries_shp(agg: str,
     if not agg in AGG_VALUES:
         raise Exception(f"Insert a valid value for agg parameter: {(', ').join(AGG_VALUES)}!")
     if not input_path:
-        input_path = os.path.join(ROOT_PATH,'shp_malhas/default_grid', agg)
+        input_path = os.path.join(ROOT_PATH,'ehipr/shp_malhas/default_grid', agg)
+        print(input_path)
     temp_path = os.path.join(input_path, 'temp')
 
     _check_existence_dirs(paths=[input_path, temp_path])

@@ -1,11 +1,11 @@
 cube4health.eclimpr package
-========================
+===========================
 
 Submodules
 ----------
 
 cube4health.eclimpr.download_era5land_data module
----------------------------------
+-------------------------------------------------
 
 .. automodule:: cube4health.eclimpr.download_era5land_data
    :members: get_data_zenodo, get_data_era5land
@@ -13,7 +13,7 @@ cube4health.eclimpr.download_era5land_data module
    :show-inheritance:
 
 cube4health.eclimpr.download_cptec_ftp_data module
-----------------------------
+--------------------------------------------------
 
 .. automodule:: cube4health.eclimpr.download_cptec_ftp_data
    :members: get_data_ftp_cptec
@@ -21,7 +21,7 @@ cube4health.eclimpr.download_cptec_ftp_data module
    :show-inheritance:
 
 cube4health.eclimpr.utils_bd module
------------------------------
+-----------------------------------
 
 .. automodule:: cube4health.eclimpr.utils_bd
    :members: 
@@ -29,7 +29,7 @@ cube4health.eclimpr.utils_bd module
    :show-inheritance:
 
 cube4health.eclimpr.process_shapefile module
-----------------------------
+--------------------------------------------
 
 .. automodule:: cube4health.eclimpr.process_shapefile
    :members: processed_shapefile
@@ -37,17 +37,26 @@ cube4health.eclimpr.process_shapefile module
    :show-inheritance:
 
 cube4health.eclimpr.process_climate_indicator module
------------------------------
+----------------------------------------------------
 
 .. automodule:: cube4health.eclimpr.process_climate_indicator
    :members:
    :undoc-members:
    :show-inheritance:
 
+cube4health.eclimpr.publish_climate_indicator module
+----------------------------------------------------
+
+.. automodule:: cube4health.eclimpr.publish_climate_indicator
+   :members: publish_climate_indicator_vector
+   :undoc-members:
+   :show-inheritance:   
+
 Module contents
----------------
+----------------
 
 .. automodule:: cube4health.eclimpr
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:

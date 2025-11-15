@@ -130,6 +130,8 @@ def check_remote_data(data_path_input,remote_root_path,geo_instance):
                             
                         except Exception as e:
                             print(f"{e}: {remote_root_path} on remote server!")
+            else:
+                raise Exception("Publish process stopped, missing files on the remote server!")
     else:
         print()
         print('-'*120)
@@ -179,17 +181,18 @@ def  publish_to_geoserver(service_url, workspace, root_path, layer_name, db_sett
 
     created, message = geo.update_imagemosaic_store(data=os.path.join(root_path,layer_name), root_path=os.path.join(root_path,layer_name), layer_name=layer_name,
                                                         store_name=layer_name, time_regex=time_regex)    
-    print('aqui:\n',created,message)
+    print(created,message)
     if not created:
         created, message = geo.create_imagemosaic_store(data=os.path.join(root_path,layer_name), layer_name=layer_name, store_name=layer_name,
                                                     time_regex=time_regex, style=style_file)
-        print('aqui:\n',created,message)
         if not created:
             print(message,'\n')
+
+            geo = GeoServer(service_url=service_url, workspace=workspace, hostname=hostname)
             print('Alternative - creating a shapefile with mosaic indexes to publish an ImageMosaic store and coverage!')
             created, message = geo.update_imagemosaic_store(data=os.path.join(root_path,layer_name), root_path=os.path.join(root_path,layer_name), layer_name=layer_name,
                                                         store_name=layer_name, time_regex=time_regex)            
-            print('aqui:\n',created,message)
+            print(created,message)
             if not created:
                 created, message = geo.create_imagemosaic_store(data=os.path.join(root_path,layer_name), layer_name=layer_name, store_name=layer_name,
                                                     time_regex=time_regex, style=style_file)
@@ -200,7 +203,7 @@ def  publish_to_geoserver(service_url, workspace, root_path, layer_name, db_sett
    
 
 def main(argv):
-    prefix_geoserver_data = 'dev'
+    prefix_geoserver_data = 'harmonize'
     
     # Reading JSON file with collection of drone data:
     fname_drone_collection = argv.json_catalog_file
@@ -214,6 +217,7 @@ def main(argv):
         workspace = drone_collection['metadata']['wms']['url'].split('geoserver')[1].split('/')[1]    
     
     print('Publishing data from',layer_name,'collection...')
+    hostname = 'localhost'
     if 'localhost' not in str(drone_collection):
         print('\n','-'*95)
         hostname = input('Please, enter the IP of the remote host that has Geoserver, Titiler, and STAC services available: ')
@@ -221,10 +225,12 @@ def main(argv):
         for key in drone_collection['items'][0]['assets'].keys():
             remote_root_path_data = os.path.dirname(drone_collection['items'][0]['assets'][key]['href'].replace(prefix_geoserver_data,''))
             
-        geo = geo_object(hostname=hostname)
+        geo = geo_object(hostname=hostname) 
                 
         print('Checking the data availability of this collection on the remote server...')
         check_remote_data(os.path.join(argv.data_path_input,layer_name),remote_root_path_data,geo)
+        print('Aqui remote root path data:',remote_root_path_data)
+        
     
         # Define environment variable to create STAC catalog at remote server: 
         os.environ['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@{}:5432/bdc".format(geo.hostname) # visible in this process + all children
@@ -234,7 +240,10 @@ def main(argv):
 
     if 'service_url' in locals(): # Checking that the data needs to be published at Geoserver
         db_settings={'db':'harmonize','schema':'public','user':'postgres'}
-        publish_to_geoserver(service_url, workspace, argv.data_path_input, layer_name, db_settings, local_path)           
+        if 'remote_root_path_data' in locals():
+            publish_to_geoserver(service_url, workspace, remote_root_path_data, layer_name, db_settings, local_path, hostname)     #local_path global variable for module path
+        else:
+            publish_to_geoserver(service_url, workspace, argv.data_path_input, layer_name, db_settings, local_path, hostname)     #local_path global variable for module path
 
 
 if __name__ == "__main__":

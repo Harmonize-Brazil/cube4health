@@ -14,10 +14,10 @@ import geopandas as gpd
 from tqdm import tqdm
 
 # custom libraries
-from .utils import check_date_format
-from .ehipr import _check_existence_dirs, _get_indicator_info # TODO :remover importacao check_exist
+from cube4health.ehipr.utils import check_date_format
+from cube4health.ehipr.ehipr import _check_existence_dirs, _get_indicator_info # TODO :remover importacao check_exist
 
-from .config import CPU_COUNT
+from cube4health.ehipr.config import CPU_COUNT
 
 # URL of the API
 ROUTE = "https://api.mosqlimate.org/api/datastore/infodengue/"

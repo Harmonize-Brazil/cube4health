@@ -1,13 +1,6 @@
 cube4health.ehipr package
 =========================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   cube4health.ehipr.models
 
 Submodules
 ----------

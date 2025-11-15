@@ -5,7 +5,7 @@
     <ns0:UserStyle>
       <ns0:Title>Anomaly Style</ns0:Title>
       <ns0:FeatureTypeStyle>
-        <!-- Rule 1:  nodata -->
+        <!-- Rule 1:  0 days -->
         <ns0:Rule>
           <ns0:Name>Rule 1</ns0:Name>
           <ns0:Title>0 days</ns0:Title>
@@ -26,7 +26,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 2: 5 mm -->
+        <!-- Rule 2: Between 1 and 4 days -->
         <ns0:Rule>
           <ns0:Name>Rule 2</ns0:Name>
           <ns0:Title>Between 1 and 4 days</ns0:Title>
@@ -52,7 +52,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 3: 10 mm -->
+        <!-- Rule 3: Between 5 and 8 days -->
         <ns0:Rule>
           <ns0:Name>Rule 3</ns0:Name>
           <ns0:Title>Between 5 and 8 days</ns0:Title>
@@ -78,7 +78,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 4: 20 mm -->
+        <!-- Rule 4: Between 9 and 12 days -->
         <ns0:Rule>
           <ns0:Name>Rule 4</ns0:Name>
           <ns0:Title>Between 9 and 12 days</ns0:Title>
@@ -104,7 +104,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 5: 30 mm -->
+        <!-- Rule 5: Between 13 and 16 days -->
         <ns0:Rule>
           <ns0:Name>Rule 5</ns0:Name>
           <ns0:Title>Between 13 and 16 days</ns0:Title>
@@ -130,7 +130,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 6: 40 mm -->
+        <!-- Rule 6: Between 17 and 20 days -->
         <ns0:Rule>
           <ns0:Name>Rule 6</ns0:Name>
           <ns0:Title>Between 17 and 20 days</ns0:Title>
@@ -156,7 +156,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 7: 50 mm -->
+        <!-- Rule 7: Between 21 and 24 days -->
         <ns0:Rule>
           <ns0:Name>Rule 7</ns0:Name>
           <ns0:Title>Between 21 and 24 days</ns0:Title>
@@ -182,7 +182,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 8: 100 mm -->
+        <!-- Rule 8: Between 25 and 28 days -->
         <ns0:Rule>
           <ns0:Name>Rule 8</ns0:Name>
           <ns0:Title>Between 25 and 28 days</ns0:Title>
@@ -208,7 +208,7 @@
             </ns0:Stroke>
           </ns0:PolygonSymbolizer>
         </ns0:Rule>
-        <!-- Rule 9: 150 mm -->
+        <!-- Rule 9: Between 29 and 31 days -->
         <ns0:Rule>
           <ns0:Name>Rule 9</ns0:Name>
           <ns0:Title>Between 29 and 31 days</ns0:Title>

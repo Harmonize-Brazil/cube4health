@@ -19,12 +19,12 @@
 Usage
 =====
 
-Running cube4health package in the Command Line
------------------------------------------------
+Running the cube4health package in the Command Line
+---------------------------------------------------
 
 The ``cube4health`` package installs a command line tool with the same name ``cube4health`` that allows processing and publishing health, climate, and drone data produced in the 
 context of the Earth Observation Data Cube tuned for Health Response Systems (EODCtHRS) component of the HARMONIZE project. Important to know that the publishing process is based on 
-predefined protocols and additional services such as BDC-STAC, Geoserver, and Titiler. Please see the documentation available on the `Cube4Health GitHub page <https://harmonize-brazil.github.io/cube4health/index.html>`_.
+predefined protocols and additional services such as BDC-STAC, Geoserver, and Titiler. Please see the documentation available on the  `HARMONIZE Brazil GitHub page <https://harmonize-brazil.github.io/infrastructure/deploy-locally.html>`_.
 
 
 If you want to know the cube4health version, use the option ``--version`` as in::

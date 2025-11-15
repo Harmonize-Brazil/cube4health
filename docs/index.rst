@@ -11,7 +11,7 @@ Welcome to cube4health's documentation!
    usage
    contributing
    authors
-   history
+   changelog
    modules
 
 Indices and tables

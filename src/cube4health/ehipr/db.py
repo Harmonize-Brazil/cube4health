@@ -1,8 +1,82 @@
+# # inbuilt libraries
+# from typing import List, Optional
+
+# # third-party libraries
+# #import psycopg2
+# import numpy as np
+# from tqdm import tqdm
+# from shapely.wkb import dumps
+# from geopandas import GeoDataFrame
+# from psycopg2 import (
+#     sql,
+#     extras,
+#     connect,
+#     extensions
+# )
+# #from psycopg2 import sql
+# #from psycopg2.extras import execute_values
+# from concurrent.futures import (
+#     as_completed,
+#     ThreadPoolExecutor
+# )
+
+# # custom functions
+# from .config import CPU_COUNT
+# from .utils import chunk_list
+# from cube4health.edpu.utils import (
+#     get_ip_container_db,
+#     get_ports_container_db
+# )
+
+# def _insert_data(gdf: GeoDataFrame, 
+#                  name: str, 
+#                  db_columns: List[str],
+#                  schema: str, 
+#                  db_params: dict) -> bool:
+
+#     geometry_col = "geometry"
+#     columns_no_geom = [col for col in db_columns if col != geometry_col]
+
+#     try:
+#         conn = connect(**db_params)
+#         cursor = conn.cursor()
+
+#         records = []
+#         for row in gdf.itertuples(index=False):
+#             values = list(row[:-1])
+#             geometry_wkb = dumps(row[-1], srid=gdf.crs.to_epsg())
+#             values.append(geometry_wkb)
+#             records.append(tuple(values))
+
+#         insert_query = sql.SQL("""
+#             INSERT INTO {}.{} ({})
+#             VALUES %s;
+#         """).format(
+#             sql.Identifier(schema),
+#             sql.Identifier(name),
+#             sql.SQL(', ').join(map(sql.Identifier, db_columns))
+#         )
+
+#         extras.execute_values(cursor, insert_query, records)
+#         conn.commit()
+
+#         cursor.close()
+#         conn.close()
+#         return True
+#     except Exception as e:
+#         print(f"[ERROR] Falha ao inserir dados: {e}")
+#         try:
+#             conn.rollback()
+#             conn.close()
+#         except:
+#             pass
+#         return False
+
+
 # inbuilt libraries
 from typing import List, Optional
 
 # third-party libraries
-#import psycopg2
 import numpy as np
 from tqdm import tqdm
 from shapely.wkb import dumps
@@ -13,89 +87,15 @@ from psycopg2 import (
     connect,
     extensions
 )
-#from psycopg2 import sql
-#from psycopg2.extras import execute_values
 from concurrent.futures import (
     as_completed,
     ThreadPoolExecutor
 )
 
 # custom functions
-from .config import CPU_COUNT
-from .utils import chunk_list
-from src.cube4health.edpu.utils import (
-    get_ip_container_db,
-    get_ports_container_db
-)
-
-def _insert_data(gdf: GeoDataFrame, 
-                 name: str, 
-                 db_columns: List[str],
-                 schema: str, 
-                 db_params: dict) -> bool:
-
-    geometry_col = "geometry"
-    columns_no_geom = [col for col in db_columns if col != geometry_col]
-
-    try:
-        conn = connect(**db_params)
-        cursor = conn.cursor()
-
-        records = []
-        for row in gdf.itertuples(index=False):
-            values = list(row[:-1])
-            geometry_wkb = dumps(row[-1], srid=gdf.crs.to_epsg())
-            values.append(geometry_wkb)
-            records.append(tuple(values))
-
-        insert_query = sql.SQL("""
-            INSERT INTO {}.{} ({})
-            VALUES %s;
-        """).format(
-            sql.Identifier(schema),
-            sql.Identifier(name),
-            sql.SQL(', ').join(map(sql.Identifier, db_columns))
-        )
-
-        extras.execute_values(cursor, insert_query, records)
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-        return True
-    except Exception as e:
-        print(f"[ERROR] Falha ao inserir dados: {e}")
-        try:
-            conn.rollback()
-            conn.close()
-        except:
-            pass
-        return False
-
-
-# inbuilt libraries
-from typing import List, Optional
-
-# third-party libraries
-import numpy as np
-from tqdm import tqdm
-from shapely.wkb import dumps
-from geopandas import GeoDataFrame
-from psycopg2 import (
-    sql,
-    extras,
-    connect,
-    extensions
-)
-from concurrent.futures import (
-    as_completed,
-    ThreadPoolExecutor
-)
-
-# custom functions
-from .config import CPU_COUNT
-from .utils import chunk_list
-from src.cube4health.edpu.utils import (
+from cube4health.ehipr.config import CPU_COUNT
+from cube4health.ehipr.utils import chunk_list
+from cube4health.edpu.utils import (
     get_ip_container_db,
     get_ports_container_db
 )
