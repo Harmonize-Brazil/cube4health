@@ -994,7 +994,7 @@ def spatialize_data(indicators: List[str],
                             A dictionary of geometries for each unique code in the chunk.
                         """
                         cod_geometry_dict = {}
-                        for cod in tqdm(sorted(codes_chunk), desc="Cropping polygons...", leave=False):
+                        for cod in tqdm(sorted(codes_chunk), desc="Cropping polygons...", leave=False,  disable=True):
                             geometry = df_polygon.loc[df_polygon[grid_info['cod']] == cod, 'geometry'].iloc[0]
                             cod_geometry_dict[cod] = MultiPolygon([geometry]) if isinstance(geometry, Polygon) else geometry
                         return cod_geometry_dict
@@ -1180,8 +1180,11 @@ def spatialize_data(indicators: List[str],
                             else:
                                 temp_gdf.to_file(asset_path, driver=driver)
                                 if extension == '.shp':
-                                    asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
-                                                                                f"{extension}", ''))
+                                    zip_file = asset_path.replace(f"{filename_date}"\
+                                                                  f"{extension}", '')
+                                    asset_path = shp_to_zip(zip_file, zip_file)
+                                    # asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
+                                    #                                             f"{extension}", ''))
 
                     bbox = ','.join(list(gdf.total_bounds.astype('str')))
                     # CREATING THE STYLE FILE
