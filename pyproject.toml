@@ -55,7 +55,7 @@ dependencies = [
   "geopy",
   "jsonpath_rw_ext",
   "pytz",
-  "timezonefinder[pytz]",
+  "timezonefinder",  
   "defusedxml",
   "opencv-python",
   "click",
