@@ -5,7 +5,8 @@ Changelog
 ------------
 
 * Remove extra dependencies from pyproject.toml. Starting from version 6, timezonefinder no longer provides optional extras, including the pytz extra.
-* 
+* Fix: invalid value encountered in divide ndvi = (NIR - Red)/(NIR + Red) in eddpr
+*
 
 0.3.0 (2025-11-15)
 ------------------
