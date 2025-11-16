@@ -422,6 +422,9 @@ def calc_ndvi(out_fname, fname):
         
         NIR = arr[bands['NIR'],...]
         Red = arr[bands['Red'],...]
+        with np.errstate(divide='ignore', invalid='ignore'):
+            ndvi = (NIR - Red) / (NIR + Red)
+            ndvi[~np.isfinite(ndvi)] = np.nan
         ndvi = (NIR - Red)/(NIR + Red)
         ndvi = np.where((ndvi<-1.),-1.,ndvi) #remove outliers
         ndvi = np.where((ndvi>1.),1.,ndvi) #remove outliers
