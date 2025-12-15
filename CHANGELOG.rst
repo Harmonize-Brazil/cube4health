@@ -4,6 +4,7 @@ Changelog
 (unreleased)
 ------------
 
+* Fix: RasterIO error in get_raster_info function
 * Remove extra dependencies from pyproject.toml. Starting from version 6, timezonefinder no longer provides optional extras, including the pytz extra.
 * Fix: invalid value encountered in divide ndvi = (NIR - Red)/(NIR + Red) in eddpr
 * Fix: Migrate project versioning to setuptools-git-versioning.
