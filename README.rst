@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-.. image:: docs/figures/cube4health_logo.png
+.. image:: https://raw.githubusercontent.com/Harmonize-Brazil/code-gallery/main/img/cube4health_logo.png
    :alt: Cube4Health Logo
    :align: right
    :height: 139px

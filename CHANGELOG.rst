@@ -4,6 +4,14 @@ Changelog
 (unreleased)
 ------------
 
+* Fix: RasterIO error in get_raster_info function
+* Remove extra dependencies from pyproject.toml. Starting from version 6, timezonefinder no longer provides optional extras, including the pytz extra.
+* Fix: invalid value encountered in divide ndvi = (NIR - Red)/(NIR + Red) in eddpr
+* Fix: Migrate project versioning to setuptools-git-versioning.
+
+0.3.0 (2025-11-15)
+------------------
+
 * eclimpr module added data publication workflow, improved anomaly coloring logic, fixed GeoServer style configuration used by edpu. 
 * ehipr module implemented epidemiological week generation using the *epiweeks* package
 * eddpr module changed the folder name for mosaic products

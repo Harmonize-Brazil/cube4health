@@ -37,6 +37,7 @@ from PIL import Image, ExifTags, TiffTags #required version >= 9.5
 from pathlib import Path
 import json
 import rasterio
+from rasterio.errors import RasterioIOError
 from pyproj import Transformer
 from datetime import datetime
 from types import SimpleNamespace
@@ -173,21 +174,33 @@ def get_flight_info(fname_out):
 
 
 def get_raster_info(raster_file):
-    with rasterio.open(raster_file) as img:
-        xmin, ymin, xmax, ymax = img.bounds
-        srid =  img.crs.to_epsg() #The coordinate reference system used by the asset data
-        if 'blockxsize' in img.profile:
-            chunck_x =  img.profile['blockxsize']
-            chunck_y =  img.profile['blockxsize']
-        else:
-            chunck_x =  0
-            chunck_y =  0
-        img_height = img.height
-        img_width = img.width        
-        pixel_sizex,pixel_sizey = img.res        
+    try:
+        with rasterio.open(raster_file) as img:
+            xmin, ymin, xmax, ymax = img.bounds
+            if img.crs is None:
+                raise ValueError("Raster has no CRS defined")
+            srid = img.crs.to_epsg() #The coordinate reference system used by the asset data
+            if srid is None:
+                raise ValueError("Unable to extract EPSG code from CRS")
+
+            # Block size (tiles)
+            profile = img.profile
+            chunck_x = profile.get("blockxsize", 0)
+            chunck_y = profile.get("blockysize", 0)
+            img_height = img.height
+            img_width = img.width        
+            pixel_sizex,pixel_sizey = img.res    
         
-        # Convert coords to WGS84
-        transformer = Transformer.from_crs(img.crs, "EPSG:4326")
+            # Convert coords to WGS84
+            transformer = Transformer.from_crs(
+                img.crs,
+                "EPSG:4326",
+                always_xy=True
+            )
+    except (RasterioIOError, ValueError, Exception) as e:
+        print(f"[WARNING] Skipping raster (invalid or corrupted): {raster_file}")
+        print(f"          Reason: {e}")
+        return None
         
     # Bounding box of the Item in the asset coordinate reference system (CRS) in native UTM projection    
     bbox = [xmin, ymin, xmax, ymax]
@@ -206,7 +219,7 @@ def get_raster_info(raster_file):
     # GeoJSON geometry object - The geometry coordinates for the polygon, projected to wgs84.
     geometry_wgs84 = bbox_wgs84_geo
 
-    return bbox_geo,geometry,bbox_wgs84_geo,geometry_wgs84,srid,chunck_x,chunck_y,img_height,img_width,round(pixel_sizex,6)
+    return (bbox_geo,geometry,bbox_wgs84_geo,geometry_wgs84,srid,chunck_x,chunck_y,img_height,img_width,round(pixel_sizex,6))
 
 
 def prepare_thumbnail_v4(filename_out,file_in,composition):    
@@ -422,7 +435,9 @@ def calc_ndvi(out_fname, fname):
         
         NIR = arr[bands['NIR'],...]
         Red = arr[bands['Red'],...]
-        ndvi = (NIR - Red)/(NIR + Red)
+        with np.errstate(divide='ignore', invalid='ignore'):
+           ndvi = (NIR - Red) / (NIR + Red)
+           ndvi[~np.isfinite(ndvi)] = np.nan
         ndvi = np.where((ndvi<-1.),-1.,ndvi) #remove outliers
         ndvi = np.where((ndvi>1.),1.,ndvi) #remove outliers
         ndvi[np.isnan(ndvi)] = -9999. # define nodata
@@ -488,8 +503,8 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
     #Inicializing items list:
     for key,value in collections_template.copy().items():
         collections_template[key]['items']  = []
-    
-    
+
+    bad_files = []    
     print('Processing flights...')
     for path in flights_path:
         mission = '_'.join([os.path.basename(Path(path).parent)[:-4], os.path.basename(Path(path))])
@@ -521,7 +536,12 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                     args = SimpleNamespace(drone_image=file, flight_height=flight_info['flight_height_m'], sensor_width=flight_info['sensor_width_mm'], raster_output=cog_file)
                     bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = drone_projection_warp(args)
                 else:
-                    bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = get_raster_info(cog_file)
+                    info = get_raster_info(cog_file)
+                    if info is None:
+                        bad_files.append(file)
+                        continue
+                    (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_) = info                        
+                    
                     # Check and create thumbnail:
                     f_thumb_out = cog_file.replace('.tif','.png')
                     if os.path.exists( f_thumb_out) != True:
@@ -600,7 +620,11 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
+            info = get_raster_info(file)
+            if info is None:
+                bad_files.append(file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info  
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_RGB.tif'
@@ -680,7 +704,11 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_Thermal_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_thermal_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
+            info = get_raster_info(file)
+            if info is None:
+                bad_files.append(file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info  
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_Thermal.tif'
@@ -766,7 +794,11 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_MS_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_multispectral_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
+            info = get_raster_info(file)
+            if info is None:
+                bad_files.append(file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info 
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_MS.tif'
@@ -851,7 +883,11 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_NDVI_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_ndvi_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
+            info = get_raster_info(file)
+            if info is None:
+                bad_files.append(file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info 
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_NDVI.tif'
@@ -965,7 +1001,11 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                             continue
                         continue
                 else:
-                    bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = get_raster_info(cog_file)
+                    info = get_raster_info(cog_file)
+                    if info is None:
+                        bad_files.append(file)
+                        continue
+                    (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_) = info 
                 
                 name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_MS_'+'_'.join(mission.split('_')[0:2]) \
                        +'_'+ date.replace('-','') + time.replace(':','')
@@ -1041,6 +1081,12 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                     "assets": assets
                                                                         })     
        
+    
+    if bad_files:
+        print("\nCorrupted files detected:")
+        for b in bad_files:
+            print(" -", b)
+        
     # Store JSON files to created catalogs of collections:
     for key,value in collections_template.items():
          if len(collections_template[key]['items']) > 0:

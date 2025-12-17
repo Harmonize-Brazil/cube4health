@@ -1,9 +1,11 @@
 [build-system]
-requires = ["setuptools (>=67,<70)", "wheel", "setuptools_scm"] # setuptools limited for use of pkg_resources API
+requires = ["setuptools (>=67,<70)", "wheel",  "setuptools-git-versioning>=2.0,<3", ] # setuptools limited for use of pkg_resources API
+
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cube4health"
+dynamic = ["version"]
 description = "Package cube4health is a data acquisition, processing, and publishing toolkit designed to streamline the integration of health, climate, and drone imagery data from Brazil and any other country adhering to standardized protocols. It enables the efficient handling of heterogeneous data sources into a unified structure, supporting scalable workflows for data ingestion, transformation, and dissemination."
 readme = "README.rst"
 authors = [
@@ -55,7 +57,7 @@ dependencies = [
   "geopy",
   "jsonpath_rw_ext",
   "pytz",
-  "timezonefinder[pytz]",
+  "timezonefinder",  
   "defusedxml",
   "opencv-python",
   "click",
@@ -109,9 +111,12 @@ dependencies = [
   "xyzservices"
 ]
 
-dynamic = ["version"]
-[tool.setuptools_scm]
-version_file = "src/cube4health/__init__.py"
+[tool.setuptools-git-versioning]
+enabled = true
+dev_template = "{tag}.dev{ccount}"
+dirty_template = "{tag}.dev{ccount}"
+
+
 
 # Extras Dependencies
 [project.optional-dependencies]

@@ -43,15 +43,15 @@ from geobr import (
 
 # custom libraries
 
-from .utils import (
+from cube4health.ehipr.utils import (
     chunk_list,
     shp_to_zip,
     check_date_format
 )
 
-from .lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
-from .db import save_data_db
-from .config import CPU_COUNT
+from cube4health.ehipr.lis import SPATIAL_AGG_LIS, create_LIS_boundaries_shp
+from cube4health.ehipr.db import save_data_db
+from cube4health.ehipr.config import CPU_COUNT
 
 from cube4health.edpu import (
     STAC,
@@ -994,7 +994,7 @@ def spatialize_data(indicators: List[str],
                             A dictionary of geometries for each unique code in the chunk.
                         """
                         cod_geometry_dict = {}
-                        for cod in tqdm(sorted(codes_chunk), desc="Cropping polygons...", leave=False):
+                        for cod in tqdm(sorted(codes_chunk), desc="Cropping polygons...", leave=False,  disable=True):
                             geometry = df_polygon.loc[df_polygon[grid_info['cod']] == cod, 'geometry'].iloc[0]
                             cod_geometry_dict[cod] = MultiPolygon([geometry]) if isinstance(geometry, Polygon) else geometry
                         return cod_geometry_dict
@@ -1180,8 +1180,11 @@ def spatialize_data(indicators: List[str],
                             else:
                                 temp_gdf.to_file(asset_path, driver=driver)
                                 if extension == '.shp':
-                                    asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
-                                                                                f"{extension}", ''))
+                                    zip_file = asset_path.replace(f"{filename_date}"\
+                                                                  f"{extension}", '')
+                                    asset_path = shp_to_zip(zip_file, zip_file)
+                                    # asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
+                                    #                                             f"{extension}", ''))
 
                     bbox = ','.join(list(gdf.total_bounds.astype('str')))
                     # CREATING THE STYLE FILE
