@@ -10,7 +10,7 @@ from cube4health.eclimpr.utils_bd import process_climate_postgres
 
 # vector data - all climate indicators
 def publish_climate_indicator_vector(
-    files_path, nginx_path, name_db, schema_db = "climate", host_db = "localhost", port_db = 5432, user_db = "postgres", overwrite = False, *, stac_service_url = "http://localhost:8080", stac_is_public = True, stac_roi = None, gs_url = "http://localhost:10190/geoserver", gs_workspace = "harmonize_climate", gs_username = "admin", gs_style_file = None, hostname = "localhost", ):
+    files_path, nginx_path, name_db, schema_db = "climate", host_db = "localhost", port_db = 5432, user_db = "postgres", overwrite_db = False, *, stac_service_url = "http://localhost:8080", stac_is_public = True, stac_roi = None, gs_url = "http://localhost:10190/geoserver", gs_workspace = "harmonize_climate", gs_username = "admin", gs_style_file = None, hostname = "localhost", ):
     """
     Publish a climate indicator dataset to PostgreSQL/PostGIS, GeoServer, and STAC.
 
@@ -35,7 +35,7 @@ def publish_climate_indicator_vector(
         PostgreSQL connection port.
     user_db : str, default="postgres"
         PostgreSQL username.
-    overwrite : bool, default=False
+    overwrite_db : bool, default=False
         If True, existing data will be replaced.
         If False, data will be appended.
     stac_service_url : str, default="http://localhost:8080"
@@ -85,7 +85,7 @@ def publish_climate_indicator_vector(
     ...     host_db="localhost",
     ...     port_db=5432,
     ...     user_db="postgres",
-    ...     overwrite=True,
+    ...     overwrite_db=True,
     ...     gs_username="admin",
     ...     gs_url="http://localhost:10190/geoserver",
     ...     gs_workspace = "harmonize_climate",
@@ -142,7 +142,7 @@ def publish_climate_indicator_vector(
         host_db=host_db,
         port_db=port_db,
         user_db=user_db,
-        overwrite=overwrite,
+        overwrite_db=overwrite_db,
     )
 
     # -------------------------
@@ -402,7 +402,7 @@ def publish_climate_indicator_vector(
 
 # raster data - temperature, precipitation and humidity
 def publish_climate_indicator_raster(
-    files_path, nginx_path, name_db, schema_db = "climate", host_db = "localhost", port_db = 5432, user_db = "postgres", overwrite = False, *, stac_service_url = "http://localhost:8080", stac_is_public = False, stac_roi = None, gs_url = "http://localhost:10190/geoserver", gs_workspace = "harmonize_climate", gs_username = "admin", gs_style_file = None, hostname = "localhost", ):
+    files_path, nginx_path, name_db, schema_db = "climate", host_db = "localhost", port_db = 5432, user_db = "postgres", overwrite_db = False, *, stac_service_url = "http://localhost:8080", stac_is_public = False, stac_roi = None, gs_url = "http://localhost:10190/geoserver", gs_workspace = "harmonize_climate", gs_username = "admin", gs_style_file = None, hostname = "localhost", ):
     """
     Publish a climate indicator dataset to PostgreSQL/PostGIS, GeoServer, and STAC.
 
@@ -427,7 +427,7 @@ def publish_climate_indicator_raster(
         PostgreSQL connection port.
     user_db : str, default="postgres"
         PostgreSQL username.
-    overwrite : bool, default=False
+    overwrite_db : bool, default=False
         If True, existing data will be replaced.
         If False, data will be appended.
     stac_service_url : str, default="http://localhost:8080"
@@ -477,7 +477,7 @@ def publish_climate_indicator_raster(
     ...     host_db="localhost",
     ...     port_db=5432,
     ...     user_db="postgres",
-    ...     overwrite=True,
+    ...     overwrite_db=True,
     ...     gs_username="admin",
     ...     gs_url="http://localhost:10190/geoserver",
     ...     gs_workspace = "harmonize_climate",
@@ -675,14 +675,14 @@ def publish_climate_indicator_raster(
         "port": str(port_db),
     }
 
-    # CLIENT
-    geo = GeoServer(
-        service_url=gs_url,
-        workspace=gs_workspace,
-        hostname=hostname,
-        username=gs_username,
-        db_settings=db_settings,
-    )
+    # # CLIENT
+    # geo = GeoServer(
+    #     service_url=gs_url,
+    #     workspace=gs_workspace,
+    #     hostname=hostname,
+    #     username=gs_username,
+    #     db_settings=db_settings,
+    # )
 
     # -------------------------
     # STAC PUBLISHING
@@ -696,7 +696,7 @@ def publish_climate_indicator_raster(
 
     new_informations = {
         "name": f"{gs_store}",
-        "title": f"{gs_name}",
+        "title": f"{gs_name}_ras",
         "description": description,
         "version": 1,
         "is_public": f"{str(stac_is_public).lower()}",
@@ -745,29 +745,29 @@ def publish_climate_indicator_raster(
     # -------------------------
     # CREATE datastore.properties IF NOT EXISTS
     # -------------------------
-    datastore_file = Path(local_items_path) / "datastore.properties"
-    if not datastore_file.exists():
-        datastore_file.write_text(
-            "type=ImageMosaic\n"
-            "reader=org.geotools.gce.imagemosaic.ImageMosaicReader\n"
-            "timeAttribute=ingestion\n"
-            "useExistingSchema=true\n"
-        )
-        print(f"datastore.properties created in {datastore_file}")
-    else:
-        print("datastore.properties already exists — jump creation")
+    # datastore_file = Path(local_items_path) / "datastore.properties"
+    # if not datastore_file.exists():
+    #     datastore_file.write_text(
+    #         "type=ImageMosaic\n"
+    #         "reader=org.geotools.gce.imagemosaic.ImageMosaicReader\n"
+    #         "timeAttribute=ingestion\n"
+    #         "useExistingSchema=true\n"
+    #     )
+    #     print(f"datastore.properties created in {datastore_file}")
+    # else:
+    #     print("datastore.properties already exists — jump creation")
 
-    # PUBLISHING INTO GEOSERVER 
-    geo.create_imagemosaic_store(
-        data=local_items_path,
-        layer_name=gs_store,
-        store_name=gs_store,
-        workspace=gs_workspace,
-        title=gs_store,
-        time_regex=regex,
-        style=style_file)
+    # # PUBLISHING INTO GEOSERVER 
+    # geo.create_imagemosaic_store(
+    #     data=local_items_path,
+    #     layer_name=gs_store,
+    #     store_name=gs_store,
+    #     workspace=gs_workspace,
+    #     title=gs_store,
+    #     time_regex=regex,
+    #     style=style_file)
 
-    print('Geoserver published done!')
+    # print('Geoserver published done!')
 
     return col_id
 
