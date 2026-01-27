@@ -134,16 +134,16 @@ def publish_climate_indicator_vector(
     # -------------------------
     # POSTGRES INSERTION
     # -------------------------
-    process_climate_postgres(
-        geojson_path=os.path.join(maindir,filename),
-        name_db=name_db,
-        table_new_db=filename,
-        schema_db=schema_db,
-        host_db=host_db,
-        port_db=port_db,
-        user_db=user_db,
-        overwrite_db=overwrite_db,
-    )
+    # process_climate_postgres(
+    #     geojson_path=os.path.join(maindir,filename),
+    #     name_db=name_db,
+    #     table_new_db=filename,
+    #     schema_db=schema_db,
+    #     host_db=host_db,
+    #     port_db=port_db,
+    #     user_db=user_db,
+    #     overwrite_db=overwrite_db,
+    # )
 
     # -------------------------
     # KEYWORD MAP
@@ -342,62 +342,64 @@ def publish_climate_indicator_vector(
     # -------------------------
     # STAC PUBLISHING
     # -------------------------
-    stac_service_url = stac_service_url.strip().rstrip("/")
+    # stac_service_url = stac_service_url.strip().rstrip("/")
     
-    asset_names = {
-        ".png": "thumbnail",
-        ".geojson": "geojson",
-        ".zip": "shapefile",
-    }
+    # asset_names = {
+    #     ".png": "thumbnail",
+    #     ".geojson": "geojson",
+    #     ".zip": "shapefile",
+    # }
 
-    new_informations = {
-        "name": f"{gs_store}",
-        "title": f"{gs_name}",
-        "description": description,
-        "version": 1,
-        "is_public": f"{str(stac_is_public).lower()}",
-        "metadata": {
-            "wms": {
-                "url": f"{gs_url}/{gs_workspace}/wms",
-                "layerName": f"{gs_workspace}:{gs_store}",
-            },
-            "sources": [{
-                "name": f"{gs_store}",
-                "stacUri": f"{stac_service_url}/collections/{gs_store}-1",
-                "descriptionUri": "null",
-            }],
-            "datacite": {
-                "id": f"{gs_store}",
-                "dates": [{"date": "2025"}],
-                "titles": {"lang": "en", "title": f"{gs_store}"},
-                "subjects": [
-                    {"lang": "en", "subject": stac_keywords[k]} for k in stac_keywords
-                ],
-                "descriptions": [{
-                    "lang": "en",
-                    "description": description,
-                    "descriptionType": "Abstract",
-                }],
-            },
-        },
-        "keywords": [{"lang": "en", "subject": stac_keywords[k]} for k in stac_keywords],
-    }
+    # new_informations = {
+    #     "name": f"{gs_store}",
+    #     "title": f"{gs_name}",
+    #     "description": description,
+    #     "version": 1,
+    #     "is_public": f"{str(stac_is_public).lower()}",
+    #     "metadata": {
+    #         "wms": {
+    #             "url": f"{gs_url}/{gs_workspace}/wms",
+    #             "layerName": f"{gs_workspace}:{gs_store}",
+    #         },
+    #         "sources": [{
+    #             "name": f"{gs_store}",
+    #             "stacUri": f"{stac_service_url}/collections/{gs_store}-1",
+    #             "descriptionUri": "null",
+    #         }],
+    #         "datacite": {
+    #             "id": f"{gs_store}",
+    #             "dates": [{"date": "2025"}],
+    #             "titles": {"lang": "en", "title": f"{gs_store}"},
+    #             "subjects": [
+    #                 {"lang": "en", "subject": stac_keywords[k]} for k in stac_keywords
+    #             ],
+    #             "descriptions": [{
+    #                 "lang": "en",
+    #                 "description": description,
+    #                 "descriptionType": "Abstract",
+    #             }],
+    #         },
+    #     },
+    #     "keywords": [{"lang": "en", "subject": stac_keywords[k]} for k in stac_keywords],
+    # }
 
-    stac_client = stac_mod.STAC(service_url=stac_service_url, hostname=hostname)
+    # stac_client = stac_mod.STAC(service_url=stac_service_url, hostname=hostname)
 
-    col_id = stac_client.publish_collection(
-        data=new_informations,
-        template="climate",
-        items_path=local_items_path,
-        #additional_path='dev', # comment when run in localhost
-        asset_names=asset_names,
-        root_data_path=local_root_path,
-        del_output_file=False,
-        workspace=gs_workspace,
-    )
+    # col_id = stac_client.publish_collection(
+    #     data=new_informations,
+    #     template="climate",
+    #     items_path=local_items_path,
+    #     #additional_path='dev', # comment when run in localhost
+    #     asset_names=asset_names,
+    #     root_data_path=local_root_path,
+    #     del_output_file=False,
+    #     workspace=gs_workspace,
+    # )
 
-    print("Collection id:", col_id)
-    return col_id
+    # print("Collection id:", col_id)
+    # return col_id
+    print("Geoserver published data:", filename)
+    
 
 
 # raster data - temperature, precipitation and humidity
