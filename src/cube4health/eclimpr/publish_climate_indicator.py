@@ -10,7 +10,7 @@ from cube4health.eclimpr.utils_bd import process_climate_postgres
 
 # vector data - all climate indicators
 def publish_climate_indicator_vector(
-    files_path, nginx_path, name_db, schema_db = "climate", host_db = "localhost", port_db = 5432, user_db = "postgres", overwrite_db = False, *, stac_service_url = "http://localhost:8080", stac_is_public = True, stac_roi = None, gs_url = "http://localhost:10190/geoserver", gs_workspace = "harmonize_climate", gs_username = "admin", gs_style_file = None, hostname = "localhost", ):
+    files_path, name_db, schema_db = "climate", host_db = "localhost", port_db = 5432, user_db = "postgres", overwrite_db = False, *, stac_service_url = "http://localhost:8080", stac_is_public = True, stac_roi = None, gs_url = "http://localhost:10190/geoserver", gs_workspace = "harmonize_climate", gs_username = "admin", gs_style_file = None, hostname = "localhost", ):
     """
     Publish a climate indicator dataset to PostgreSQL/PostGIS, GeoServer, and STAC.
 
@@ -59,7 +59,7 @@ def publish_climate_indicator_vector(
     Raises
     ------
     ValueError
-        If `files_path`, `nginx_path` and `name_db` is not provided.
+        If `files_path` and `name_db` is not provided.
     FileNotFoundError
         If the required SLD style file is not found.
 
@@ -103,23 +103,23 @@ def publish_climate_indicator_vector(
     # -------------------------
     # PATH NORMALIZATION
     # -------------------------
-    if not files_path or not name_db or not nginx_path:
+    if not files_path or not name_db: # or not nginx_path:
         raise ValueError("Parameters 'files_path', 'nginx_path' and 'name_db' are required.")
 
     # Check if main_dir exists (input data directory)
     if not os.path.exists(files_path):
         raise FileNotFoundError(f"Input directory '{files_path}' does not exist.")
     
-    # Check if nginx_path exists (input data directory)
-    if not os.path.exists(nginx_path):
-        raise FileNotFoundError(f"Input directory '{nginx_path}' does not exist.")
+    # # Check if nginx_path exists (input data directory)
+    # if not os.path.exists(nginx_path):
+    #     raise FileNotFoundError(f"Input directory '{nginx_path}' does not exist.")
     
     files_path = files_path.strip().rstrip("/")
     filename = os.path.basename(files_path)
     maindir = os.path.dirname(files_path)
     name_lower = filename.lower()
     # Root of published data on host/local nginx
-    local_root_path=nginx_path
+    #local_root_path=nginx_path
 
     local_items_path = os.path.join(
         maindir, 
