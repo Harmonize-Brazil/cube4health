@@ -15,7 +15,7 @@ from shapely.wkb import dumps as wkb_dumps
 from .. import config #cube4health global variables 
 
 
-def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db=None, overwrite=False):
+def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db="climate", host_db="localhost", port_db=5432, user_db="postgres", pass_db=None, overwrite_db=False):
     """
     Populate a PostgreSQL/PostGIS table from GeoJSON files with temporal and spatial aggregation.
 
@@ -42,7 +42,7 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
         Password for the PostgreSQL database.
         If not provided, the function will prompt the user to enter it securely.
         Default is None.
-    overwrite : bool, optional
+    overwrite_db : bool, optional
         If True, clears the table before insertion, replacing existing data.
         If False, appends new data without removing existing records. Default is False.
 
@@ -79,7 +79,7 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
     ...     port_db=5432,
     ...     user_db="postgres",
     ...     pass_db="postgres",
-    ...     overwrite=True
+    ...     overwrite_db=True
     ... )
     """
 
@@ -181,8 +181,8 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
 
         connection.execute(text(create_query))
 
-        # Clear existing data, only if overwrite=True
-        if overwrite:
+        # Clear existing data, only if overwrite_db=True
+        if overwrite_db:
             print(f"\nATTENTION: clearing table {schema_db}.{table_new_db} ...\n")
             connection.execute(text(f"DELETE FROM {schema_db}.{table_new_db};"))
 
