@@ -154,13 +154,14 @@ def process_climate_postgres(geojson_path, name_db, table_new_db=None, schema_db
         if temporal_unit == "epiweek":
             temporal_fields = """
                 epiweek_number VARCHAR(2) NOT NULL,
-                epiweek_start_date TIMESTAMP NOT NULL,
+                epiweek_start_date DATE NOT NULL,
             """
         elif temporal_unit == "month":
             temporal_fields = """
                 month_number VARCHAR(2) NOT NULL,
-                month_start_date TIMESTAMP NOT NULL,
+                month_start_date DATE NOT NULL, 
             """
+        # month_start_date TIMESTAMP WITH TIME ZONE NOT NULL 
 
         # Create table
         create_query = f"""
