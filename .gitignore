@@ -184,4 +184,5 @@ src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.
 src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.shp
 src/cube4health/ehipr/shp_malhas/default_grid/municipality/BR_municipality_2022.shx
 
-drone.py
+# EDDPR module
+src/cube4health/eddpr/output

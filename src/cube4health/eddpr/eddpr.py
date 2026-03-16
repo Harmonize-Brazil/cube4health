@@ -37,6 +37,7 @@ from PIL import Image, ExifTags, TiffTags #required version >= 9.5
 from pathlib import Path
 import json
 import rasterio
+from rasterio.errors import RasterioIOError
 from pyproj import Transformer
 from datetime import datetime
 from types import SimpleNamespace
@@ -47,6 +48,7 @@ from osgeo import osr, gdal
 from timezonefinder import TimezoneFinder
 from pytz import timezone, utc
 from multiprocessing import cpu_count
+import psutil
 from tqdm import tqdm
 import tempfile
 from argparse import ArgumentParser, SUPPRESS
@@ -64,6 +66,8 @@ local_path = os.path.dirname(os.path.abspath(__file__))
 gdal.UseExceptions()  # this allows GDAL to throw Python Exceptions
 Image.MAX_IMAGE_PIXELS = None #to prevent the problem of size image
 num_workers = int(cpu_count() - (cpu_count() * 0.20)) # using about 80% of cores
+total_ram_mb = psutil.virtual_memory().total // (1024 * 1024)
+warp_memory_limit = int(total_ram_mb * 0.4)
 tf = TimezoneFinder()  # reuse
 bands_name = {'NIR':'NIR', 'RE':'RED EDGE', 'R':'RED','G':'GREEN','NDVI':'NDVI'}
 template_view = ['R','NIR','G']
@@ -172,22 +176,141 @@ def get_flight_info(fname_out):
     return flight_info
 
 
-def get_raster_info(raster_file):
-    with rasterio.open(raster_file) as img:
-        xmin, ymin, xmax, ymax = img.bounds
-        srid =  img.crs.to_epsg() #The coordinate reference system used by the asset data
-        if 'blockxsize' in img.profile:
-            chunck_x =  img.profile['blockxsize']
-            chunck_y =  img.profile['blockxsize']
-        else:
-            chunck_x =  0
-            chunck_y =  0
-        img_height = img.height
-        img_width = img.width        
-        pixel_sizex,pixel_sizey = img.res        
+def is_raster_valid(raster_file):
+    """
+    Check whether a raster file is readable and not corrupted.
+
+    This function attempts to open a raster dataset using Rasterio and forces
+    a minimal read operation to trigger potential GDAL/libtiff errors. It is
+    intended to detect corrupted or unreadable raster files (e.g., broken
+    GeoTIFFs) before further processing.
+
+    :param raster_file: Path to the raster file to be validated.
+                        The file must be readable by GDAL/Rasterio.
+    :type raster_file: str or pathlib.Path
+
+    :returns: ``True`` if the raster is readable and not corrupted;
+              ``False`` otherwise.
+    :rtype: bool
+
+    :note:
+        - A minimal window read is used to force I/O and expose internal
+          corruption that may not be detected by simply opening the file.
+        - All exceptions (including ``RasterioIOError``) are handled internally
+          to prevent pipeline interruption.
+        - This function does not validate CRS, number of bands, or data type;
+          it only checks raster readability.
+
+    Examples::
+
+        if not is_raster_valid("mosaic_MS.tif"):
+            print("Skipping corrupted raster")
+    """
+    try:
+        with rasterio.open(raster_file) as src:
+            # Force minimal I/O to trigger GDAL errors
+            src.read(1, window=((0, 1), (0, 1)))
+        return True
+
+    except (RasterioIOError, Exception) as e:
+        print(f"[INVALID RASTER] {raster_file}")
+        print(f"                 Reason: {e}")
+        return False
         
-        # Convert coords to WGS84
-        transformer = Transformer.from_crs(img.crs, "EPSG:4326")
+
+def get_raster_info(raster_file):
+    """
+    Extract spatial metadata and footprint information from a raster file.
+
+    This function opens a raster dataset using Rasterio and retrieves spatial
+    extent, CRS information, tiling configuration, image dimensions, pixel
+    resolution (GSD), and geographic footprint in both the native CRS and WGS84.
+
+    If the raster is corrupted, unreadable, or lacks valid spatial reference
+    information, the function returns ``None`` instead of raising an exception.
+
+    :param raster_file: Path to the raster file (e.g., GeoTIFF). The raster must
+                        be readable by GDAL/Rasterio and contain a valid CRS
+                        with an EPSG code.
+    :type raster_file: str or pathlib.Path
+
+    :returns: A tuple with raster spatial metadata and geometries, or ``None``
+              if the raster cannot be opened or is invalid.
+    :rtype: tuple or None
+
+    :return bbox_geo: GeoJSON Polygon representing the bounding box of the raster
+                      in its native coordinate reference system (CRS).
+    :rtype bbox_geo: dict
+
+    :return geometry: GeoJSON geometry object identical to ``bbox_geo``,
+                      representing the raster footprint in the native CRS.
+    :rtype geometry: dict
+
+    :return bbox_wgs84_geo: GeoJSON Polygon representing the bounding box of the
+                            raster projected to WGS84 (EPSG:4326).
+    :rtype bbox_wgs84_geo: dict
+
+    :return geometry_wgs84: GeoJSON geometry object identical to
+                            ``bbox_wgs84_geo``, representing the raster
+                            footprint in WGS84.
+    :rtype geometry_wgs84: dict
+
+    :return srid: EPSG code of the raster coordinate reference system.
+    :rtype srid: int
+
+    :return chunck_x: Tile width (``blockxsize``) of the raster. Returns ``0``
+                      if the raster is not tiled.
+    :rtype chunck_x: int
+
+    :return chunck_y: Tile height (``blockysize``) of the raster. Returns ``0``
+                      if the raster is not tiled.
+    :rtype chunck_y: int
+
+    :return img_height: Number of rows (height) of the raster in pixels.
+    :rtype img_height: int
+
+    :return img_width: Number of columns (width) of the raster in pixels.
+    :rtype img_width: int
+
+    :return GSD: Ground Sampling Distance (pixel size) in map units, rounded to
+                 six decimal places.
+    :rtype GSD: float
+
+    :note:
+        - All exceptions (including ``RasterioIOError``) are handled internally
+          to prevent pipeline interruption.
+        - The WGS84 transformation uses ``pyproj.Transformer`` with
+          ``always_xy=True`` to ensure consistent longitude/latitude axis order.
+        - Only the X pixel resolution is returned as GSD; Y resolution is assumed
+          to be equivalent for square pixels.
+    """
+    try:
+        with rasterio.open(raster_file) as img:
+            xmin, ymin, xmax, ymax = img.bounds
+            if img.crs is None:
+                raise ValueError("Raster has no CRS defined")
+            srid = img.crs.to_epsg() #The coordinate reference system used by the asset data
+            if srid is None:
+                raise ValueError("Unable to extract EPSG code from CRS")
+
+            # Block size (tiles)
+            profile = img.profile
+            chunck_x = profile.get("blockxsize", 0)
+            chunck_y = profile.get("blockysize", 0)
+            img_height = img.height
+            img_width = img.width        
+            pixel_sizex,pixel_sizey = img.res    
+        
+            # Convert coords to WGS84
+            transformer = Transformer.from_crs(
+                img.crs,
+                "EPSG:4326",
+                always_xy=True
+            )
+    except (RasterioIOError, ValueError, Exception) as e:
+        print(f"[WARNING] Skipping raster (invalid or corrupted): {raster_file}")
+        print(f"          Reason: {e}")
+        return None
         
     # Bounding box of the Item in the asset coordinate reference system (CRS) in native UTM projection    
     bbox = [xmin, ymin, xmax, ymax]
@@ -196,17 +319,31 @@ def get_raster_info(raster_file):
     # GeoJSON geometry object - Defines the footprint of this Item in native UTM projection
     geometry = bbox_geo
 
-    ul_y_x = transformer.transform(xmin,ymax)
-    lr_y_x = transformer.transform(xmax,ymin)
+    ul_lon, ul_lat = transformer.transform(xmin, ymax)
+    lr_lon, lr_lat = transformer.transform(xmax, ymin)
 
     # The bounding box coordinates for the item, projected to wgs84
-    bbox_wgs84 = [min(ul_y_x[1],lr_y_x[1]),min(ul_y_x[0],lr_y_x[0]),max(ul_y_x[1],lr_y_x[1]),max(ul_y_x[0],lr_y_x[0])]
-    bbox_wgs84_geo = {"type":"Polygon","coordinates":[[[bbox_wgs84[0],bbox_wgs84[1]], [bbox_wgs84[2],bbox_wgs84[1]], [bbox_wgs84[2],bbox_wgs84[3]], [bbox_wgs84[0],bbox_wgs84[3]], [bbox_wgs84[0],bbox_wgs84[1]]]]}
+    bbox_wgs84 = [
+        min(ul_lon, lr_lon),  # min lon
+        min(ul_lat, lr_lat),  # min lat
+        max(ul_lon, lr_lon),  # max lon
+        max(ul_lat, lr_lat)   # max lat
+        ]
+    bbox_wgs84_geo = {
+        "type": "Polygon",
+        "coordinates": [[
+            [bbox_wgs84[0], bbox_wgs84[1]],
+            [bbox_wgs84[2], bbox_wgs84[1]],
+            [bbox_wgs84[2], bbox_wgs84[3]],
+            [bbox_wgs84[0], bbox_wgs84[3]],
+            [bbox_wgs84[0], bbox_wgs84[1]]
+            ]]
+        }
 
     # GeoJSON geometry object - The geometry coordinates for the polygon, projected to wgs84.
     geometry_wgs84 = bbox_wgs84_geo
 
-    return bbox_geo,geometry,bbox_wgs84_geo,geometry_wgs84,srid,chunck_x,chunck_y,img_height,img_width,round(pixel_sizex,6)
+    return (bbox_geo,geometry,bbox_wgs84_geo,geometry_wgs84,srid,chunck_x,chunck_y,img_height,img_width,round(pixel_sizex,6))
 
 
 def prepare_thumbnail_v4(filename_out,file_in,composition):    
@@ -314,93 +451,113 @@ def get_local_utc(exif_info):
 def get_raster_nodata(fname):
     if os.path.exists(fname):
         src_ds = gdal.Open(str(fname), gdal.GA_ReadOnly)
-
-        arr = src_ds.ReadAsArray()
+        
         global nodata
         nodata = src_ds.GetRasterBand(1).GetNoDataValue()
-        if nodata == None:
-            if len(arr.shape) > 2:
-                nodata = int(arr[0,0,0])
-            else:
-                nodata = int(arr[0,0])
-        del arr    
-
-        
-# This function convert raster to COG using a global CRS        
-def write_cogtiff_v2(fname, out_fname,type=None):
-    """ Convert the Geotiff to COG using gdal
-        TILED <boolean>: Switch to tiled format
-        COPY_SRC_OVERVIEWS <boolean>: Force copy of overviews of source dataset
-        COMPRESS=[NONE/DEFLATE]: Set the compression to use.
-
-        Note: The output file uses EPSG:3395 - WGS 84/World Mercator is global coordinate system with unit in meters. Source: https://epsg.io/3395
-    """
-
-    # Set up transformers, EPSG:3395 is metric
-    crs_dst = 'EPSG:3395'
-
-    block_size_output = 256 #Sets the tile width and height in pixels. Must be divisible by 16. https://gdal.org/drivers/raster/cog.html#general-creation-options
-
-    # Create a COG file:
-    if os.path.exists(out_fname) == False:
-        src_ds = gdal.Open(str(fname), gdal.GA_ReadOnly)
-
-        alpha_channel = False
-        arr = src_ds.ReadAsArray()
-        if type == 'RGB' and len(arr.shape) == 3 and arr.shape[0] > 3:
-            alpha_channel = True
-            # Create temporary filename
-            fd, dst_filename = tempfile.mkstemp(suffix='.tif')
-            print('Removing alpha channel...')
-            gdal.Translate(dst_filename,str(fname), options="-b 1 -b 2 -b 3 -r NEAREST -co NUM_THREADS="+str(num_workers))
-        elif type == 'MS' and len(arr.shape) == 3 and arr.shape[0] > 4:
-            alpha_channel = True
-            # Create temporary filename
-            fd, dst_filename = tempfile.mkstemp(suffix='.tif')
-            print('Removing alpha channel...')
-            gdal.Translate(dst_filename,str(fname), options="-b 1 -b 2 -b 3 -b 4 -r NEAREST -co NUM_THREADS="+str(num_workers))
-
-        global nodata
-        nodata = src_ds.GetRasterBand(1).GetNoDataValue()
-        if nodata == None:
-            if len(arr.shape) > 3:
-                nodata = arr[0,0,0,0]
-            elif len(arr.shape) > 2:
-                nodata = int(arr[0,0,0])
-            else:
-                nodata = int(arr[0,0])
-        del arr
-        
-        # Once we're done, close properly the dataset
-        del src_ds
-        
-        # Convert to world reference system:
-        # https://gdal.org/drivers/raster/cog.html#raster-cog
-        # https://erouault.blogspot.com/2014/10/warping-overviews-and-warped-overviews.html
-        # -t_srs - Set target spatial reference, -srcnodata, -nosrcalpha - Prevent the alpha band of a source image to be considered as such (it will be warped as a regular band)
-        print('Creating COG file...')
-        if alpha_channel:
-            if type == 'RGB':
-                gdal.Warp(out_fname, dst_filename,
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -ot Byte  -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
-            elif type == 'MS':
-                gdal.Warp(out_fname, dst_filename,
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
-
-            os.remove(dst_filename)    #delete temporary file        
-        else:
-            if type == 'RGB' or 'Thermal':
-                gdal.Warp(out_fname, str(fname),
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -ot Byte  -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
-            elif type == 'MS':
-                gdal.Warp(out_fname, str(fname),
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -srcnodata "+str(nodata)+" -dstnodata 0 -t_srs "+ crs_dst +"-oo OVERVIEW_LEVEL=5 -co BLOCKSIZE="+str(block_size_output)+" -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
+        if nodata is None:
+            band1 = src_ds.GetRasterBand(1)
+            val = band1.ReadAsArray(0, 0, 1, 1)[0, 0]
+            nodata = int(val) if np.issubdtype(type(val), np.integer) else float(val)
            
 
-def calc_ndvi(out_fname, fname):
-    """ 
-    Calculate NDVI from multispectral mosaic and save to COG file
+def write_cogtiff_v2(fname, out_fname, product_type=None):
+    """
+    Convert GeoTIFF to Cloud Optimized GeoTIFF (COG) with embedded statistics.
 
+    :param out_fname: filename output with mission and data identification.
+    :type out_fname: String
+
+    :param fname: input raster.
+    :type fname: String
+
+    Note: The output file uses EPSG:3395 - WGS 84/World Mercator is global coordinate system with unit in meters. Source: https://epsg.io/3395
+    """
+    crs_dst = "EPSG:3395"
+    block_size_output = 256 #Sets the tile width and height in pixels. Must be divisible by 16. https://gdal.org/drivers/raster/cog.html#general-creation-options
+
+    if os.path.exists(out_fname):
+        return
+
+    # Open source dataset
+    src_ds = gdal.Open(str(fname), gdal.GA_ReadOnly)
+    if src_ds is None:
+        raise RuntimeError("Failed to open source dataset")
+
+    band_count = src_ds.RasterCount
+
+    # Remove alpha channel
+    work_ds = src_ds
+    tmp_file = None
+
+    if product_type == "RGB" and band_count > 3:
+        fd, tmp_file = tempfile.mkstemp(suffix=".tif")
+        os.close(fd)
+        print('Removing alpha channel...')
+        gdal.Translate(tmp_file, src_ds, bandList=[1, 2, 3])
+        work_ds = gdal.Open(tmp_file)
+
+    elif product_type == "MS" and band_count > 4:
+        fd, tmp_file = tempfile.mkstemp(suffix=".tif")
+        os.close(fd)
+        print('Removing alpha channel...')
+        gdal.Translate(tmp_file, src_ds, bandList=[1, 2, 3, 4])
+        work_ds = gdal.Open(tmp_file)
+
+    #  Define NoData
+    global nodata
+    nodata = work_ds.GetRasterBand(1).GetNoDataValue()
+    if nodata is None:
+        band1 = work_ds.GetRasterBand(1)
+        val = band1.ReadAsArray(0, 0, 1, 1)[0, 0]
+        nodata = int(val) if np.issubdtype(type(val), np.integer) else float(val)
+
+    # Calc stats
+    for i in range(1, work_ds.RasterCount + 1):
+        band = work_ds.GetRasterBand(i)
+        band.SetNoDataValue(nodata)
+        band.ComputeStatistics(False)  # avoid sampled stats
+        band.FlushCache()
+
+    # Create COG file
+    print("Creating COG file with embedded statistics...")
+
+    warp_kwargs = dict(
+        format="COG",
+        multithread=True,
+        warpMemoryLimit=0.8,
+        srcNodata=nodata,
+        dstNodata=0,
+        dstSRS=crs_dst,
+        resampleAlg="NEAREST",
+        creationOptions=[
+            f"BLOCKSIZE={block_size_output}",
+            "COMPRESS=DEFLATE",
+            "BIGTIFF=IF_SAFER",
+            "STATISTICS=YES",
+            "OVERVIEWS=IGNORE_EXISTING",
+            "NUM_THREADS="+str(num_workers),
+        ],
+    )
+
+    if product_type == "RGB":
+        warp_kwargs["outputType"] = gdal.GDT_Byte
+
+    warp_options = gdal.WarpOptions(**warp_kwargs)
+    gdal.Warp(out_fname, work_ds, options=warp_options)
+
+    # Cleanup
+    work_ds = None
+    src_ds = None
+
+    if tmp_file and os.path.exists(tmp_file):
+        os.remove(tmp_file)
+
+
+def calc_ndvi(out_fname, fname):
+    """
+    Calculate NDVI from multispectral mosaic and save to COG file
+    with embedded statistics.
+    
     :param out_fname: filename output with mission and data identification.
     :type out_fname: String
 
@@ -411,55 +568,96 @@ def calc_ndvi(out_fname, fname):
     """
 
     # Set up transformers, EPSG:3395 is metric
-    crs_dst = 'EPSG:3395'
+    crs_dst = "EPSG:3395"
+    nodata = -9999.0
 
-    # Create a COG file:
-    if os.path.exists(out_fname) == False:
-        src_ds = gdal.Open(str(fname), gdal.GA_ReadOnly)
-        arr = src_ds.ReadAsArray()
+    if os.path.exists(out_fname):
+        return
 
-        bands = {src_ds.GetRasterBand(i).GetDescription(): i for i in range(1, src_ds.RasterCount + 1)}
-        
-        NIR = arr[bands['NIR'],...]
-        Red = arr[bands['Red'],...]
-        with np.errstate(divide='ignore', invalid='ignore'):
-           ndvi = (NIR - Red) / (NIR + Red)
-           ndvi[~np.isfinite(ndvi)] = np.nan
-        ndvi = np.where((ndvi<-1.),-1.,ndvi) #remove outliers
-        ndvi = np.where((ndvi>1.),1.,ndvi) #remove outliers
-        ndvi[np.isnan(ndvi)] = -9999. # define nodata
+    # Open source
+    src_ds = gdal.Open(str(fname), gdal.GA_ReadOnly)
+    if src_ds is None:
+        raise RuntimeError(f"Cannot open source raster: {fname}")
 
-        driver = gdal.GetDriverByName('MEM') #To avoid error of overview creation
-        dst_ds = driver.Create('', xsize=src_ds.RasterXSize, ysize=src_ds.RasterYSize,
-                            bands=1, eType=gdal.GDT_Float32)
+    # Map band descriptions -> band index (0-based)
+    bands = {
+        src_ds.GetRasterBand(i).GetDescription(): i - 1
+        for i in range(1, src_ds.RasterCount + 1)
+    }
 
-        #In case of north up images, the GT(2) and GT(4) coefficients are zero,
-        #and the GT(1) is pixel width, and GT(5) is pixel height. 
-        #The (GT(0),GT(3)) position is the top left corner of the top left pixel of the raster.
+    if "NIR" not in bands or "Red" not in bands:
+        raise ValueError("Source raster must contain 'NIR' and 'Red' bands")
 
-        dst_ds.SetGeoTransform(src_ds.GetGeoTransform())
-        dst_ds.SetProjection(src_ds.GetProjection())
+    # Read only required bands (memory-safe)
+    nir = src_ds.GetRasterBand(bands["NIR"] + 1).ReadAsArray().astype(np.float32)
+    red = src_ds.GetRasterBand(bands["Red"] + 1).ReadAsArray().astype(np.float32)
 
-        band = dst_ds.GetRasterBand(1)
-        band.WriteArray(ndvi)
-        band.SetDescription("NDVI") # This sets the band name!
-        band.SetNoDataValue(-9999.)
-        band.FlushCache()
-        del band
+    # NDVI calculation
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ndvi = (nir - red) / (nir + red)
 
-        # Resampling	one of "AVERAGE", "AVERAGE_MAGPHASE", "RMS", "BILINEAR", "CUBIC", "CUBICSPLINE", "GAUSS", 
-        # "LANCZOS", "MODE", "NEAREST", or "NONE" controlling the downsampling method applied     
-        dst_ds.BuildOverviews("NEAREST", [2, 4, 8, 16, 32])
+    ndvi = np.clip(ndvi, -1.0, 1.0)
+    ndvi[~np.isfinite(ndvi)] = nodata
 
+    # ------------------------------------------------------------------
+    # Create temporary GeoTIFF (bridge)
+    # ------------------------------------------------------------------
+    fd, tmp_tif = tempfile.mkstemp(suffix=".tif")
+    os.close(fd)
 
-        gdal.Warp(out_fname, dst_ds,
-                options="-overwrite -multi -wm 80%  -of COG -r NEAREST -t_srs "+ crs_dst +"-co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER -wo OPTIMIZE_SIZE=TRUE -co NUM_THREADS="+str(num_workers))
-        
-        # Once we're done, close properly the dataset
-        src_ds.FlushCache()
-        del src_ds
-        dst_ds.FlushCache()
-        del dst_ds
+    gtiff_driver = gdal.GetDriverByName("GTiff")
+    tmp_ds = gtiff_driver.Create(
+        tmp_tif,
+        src_ds.RasterXSize,
+        src_ds.RasterYSize,
+        1,
+        gdal.GDT_Float32,
+        options=[
+            "TILED=YES",
+            "BLOCKXSIZE=512",
+            "BLOCKYSIZE=512",
+            "COMPRESS=DEFLATE",
+        ],
+    )
+
+    tmp_ds.SetGeoTransform(src_ds.GetGeoTransform())
+    tmp_ds.SetProjection(src_ds.GetProjection())
+
+    band = tmp_ds.GetRasterBand(1)
+    band.WriteArray(ndvi)
+    band.SetDescription("NDVI")
+    band.SetNoDataValue(nodata)
+
+    # Compute statistics (will be embedded in COG)
+    band.ComputeStatistics(False) # avoid sampled stats
+
+    band.FlushCache()
+    tmp_ds.FlushCache()
+
+    # IMPORTANT: close datasets before Warp
+    band = None
+    tmp_ds = None
+    src_ds = None
+
+    # Write final COG (statistics preserved)
+    warp_options = gdal.WarpOptions(
+        format="COG",
+        dstSRS=crs_dst,
+        resampleAlg="NEAREST",
+        multithread=True,
+        warpMemoryLimit=warp_memory_limit, 
+        creationOptions=[
+            "COMPRESS=DEFLATE",
+            "BIGTIFF=IF_SAFER",
+            "STATISTICS=YES",
+            "OVERVIEWS=IGNORE_EXISTING",
+        ],
+    )
+
+    gdal.Warp(out_fname, tmp_tif, options=warp_options)
+
+    # Cleanup
+    os.remove(tmp_tif)
 
 
 def process_flights(flights_path,collections_template,catalog_path,prefix_geoserver_data, publish):
@@ -487,11 +685,11 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
     """
     flights_path = sorted(flights_path)
 
-    #Inicializing items list:
+    #Initializing items list:
     for key,value in collections_template.copy().items():
         collections_template[key]['items']  = []
-    
-    
+
+    bad_files = []    
     print('Processing flights...')
     for path in flights_path:
         mission = '_'.join([os.path.basename(Path(path).parent)[:-4], os.path.basename(Path(path))])
@@ -523,7 +721,12 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                     args = SimpleNamespace(drone_image=file, flight_height=flight_info['flight_height_m'], sensor_width=flight_info['sensor_width_mm'], raster_output=cog_file)
                     bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = drone_projection_warp(args)
                 else:
-                    bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = get_raster_info(cog_file)
+                    info = get_raster_info(cog_file)
+                    if info is None:
+                        bad_files.append(cog_file)
+                        continue
+                    (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_) = info                        
+                    
                     # Check and create thumbnail:
                     f_thumb_out = cog_file.replace('.tif','.png')
                     if os.path.exists( f_thumb_out) != True:
@@ -586,6 +789,10 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
         list_of_files = [str(file) for file in list(Path(os.path.join(path,'Mosaics')).rglob('*.tif')) if '_MS' not in str(file) and '_T.tif' not in str(file)]
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='RGB Mosaic '+mission,total=len(list_of_files)):
+            if not is_raster_valid(file):
+                bad_files.append(file)
+                continue
+                
             fname_json = os.path.join(os.path.dirname(file),'info.json')
             if os.path.exists(fname_json):
                 with open(fname_json,'r') as f_json:
@@ -602,7 +809,6 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_RGB.tif'
@@ -611,8 +817,14 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             if os.path.exists(tiff_file) != True:
                 os.makedirs(os.path.dirname(tiff_file), exist_ok=True)
                 print('Coverting mosaic GeoTIFF to COG file...')
-                write_cogtiff_v2(file,tiff_file,type='RGB')
+                write_cogtiff_v2(file,tiff_file,product_type='RGB')
                 print('The conversion to the COG file was finished!')
+
+            info = get_raster_info(tiff_file)
+            if info is None:
+                bad_files.append(tiff_file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info  
 
             #Create thumbnail
             f_out = tiff_file.replace('.tif','.png')
@@ -666,6 +878,10 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
         list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_T.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Thermal Mosaic '+mission,total=len(list_of_files)):
+            if not is_raster_valid(file):
+                bad_files.append(file)
+                continue
+                
             fname_json = os.path.join(os.path.dirname(file),'info_t.json')
             if os.path.exists(fname_json):
                 with open(fname_json,'r') as f_json:
@@ -682,7 +898,6 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_Thermal_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_thermal_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_Thermal.tif'
@@ -691,8 +906,14 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             if os.path.exists(tiff_file) != True:
                 os.makedirs(os.path.dirname(tiff_file), exist_ok=True)
                 print('Coverting mosaic GeoTIFF to COG file...')
-                write_cogtiff_v2(file,tiff_file,type='Thermal')
+                write_cogtiff_v2(file,tiff_file,product_type='Thermal')
                 print('The conversion to the COG file was finished!')
+
+            info = get_raster_info(tiff_file)
+            if info is None:
+                bad_files.append(tiff_file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info  
 
             #Create thumbnail
             f_out = tiff_file.replace('.tif','.png')
@@ -752,6 +973,10 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
         list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_MS*.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Multispectral Mosaic '+mission,total=len(list_of_files)):
+            if not is_raster_valid(file):
+                bad_files.append(file)
+                continue
+            
             fname_json = os.path.join(os.path.dirname(file),'info_ms.json')
             if os.path.exists(fname_json):
                 with open(fname_json,'r') as f_json:
@@ -768,7 +993,6 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_MS_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_multispectral_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_MS.tif'
@@ -777,8 +1001,14 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             if os.path.exists(tiff_file) != True:
                 os.makedirs(os.path.dirname(tiff_file), exist_ok=True)
                 print('Coverting mosaic GeoTIFF to COG file...')
-                write_cogtiff_v2(file,tiff_file,type='MS')
+                write_cogtiff_v2(file,tiff_file,product_type='MS')
                 print('The conversion to the COG file was finished!')
+
+            info = get_raster_info(tiff_file)
+            if info is None:
+                bad_files.append(tiff_file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info 
 
             #Create thumbnail
             f_out = tiff_file.replace('.tif','.png')
@@ -837,6 +1067,10 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
         list_of_files = list(Path(os.path.join(path,'Mosaics')).rglob('*_MS*.tif'))
         list_of_files.sort()
         for file in tqdm(list_of_files, desc='Multispectral Mosaic to obtain NDVI '+mission,total=len(list_of_files)):
+            if not is_raster_valid(file):
+                bad_files.append(file)
+                continue
+                
             fname_json = os.path.join(os.path.dirname(file),'info_ms.json')
             if os.path.exists(fname_json):
                 with open(fname_json,'r') as f_json:
@@ -853,7 +1087,6 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
             name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_NDVI_Mosaic_'+'_'.join(mission.split('_')[0:2])+'_'+ date          
             collection_idx = model.lower()+'_flight_height'+str(int(flight_info['flight_height_m']))+'m_ndvi_mosaic'
             start = date[0:4]+'-'+date[4:6]+'-'+date[6:8]+'T'+'00:00:00'
-            bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD = get_raster_info(file)
             dt_now = datetime.now().isoformat(timespec="seconds")           
             
             raster_name = '_'.join(mission.split('_')[0:2])+'_'+date+'_NDVI.tif'
@@ -864,6 +1097,12 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                 print('Calculating NDVI from multispectral mosaic...')
                 calc_ndvi(tiff_file,file)
                 print('The NDVI created!')
+
+            info = get_raster_info(tiff_file)
+            if info is None:
+                bad_files.append(tiff_file)
+                continue
+            (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,GSD) = info 
 
             #Create thumbnail
             f_out = tiff_file.replace('.tif','.png')
@@ -967,7 +1206,11 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                             continue
                         continue
                 else:
-                    bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_ = get_raster_info(cog_file)
+                    info = get_raster_info(cog_file)
+                    if info is None:
+                        bad_files.append(cog_file)
+                        continue
+                    (bbox,geom,bbox_wgs84,geom_wgs84,srid,chunck_x,chunck_y,img_height,img_width,_) = info 
                 
                 name = model+'_'+str(int(flight_info['flight_height_m']))+'m'+'_MS_'+'_'.join(mission.split('_')[0:2]) \
                        +'_'+ date.replace('-','') + time.replace(':','')
@@ -1043,6 +1286,12 @@ def process_flights(flights_path,collections_template,catalog_path,prefix_geoser
                                                                     "assets": assets
                                                                         })     
        
+    
+    if bad_files:
+        print("\nCorrupted files detected:")
+        for b in bad_files:
+            print(" -", b)
+        
     # Store JSON files to created catalogs of collections:
     for key,value in collections_template.items():
          if len(collections_template[key]['items']) > 0:

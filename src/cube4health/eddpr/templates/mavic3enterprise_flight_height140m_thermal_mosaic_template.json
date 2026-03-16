@@ -29,11 +29,11 @@
         "processor": {
                       "uri": "https://github.com/Harmonize-Brazil/cube4health",
                       "name": "cube4health",
-                      "version": "0.0.1"
+                      "version": "0.4.0"
                       },
         "wms": {
                 "url": "http://localhost:10190/geoserver/harmonize_drone/wms",
-                "layerName": "harmonize_drone:Mavic3Enterprise_FlightHeight140m_Thermal_Mosaic"
+                "layerName": "harmonize_drone:Mavic3Enterprise-FlightHeight140m-Thermal-Mosaic"
                 },
         "sources": [{
                     "name": "Mavic3Enterprise_FlightHeight120m_Thermal_Mosaic",
@@ -59,14 +59,10 @@
             "scale": 1,
             "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.184203999999999,
-                    "resolution_y": 0.184204000000057,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.184203999999999,
+            "resolution_y": 0.184204000000057,
+            "center_wavelength": null,
+            "full_width_half_max": null,
+            "resolution_unit": "Meter"
         }   ]    
 }

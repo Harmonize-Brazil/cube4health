@@ -29,11 +29,11 @@
         "processor": {
                     "uri": "https://github.com/Harmonize-Brazil/cube4health",
                     "name": "cube4health",
-                    "version": "0.0.1"
+                    "version": "0.4.0"
                     },
         "wms": {
                 "url": "http://localhost:10190/geoserver/harmonize_drone/wms",
-                "layerName": "harmonize_drone:Mavic3M_FlightHeight120m_Mosaic"
+                "layerName": "harmonize_drone:Mavic3M-FlightHeight120m-Mosaic"
                 },
         "sources": [{
                     "name": "Mavic3M_FlightHeight120m_Mosaic",
@@ -59,15 +59,11 @@
             "scale": 1,
             "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.030955138921981,
-                    "resolution_y": 0.030955138921981,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.030955138921981,
+            "resolution_y": 0.030955138921981,
+            "center_wavelength": null,
+            "full_width_half_max": null,
+            "resolution_unit": "Meter"
         },
         {
             "name": "GREEN",
@@ -79,15 +75,11 @@
             "scale": 1,
             "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.030955138921981,
-                    "resolution_y": 0.030955138921981,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.030955138921981,
+            "resolution_y": 0.030955138921981,
+            "center_wavelength": null,
+            "full_width_half_max": null,
+            "resolution_unit": "Meter"
         },
         {
             "name": "RED",
@@ -99,15 +91,11 @@
             "scale": 1,
             "data_type": "uint8",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.030955138921981,
-                    "resolution_y": 0.030955138921981,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
-                    "resolution_unit": "Meter"
-                }
-            }
+            "resolution_x": 0.030955138921981,
+            "resolution_y": 0.030955138921981,
+            "center_wavelength": null,
+            "full_width_half_max": null,
+            "resolution_unit": "Meter"
         }
     ]    
 }
