@@ -692,7 +692,7 @@ def modify_json(data: dict,
     template['metadata']['wms']['layerName'] = f'{workspace}:{template["name"]}'
     template['metadata']['sources'][0]['name'] = f'{template["name"]}'
     
-    template['metadata']['sources'][0]['stacUri'] = f'{stac_url}collections/{template["name"]}-{template["version"]}'
+    template['metadata']['sources'][0]['stacUri'] = f'{stac_url}/collections/{template["name"]}-{template["version"]}'
     # template['metadata']['sources'][0]['stacUri'] = os.path.join(stac_url, 
     #                                                              f'{template["name"]}-{template["version"]}')
     template['metadata']['datacite']['id'] = f'{template["name"]}'

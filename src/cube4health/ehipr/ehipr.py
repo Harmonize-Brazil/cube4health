@@ -1386,6 +1386,8 @@ def publish_data(layers: List[Dict[str, str]],
     gs_service_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
                      'geoserver' if hostname != 'localhost' else gs_service_url
     
+    gs_service_url = gs_service_url.strip().rstrip("/")
+    
     geo = GeoServer(
         service_url=gs_service_url, 
         workspace=workspace, 
@@ -1486,6 +1488,8 @@ def publish_data(layers: List[Dict[str, str]],
 
         stac_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
                 'stac/v1/' if hostname != 'localhost' else stac_url
+        
+        stac_url = stac_url.strip().rstrip("/")
 
         stac = STAC(service_url=stac_url, hostname=hostname)
         col_ids = []
