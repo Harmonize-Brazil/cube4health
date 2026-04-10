@@ -379,7 +379,8 @@ class GeoServer:
                 store_exists = True
 
         except GeoserverException as e:
-            store_exists = self.create_feature_store(schema=pg_schema)
+            store_exists = self.create_feature_store()
+            # store_exists = self.create_feature_store(schema=pg_schema)
 
         # Publish feature layers
         if store_exists:

@@ -184,14 +184,17 @@ class STAC:
         return 'Connection closed'
 
 
-    def publish_collection(self, data: dict, template: str, items_path: str, 
+    def publish_collection(self, 
+                           data: dict, 
+                           workspace: str,
+                           template: str, 
+                           items_path: str, 
                            asset_names: Dict[str, str], 
                            root_data_path: Optional[str]=None, 
                            additional_path: Optional[str] = None,
                            footprint: Union[List[int], Dict[str, List[int]]] = None, 
                            output_file: Optional[str] = None, 
-                           del_output_file: Optional[bool] = True, 
-                           workspace: Optional[str] = 'bdc_lcc') -> Union[int, str]:
+                           del_output_file: Optional[bool] = True) -> Union[int, str]:
         """
             Update the the collection's metadata JSON file template
 
@@ -244,7 +247,7 @@ class STAC:
         try:
             with self.app.app_context():
                 collection_id = Collection.get_by_id(f"{data['name']}-{data['version']}").id
-                raise Exception
+
                 if collection_id:
                     print("The collection provided already exists!")
                     return collection_id
@@ -255,11 +258,13 @@ class STAC:
                 template = json.load(open(template))
             except FileNotFoundError as e:
                 return "File not found"
-
+        
             if data is not None:
                 print("\nUpdating the collection's metadata JSON file...")
-                new_collection = modify_json(data=data, template=template, 
-                                             stac_url=self.service_url)
+                new_collection = modify_json(data=data, 
+                                             template=template, 
+                                             stac_url=self.service_url,
+                                             workspace=workspace)
                 print("...Done")
             else:
                 return "The 'data' parameter is required!", False
@@ -346,7 +351,6 @@ class STAC:
             else:
                 assets_paths = [os.path.join(root, file) for root, dirs, files in os.walk(path) for file in files 
                                 if os.path.isfile(os.path.join(root, file))]
-
         base_folder = os.path.basename(path)
         assets_paths = [asset for asset in assets_paths if not base_folder == os.path.basename(asset).split('.')[0]
                                                                 and os.path.basename(asset) not in GEOSERVER_FILES]
@@ -354,6 +358,13 @@ class STAC:
         item_name = lambda x: os.path.splitext(os.path.basename(x))[0]
         items_assets = groupby(sorted(assets_paths), key=item_name) # items_assets is a TUPLE (ITEM NAME, LIST OF ASSETS PATHS
                                                             # -> itertools.groupby)
+        items_assets_ex = [
+            (name, list(group))
+            for name, group in groupby(sorted(assets_paths, key=item_name), key=item_name)
+        ]
+
+        # with open('items_assets.json', 'w', encoding='utf-8') as arq:
+        #     json.dump({'items_assets': items_assets_ex}, arq, indent=4, ensure_ascii=False)
 
         for name, paths in tqdm(items_assets, desc="Getting items..."):
             assets = {}
