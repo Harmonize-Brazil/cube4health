@@ -687,12 +687,11 @@ def modify_json(data: dict,
             else:
                 current = current.get(sub_key, {})
         current[keys[-1]] = values
-    #change bdc_lcc to harmonize_climate
-    template['metadata']['wms']['layerName'] = f'harmonize_climate:{template["name"]}'
+
+    template['metadata']['wms']['layerName'] = f'bdc_lcc:{template["name"]}'
     template['metadata']['sources'][0]['name'] = f'{template["name"]}'
-    # template['metadata']['sources'][0]['stacUri'] = os.path.join(stac_url, 
-    #                                                              f'{template["name"]}-{template["version"]}')
-    template['metadata']['sources'][0]['stacUri'] = f'{stac_url}/collections/{template["name"]}-{template["version"]}'
+    template['metadata']['sources'][0]['stacUri'] = os.path.join(stac_url, 
+                                                                 f'{template["name"]}-{template["version"]}')
     template['metadata']['datacite']['id'] = f'{template["name"]}'
     template['metadata']['datacite']['titles']['title'] = f'{template["name"]}'
     template['metadata']['datacite']['descriptions'][0]['description'] = f'{template["description"]}'
