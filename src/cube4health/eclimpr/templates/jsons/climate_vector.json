@@ -1,0 +1,137 @@
+{
+    "name": "tmax_era5land_week_north_ras",
+    "title": "Temperature Maximum by Epidemiological Week",
+    "description": "This is the temperature maximum aggregated by epidemiological week",
+    "temporal_composition_schema": null,
+    "composition_function": null,
+    "collection_type": "climate",
+    "is_available": true,
+    "version": 1,
+    "is_public": true,
+    "category": "eo",
+    "bands": [
+        {
+            "name": "THUMBNAIL",
+            "common_name": "thumbnail",
+            "description": "This is the quicklook of data",
+            "data_type": "uint8",
+            "mime_type": "image/png",
+            "min_value": 0,
+            "max_value": 0,
+            "nodata": null,
+            "resolution_x": null,
+            "resolution_y": null,
+            "center_wavelength": null,
+            "full_width_half_max": null
+        },
+        {
+            "name": "GEOJSON",
+            "common_name": "geojson",
+            "description": "This is the data in a geospatial format",
+            "data_type": "uint8",
+            "mime_type": "application/json",
+            "min_value": 0,
+            "max_value": 0,
+            "nodata": null,
+            "resolution_x": null,
+            "resolution_y": null,
+            "center_wavelength": null,
+            "full_width_half_max": null
+        },
+        {
+            "name": "SHAPEFILE",
+            "common_name": "shapefile",
+            "description": "This is the data in a shapefile format",
+            "data_type": "uint8",
+            "mime_type": "application/zip",
+            "min_value": 0,
+            "max_value": 0,
+            "nodata": null,
+            "resolution_x": null,
+            "resolution_y": null,
+            "center_wavelength": null,
+            "full_width_half_max": null
+        }
+    ],
+    "metadata": {
+        "wms": {
+            "url": "http://localhost:10190/geoserver/bdc_lcc/wms",
+            "layerName": "bdc_lcc:tmax_era5land_week_north"
+        },
+        "sources": [{
+            "name": "tmax_era5land_week_north",
+            "stacUri": "http://localhost:8080/collections/tmax_era5land_week_north-1",
+            "descriptionUri": null
+        }],
+        "datacite": {
+            "id": "tmax_era5land_week_north",
+            "dates": [{
+                "date": "2023"
+            }],
+            "sizes": [],
+            "state": "unfindable",
+            "types": {
+                "ris": "DATA",
+                "bibtex": "misc",
+                "citeproc": "dataset",
+                "schemaOrg": "Dataset",
+                "resourceType": "Dataset",
+                "resourceTypeGeneral": "Dataset"
+            },
+            "agency": "INPE",
+            "titles": {
+                "lang": "en",
+                "title": "tmax_era5land_week_north"
+            },
+            "formats": [],
+            "version": "1.",
+            "creators": [{
+                "@type": "ResearchGroup",
+                "familyName": "Harmonize Brazil Team"
+            }],
+            "language": "en",
+            "subjects": [{
+                    "lang": "en",
+                    "subject": "Data from Era5-Land produced by Raphael Saldanha"
+                },
+                {
+                    "lang": "en",
+                    "subject": "Climate"
+                },
+                {
+                    "lang": "en",
+                    "subject": "Brazil"
+                }
+            ],
+            "rightsList": [{
+                "rights": "Creative Commons Attribution 4.0 International",
+                "rightsUri": "https://creativecommons.org/licenses/by/4.0/"
+            }],
+            "contributors": [{
+                    "name": "National Institute for Space Research (INPE)",
+                    "nameType": "Organizational",
+                    "contributorType": "HostingInstitution"
+                },
+                {
+                    "name": "HARMONIZE Earth Observation Data Cube tuned for Health Response Systems Component",
+                    "contributorType": "ResearchGroup"
+                }
+            ],
+            "descriptions": [{
+                "lang": "en",
+                "description": "This is the temperature maximum aggregated by epidemiological week",
+                "descriptionType": "Abstract"
+            }],
+            "geoLocations": [],
+            "fundingReferences": [{
+                "funderName": "Wellcome Trust grant number 224694/Z/21/Z"
+            }],
+            "processor": [{
+                "uri": "https://github.com/Harmonize-Brazil/cube4health",
+                "name": "cube4health",
+                "version": "0.0.1"
+            }],
+            "relatedIdentifiers": []
+        }
+    }
+}
