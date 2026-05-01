@@ -48,7 +48,7 @@ cube4health.eclimpr.publish_climate_indicator module
 ----------------------------------------------------
 
 .. automodule:: cube4health.eclimpr.publish_climate_indicator
-   :members: publish_climate_indicator_vector
+   :members: publish_climate_indicator_vector_geoserver, publish_climate_indicator_vector_stac
    :undoc-members:
    :show-inheritance:   
 
