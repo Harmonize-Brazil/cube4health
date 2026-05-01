@@ -68,8 +68,8 @@
     ],
     "metadata": {
         "wms": {
-            "url": "http://localhost:9088/geoserver/bdc_lcc/wms",
-            "layerName": "bdc_lcc:dengue_mortality_rate_health_region_week"
+            "url": "http://localhost:9088/geoserver/harmonize_health/wms",
+            "layerName": "harmonize_health:dengue_mortality_rate_health_region_week"
         },
         "sources": [{
             "name": "dengue_mortality_rate_health_region_week",

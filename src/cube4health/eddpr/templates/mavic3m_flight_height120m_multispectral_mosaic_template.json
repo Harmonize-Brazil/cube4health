@@ -1,6 +1,6 @@
 {
-    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
-    "title": "Mavic3M_120m_MS",
+    "name": "Mavic3M-FlightHeight120m-MS-Mosaic",
+    "title": "Mavic3M-120m-MS",
     "description": "Collection of mosaics from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) images produced with OpenDroneMap.",
     "temporal_composition_schema": null,
     "composition_function": null,
@@ -30,15 +30,15 @@
         "processor": {
                     "uri": "https://github.com/Harmonize-Brazil/cube4health",
                     "name": "cube4health",
-                    "version": "0.0.1"
+                    "version": "0.4.0"
                     },
         "wms": {
                 "url": "http://localhost:10190/geoserver/harmonize_drone/wms",
-                "layerName": "harmonize_drone:Mavic3M_FlightHeight120m_MS_Mosaic"
+                "layerName": "harmonize_drone:Mavic3M-FlightHeight120m-MS-Mosaic"
                 },
         "sources": [{
-                    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
-                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS_Mosaic-1",
+                    "name": "Mavic3M-FlightHeight120m-MS-Mosaic",
+                    "stacUri": "http://localhost:8080/collections/Mavic3M-FlightHeight120m-MS-Mosaic-1",
                     "descriptionUri": null
                     }
                 ]
@@ -61,15 +61,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.56,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.56,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "RED",
@@ -81,15 +77,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.65,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.65,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "RED EDGE",
@@ -101,15 +93,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.73,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.73,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "NIR",
@@ -121,15 +109,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.86,
-                    "full_width_half_max": 0.052,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.86,
+            "full_width_half_max": 0.052,
+            "resolution_unit": "Meter"
         }
     ]    
 }

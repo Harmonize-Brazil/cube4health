@@ -137,12 +137,13 @@ class GeoServer:
                                    password=self._password)
 
                 # Verifies if the geoserver password informed is correct
-                status_geoserver = self.geoserver.get_status()
+                status_geoserver = self.geoserver.get_status()                
                 if status_geoserver:
                     if config.geoserver_passwd == None:
                         config.geoserver_passwd = self._password
                     break
-            except:
+            except Exception as e:
+                print(e)
                 print(f'\ntry {try_connect}/3\n')
         else:
                 print('-'*120)
@@ -378,7 +379,8 @@ class GeoServer:
                 store_exists = True
 
         except GeoserverException as e:
-            store_exists = self.create_feature_store(schema=pg_schema)
+            store_exists = self.create_feature_store()
+            # store_exists = self.create_feature_store(schema=pg_schema)
 
         # Publish feature layers
         if store_exists:

@@ -1,6 +1,6 @@
 {
-    "name": "Mavic3M_FlightHeight120m_MS",
-    "title": "Mavic3M_120m_MS",
+    "name": "Mavic3M-FlightHeight120m-MS",
+    "title": "Mavic3M-120m-MS",
     "description": "Collection of images from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) and NDVI projected using GPS center coordinates, flight height (120 meters) and flight yaw degree information.",
     "temporal_composition_schema": null,
     "composition_function": null,
@@ -30,11 +30,11 @@
         "processor": {
                     "uri": "https://github.com/Harmonize-Brazil/cube4health",
                     "name": "cube4health",
-                    "version": "0.0.1"
+                    "version": "0.4.0"
                     },
         "sources": [{
-                    "name": "Mavic3M_FlightHeight120m_MS",
-                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS-1",
+                    "name": "Mavic3M-FlightHeight120m-MS",
+                    "stacUri": "http://localhost:8080/collections/Mavic3M-FlightHeight120m-MS-1",
                     "descriptionUri": null
                     }
                 ]
@@ -109,15 +109,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.56,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.56,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "RED",
@@ -129,15 +125,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.65,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.65,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "RED EDGE",
@@ -149,15 +141,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.73,
-                    "full_width_half_max": 0.032,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.73,
+            "full_width_half_max": 0.032,
+            "resolution_unit": "Meter"
         },
         {
             "name": "NIR",
@@ -169,15 +157,11 @@
             "scale": 1,
             "data_type": "uint32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": 0.86,
-                    "full_width_half_max": 0.052,
-                    "resolution_unit": "Meter"
-                }
-            }            
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": 0.86,
+            "full_width_half_max": 0.052,
+            "resolution_unit": "Meter"
         },
         {
             "name": "NDVI",
@@ -189,15 +173,11 @@
             "scale": 0.0001,
             "data_type": "int16",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.055470216760466,
-                    "resolution_y": 0.055470216760466,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
-                    "resolution_unit": "Meter"
-                }
-            }   
+            "resolution_x": 0.055470216760466,
+            "resolution_y": 0.055470216760466,
+            "center_wavelength": null,
+            "full_width_half_max": null,
+            "resolution_unit": "Meter"
         }
     ]    
 }

@@ -275,7 +275,8 @@ def __get_data_from_source(name: str,
 
 def __crop_geometry(gdf: gpd.GeoDataFrame, 
                     file_path: str,
-                    columns: Dict[str, str]) -> gpd.GeoDataFrame:
+                    columns: Dict[str, str],
+                    provider: str) -> gpd.GeoDataFrame:
     """
     Crop the geometry of the shapefile.
 
@@ -301,29 +302,28 @@ def __crop_geometry(gdf: gpd.GeoDataFrame,
     gdf_crop = gdf_crop.to_crs(gdf.crs)
 
     # Convert geocode data column to integer
-    gdf_crop[data_col] = gdf_crop[data_col].astype(int)
-    gdf[grid_col] = gdf[grid_col].astype(int)
+    if provider == 'lis':
+        grid_col = data_col
+    
+    gdf_crop[data_col] = gdf_crop[data_col].astype(int).astype('str')
+    gdf[grid_col] = gdf[grid_col].astype(int).astype('str')
 
     return gdf.loc[gdf[grid_col].isin(gdf_crop[data_col])]
     # FUNCTION TO CREATE MUNICIPALITY GRID FROM 2010
     #return gpd.sjoin(gdf, gdf_crop, how='inner', predicate='intersects')[gdf.columns]
 
-def __process_crop(df_polygon, grid_info, crop_info, file_crop_geom):
+def __process_crop(df_polygon, grid_info, crop_info, file_crop_geom, provider):
     grid_info_cod = grid_info.get('cod_mun', grid_info['cod'])
     crop_info_cod = crop_info.get('cod_mun', crop_info['cod'])
 
     df_cropped = __crop_geometry(
         gdf=df_polygon,
         file_path=file_crop_geom,
-        columns={'grid': grid_info_cod, 'crop': crop_info_cod}
+        columns={'grid': grid_info_cod, 'crop': crop_info_cod},
+        provider=provider
     )
 
-    # df_cropped = df_cropped.astype({grid_info['cod']: int})
-    # cod_polygon = df_cropped[grid_info['cod']].unique()
-
     return df_cropped
-    # return df_cropped, cod_polygon
-
 
 
 '''def aggregate_data(indicators: List[str],
@@ -522,6 +522,17 @@ def aggregate_data(indicators: List[str],
                    temp_agg: Optional[List[str]] = None,
                    save: Optional[bool] = False) -> List[Dict[str, pd.DataFrame]]:
     try:
+        cod_col = data_columns['cod']
+        date_col = data_columns['date']
+        name_col = data_columns['name']
+        spt_col = data_columns['spt_agg']
+        temp_col = data_columns['temp_agg']
+        value_col = data_columns['value']
+    except KeyError:
+        return "Error: The data_columns dictionary does not contain all the required keys."\
+                " The dictionary must contain 'cod', 'date', 'name', 'spt_agg', 'temp_agg' and 'value' keys."
+    
+    try:
         dataframes = []
 
         for indicator in indicators:
@@ -556,13 +567,14 @@ def aggregate_data(indicators: List[str],
                     return 'Error: Input filepath does not exist and no git setting was provided to download the data.'
 
             for file in files:
+                
                 extension = ''
                 try:
                     if file.endswith('.parquet'):
                         df = pd.read_parquet(file)
                         extension = 'parquet'
                     elif file.endswith('.csv'):
-                        df = pd.read_csv(file, dtype=str)
+                        df = pd.read_csv(file, )
                         extension = 'csv'
                     else:
                         return f"Error: File {file} does not have a valid extension. Only '.parquet' and '.csv' files are accepted."
@@ -583,17 +595,6 @@ def aggregate_data(indicators: List[str],
                 # except Exception as err:
                 #     return f"Error: failed to get temporal and spatial aggregations. Reason: {str(err)}"
                 
-                try:
-                    cod_col = data_columns['cod']
-                    date_col = data_columns['date']
-                    name_col = data_columns['name']
-                    spt_col = data_columns['spt_agg']
-                    temp_col = data_columns['temp_agg']
-                    value_col = data_columns['value']
-                except KeyError:
-                    return "Error: The data_columns dictionary does not contain all the required keys."\
-                            " The dictionary must contain 'cod', 'date', 'name', 'spt_agg', 'temp_agg' and 'value' keys."
-
                 if spatial_agg is None:
                     spatial_agg = df[spt_col].unique()
 
@@ -655,7 +656,7 @@ def aggregate_data(indicators: List[str],
 
                     indi_info = indi_info.get("indicator")
                     filename = (
-                        f"{indi_info.get(name_col)}_{file_agg_spt}_{agg_time}.{extension}"
+                        f"{indi_info.get(name_col)}_{file_agg_spt}_{agg_time}_{provider}.{extension}"
                     )
                     filepath = os.path.join(final_path, filename)
                     new_df["name"] = indi_info.get("name")
@@ -731,7 +732,6 @@ def spatialize_data(indicators: List[str],
     publish_path = ''
 
     # AGGREGATE DATA
-    # print('input_path: ', input_path)
     dataframes = aggregate_data(indicators=indicators, 
                                 input_path=input_path, 
                                 github_settings=github_settings, 
@@ -831,7 +831,6 @@ def spatialize_data(indicators: List[str],
                         except IndexError:
                             create_LIS_boundaries_shp(agg=agg_spt)
                             grid_path = glob.glob(os.path.join(ROOT_PATH, f"ehipr/shp_malhas/default_grid/{agg_spt}/BR*_2022.shp"))[0]
-                            print(grid_path)
 
                         grid_info = {
                             'cod': 'GEOCODE', 
@@ -884,7 +883,7 @@ def spatialize_data(indicators: List[str],
 
                 # Get the spatial and temporal aggregations and the indicator name from this dataframe
                 try:
-                    filename = f"{filename}_{SPATIAL_AGG_ABBR[agg_spt]}_{agg_time}"
+                    filename = f"{filename}_{SPATIAL_AGG_ABBR[agg_spt]}_{agg_time}_{provider}"
                 except KeyError:
                     return f"Error: Some information about the spatial aggregation is wrong: {agg_spt}."
 
@@ -922,7 +921,7 @@ def spatialize_data(indicators: List[str],
                                         "cod": "code_muni", 
                                         "name": "name_muni"
                                     }
-                            df_polygon[grid_info['cod']] = df_polygon[grid_info['cod']].astype(int)
+                            df_polygon[grid_info['cod']] = df_polygon[grid_info['cod']].astype(int).astype(str)
 
                             if df_polygon.crs is None:
                                 df_polygon.crs = {'init': 'epsg:3857'}
@@ -932,7 +931,7 @@ def spatialize_data(indicators: List[str],
                         # Crop the polygon if the user specifies to do it
                         if region_crop:
                             with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
-                                future = executor.submit(__process_crop, df_polygon, grid_info, crop_info, file_crop_geom)
+                                future = executor.submit(__process_crop, df_polygon, grid_info, crop_info, file_crop_geom,provider)
                                 df_polygon = future.result()
                             # grid_info_cod = grid_info['cod_mun'] if 'cod_mun' in grid_info.keys() else grid_info['cod']
                             # crop_info = crop_info['cod_mun'] if 'cod_mun' in crop_info.keys() else crop_info['cod']
@@ -940,22 +939,40 @@ def spatialize_data(indicators: List[str],
                             # df_polygon = __crop_geometry(gdf=df_polygon, 
                             #                             file_path=file_crop_geom,
                             #                             columns={'grid': grid_info_cod, 'crop': crop_info})
-                    
-                        df_polygon = df_polygon.astype({grid_info['cod']: int})
-                        cod_polygon = df_polygon[grid_info['cod']].unique()
+                        grid_col = grid_info['cod']
+                        cod_polygon = df_polygon[grid_col].unique()
 
-                    df[cod_col] = pd.to_numeric(df[cod_col], errors="coerce").astype(int)
+                    df[cod_col] = df[cod_col].astype('int').astype('str')
+
+                    # Filtrar o DataFrame
+                    df = df[df[cod_col].isin(cod_polygon)]
+                    # print(df[cod_col].unique())
+
+                    # df[cod_col] = pd.to_numeric(df[cod_col], errors="coerce").astype(int)
 
                     # Filtrando o DataFrame para manter apenas as linhas com códigos presentes em cod_polygon
-                    df = df[df[cod_col].isin(cod_polygon)]
+                    # df = df[df[cod_col].isin(cod_polygon)]
 
                     if df.empty:
                         return "Error: No data found for the selected codes in the grid."
+                    
+                    # df
+                    df[cod_col] = (
+                        pd.to_numeric(df[cod_col], errors="coerce")
+                        .astype("Int64")
+                        .astype(str)
+                    )
+
+                    # df_polygon
+                    df_polygon[grid_info["cod"]] = (
+                        pd.to_numeric(df_polygon[grid_info["cod"]], errors="coerce")
+                        .astype("Int64")
+                        .astype(str)
+                    )
 
                     df["nome_mun"] = df[cod_col].map(
                         df_polygon.set_index(grid_info["cod"])[grid_info["name"]]
                     )
-
                     df["uf_mun"] = df[cod_col].map(
                         df_polygon.set_index(grid_info["cod"])[grid_info["uf"]]
                     )
@@ -1169,6 +1186,7 @@ def spatialize_data(indicators: List[str],
                             if extension == '.shp':
                                 file_path = (os.path.join(file_path, 'shapefile'))
                             _check_existence_dirs([file_path])
+                            extension = f'.{extension}' if extension == 'csv' else extension
                             asset_path = os.path.join(file_path, f"{filename_date}{extension}")
                             if extension == 'parquet':
                                 asset_path = asset_path.replace('parquet', '.parquet')
@@ -1182,7 +1200,7 @@ def spatialize_data(indicators: List[str],
                                 if extension == '.shp':
                                     zip_file = asset_path.replace(f"{filename_date}"\
                                                                   f"{extension}", '')
-                                    asset_path = shp_to_zip(zip_file, zip_file)
+                                    asset_path = shp_to_zip(zip_file)#, zip_file)
                                     # asset_path = shp_to_zip(asset_path.replace(f"{filename_date}"\
                                     #                                             f"{extension}", ''))
 
@@ -1289,7 +1307,10 @@ def publish_data(layers: List[Dict[str, str]],
                  db_settings: Optional[dict] = None,
                  stac_url: Optional[str] = 'http://localhost:8080/',
                  hostname: Optional[str] = 'localhost',
-                 additional_path: Optional[str] = None) -> Union[List[int], str]:
+                 additional_path: Optional[str] = None,
+                 save_in_db: Optional[bool] = True,
+                 save_in_gs: Optional[bool] = True,
+                 save_in_stac: Optional[bool] = True) -> Union[List[int], str]:
     """
         Publishes data to GeoServer and its metadata in STAC
 
@@ -1332,7 +1353,8 @@ def publish_data(layers: List[Dict[str, str]],
         -------
         A list of collections IDs or a string with an error message.
     """
-    json_file, geojson_file = '', ''
+    json_file, geojson_file, col_ids = '', '', ''
+    attribute_date = 'date'
     remove_temp_files = False
 
     if not isinstance(layers, (list, dict)):
@@ -1364,6 +1386,8 @@ def publish_data(layers: List[Dict[str, str]],
     gs_service_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
                      'geoserver' if hostname != 'localhost' else gs_service_url
     
+    gs_service_url = gs_service_url.strip().rstrip("/")
+    
     geo = GeoServer(
         service_url=gs_service_url, 
         workspace=workspace, 
@@ -1372,161 +1396,172 @@ def publish_data(layers: List[Dict[str, str]],
         store=gs_store,
         db_settings=db_settings
     )
-
+    
     db = geo.db
     pg_schema = geo.db_schema
     pg_username = geo.db_user
     pg_password = geo.db_password
     pg_port = geo.db_port
-
-    print(f'\nSAVING DATA IN DATABASE...')
-    for layer in tqdm(layers, total=len(layers), desc='Saving data in the database'):
-        # Saving data in the database
-        response = save_data_db(
-            gdf=layer['gdf'], 
-            name=layer['name'],
-            schema=pg_schema,
-            db_columns=layer["gdf"].keys(),
-            hostname=hostname, 
-            port=pg_port,
-            db=db,
-            user=pg_username,
-            password=pg_password,
-            replace_table=True,
-        )
-
-        response = True
-        all_saved.append(response)
-
-        # Fixing layer path to include root_data_path if the host is not localhost
-        if hostname != 'localhost':
-            local_paths = glob.glob(layer['path'])
-            layer['remote'] = f"{root_data_path}{layer['path'].split(root_data_path)[1]}"
-            paths = [(path, f"{root_data_path}{path.split(root_data_path)[1]}") 
-                      for path in local_paths]
-
-    if not all(all_saved):
-        return "Error: Some layer was not saved. Something went wrong with the database!"
-
-
-    # Publishing data in GeoServer
-    print('\nPUBLISHING DATA IN GEOSERVER AND MAKING THUMBNAILS...')
     
-    # Publishing feature data in GeoServer
-    try:
-        attribute_date = layer.get("attribute_data", 'date')
-        geo.publish_feature_data(layers=layers, 
-                                 time_regex=time_regex,
-                                 attribute=attribute_date, 
-                                 dynamic_style=True,
-                                 add_tile_cache=False)
-    except GeoserverException:
-        return "Error: Something went wrong in publishing feature data in GeoServer!"
+    if save_in_db:
 
-    # Making thumbnails in GeoServer
-    try:
-        geo.make_thumbnail(url=gs_service_url, 
-                           layers=layers, 
-                           time_regex=time_regex)
-    except GeoserverException:
-        return "Error: Something went wrong in making thumbnails in GeoServer!"
+        print(f'\nSAVING DATA IN DATABASE...')
+        for layer in tqdm(layers, total=len(layers), desc='Saving data in the database'):
+            # Saving data in the database
+            response = save_data_db(
+                gdf=layer['gdf'], 
+                name=layer['name'],
+                schema=pg_schema,
+                db_columns=layer["gdf"].keys(),
+                hostname=hostname, 
+                port=pg_port,
+                db=db,
+                user=pg_username,
+                password=pg_password,
+                replace_table=True,
+            )
 
-    print("... Done")
+            attribute_date = layer.get("attribute_data", 'date')
+            response = True
+            all_saved.append(response)
 
-    # Sending files to remote server if the host is not localhost
-    if hostname != 'localhost':
-        print("\nSENDING FILES TO REMOTE SERVER...")
-        all_send = send_files_ssh(ssh=geo.connection, paths=paths)
+            # Fixing layer path to include root_data_path if the host is not localhost
+            if hostname != 'localhost':
+                local_paths = glob.glob(layer['path'])
+                layer['remote'] = f"{root_data_path}{layer['path'].split(root_data_path)[1]}"
+                paths = [(path, f"{root_data_path}{path.split(root_data_path)[1]}") 
+                        for path in local_paths]
 
-        if all_send:
-            print("... Done")
-     
-    # Adding tile cache in GeoServer
-    add_tile_cache = []
-    for layer in tqdm(layers, total=len(layers), desc='Adding tile cache in GeoServer layers...'): 
-        layer_name = layer['name']
-        layer_folder = layer['remote'] if hostname != 'localhost' else layer['path']
+        if not all(all_saved):
+            return "Error: Some layer was not saved. Something went wrong with the database!"
+        
+        col_ids = 'Sucess: Data saved in database.'
 
-        add_tile_cache.append(geo._add_tile_cache(name=layer_name, path=layer_folder,
-                                                  time_regex=time_regex, is_vector=True))
-    if all(add_tile_cache):
+
+    if save_in_gs:
+        # Publishing data in GeoServer
+        print('\nPUBLISHING DATA IN GEOSERVER AND MAKING THUMBNAILS...')
+        
+        # Publishing feature data in GeoServer
+        try:
+            geo.publish_feature_data(layers=layers, 
+                                    time_regex=time_regex,
+                                    attribute=attribute_date, 
+                                    dynamic_style=True,
+                                    add_tile_cache=False)
+        except GeoserverException:
+            return "Error: Something went wrong in publishing feature data in GeoServer!"
+
+        # Making thumbnails in GeoServer
+        try:
+            geo.make_thumbnail(url=gs_service_url, 
+                            layers=layers, 
+                            time_regex=time_regex)
+        except GeoserverException:
+            return "Error: Something went wrong in making thumbnails in GeoServer!"
+
         print("... Done")
+
+        # Sending files to remote server if the host is not localhost
+        if hostname != 'localhost':
+            print("\nSENDING FILES TO REMOTE SERVER...")
+            all_send = send_files_ssh(ssh=geo.connection, paths=paths)
+
+            if all_send:
+                print("... Done")
+        
+        # Adding tile cache in GeoServer
+        add_tile_cache = []
+        for layer in tqdm(layers, total=len(layers), desc='Adding tile cache in GeoServer layers...'): 
+            layer_name = layer['name']
+            layer_folder = layer['remote'] if hostname != 'localhost' else layer['path']
+
+            add_tile_cache.append(geo._add_tile_cache(name=layer_name, path=layer_folder,
+                                                    time_regex=time_regex, is_vector=True))
+        if all(add_tile_cache):
+            print("... Done")
+            col_ids = 'Sucess: Data published in geoserver.'
      
-    # Publishing data in STAC
-    print('\nPUBLISHING DATA IN STAC...') 
+    if save_in_stac:
+        # Publishing data in STAC
+        print('\nPUBLISHING DATA IN STAC...') 
 
-    stac_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
-               'stac/v1/' if hostname != 'localhost' else stac_url
+        stac_url = 'https://brazildatacube.dpi.inpe.br/harmonize/dev/'\
+                'stac/v1/' if hostname != 'localhost' else stac_url
+        
+        stac_url = stac_url.strip().rstrip("/")
 
-    stac = STAC(service_url=stac_url, hostname=hostname)
-    col_ids = []
+        stac = STAC(service_url=stac_url, hostname=hostname)
+        col_ids = []
 
-    with stac.app.app_context():
-        # Publishing metadata in STAC
-        for layer in tqdm(layers, total=len(layers), desc="Publishing metadata in STAC..."):
-            name, description = layer['name'], layer['description']
-            title = layer['title']
-            keywords = layer['keywords']
-            version = layer['version'] if 'version' in layer.keys() else 1
+        with stac.app.app_context():
+            # Publishing metadata in STAC
+            for layer in tqdm(layers, total=len(layers), desc="Publishing metadata in STAC..."):
+                name, description = layer['name'], layer['description']
+                title = layer['title']
+                keywords = [v.get("subject") for v in layer["keywords"]]
+                subjects = layer['keywords']
+                version = layer['version'] if 'version' in layer.keys() else 1
 
-            # Making a dictionary with layer metadata to update the STAC template
-            # provided by edpu (edpu>templates>jsons>health.json)
-            layer_metadata = {
-                "name": name,
-                "title": title,
-                "description": description,
-                "keywords": keywords,
-                "version": version,
-                "metadata": {
-                    "wms": {
-                        "url": f"{gs_service_url}/bdc_lcc/wms",
-                        "layerName": f"bdc_lcc:{name}"
-                    },
-                    "sources": [{
-                        "name": f"{name}",
-                        "stacUri": f"{stac_url}collections/{name}-{version}",
-                    }],
-                    "datacite": {
-                        "id": f"{name}",
-                        "dates": [{
-                            "date": "2024"
-                        }],
-                        "titles": {
-                            "title": f"{name}"
+                # Making a dictionary with layer metadata to update the STAC template
+                # provided by edpu (edpu>templates>jsons>health.json)
+                layer_metadata = {
+                    "name": name,
+                    "title": title,
+                    "description": description,
+                    "keywords": keywords,
+                    "version": version,
+                    "metadata": {
+                        "wms": {
+                            "url": f"{gs_service_url}/{workspace}/wms",
+                            "layerName": f"{workspace}:{name}"
                         },
-                        "descriptions": [{
-                            "lang": "en",
-                            "description": f"{description}",
-                            "descriptionType": "Abstract"
+                        "sources": [{
+                            "name": f"{name}",
+                            "stacUri": f"{stac_url}collections/{name}-{version}",
                         }],
-                        "subjects": keywords
+                        "datacite": {
+                            "id": f"{name}",
+                            "dates": [{
+                                "date": "2024"
+                            }],
+                            "titles": {
+                                "title": f"{name}"
+                            },
+                            "descriptions": [{
+                                "lang": "en",
+                                "description": f"{description}",
+                                "descriptionType": "Abstract"
+                            }],
+                            "subjects": subjects
+                        }
                     }
                 }
-            }
 
-            # Adding additional path if provided. This step is used to 
-            # inform the script the correct path where NGINX server is providing the 
-            # items metadata
-            args = {}
-            if additional_path and isinstance(additional_path, str):
-                args['additional_path'] = additional_path
+                # Adding additional path if provided. This step is used to 
+                # inform the script the correct path where NGINX server is providing the 
+                # items metadata
+                args = {}
+                if additional_path and isinstance(additional_path, str):
+                    args['additional_path'] = additional_path
 
-            # Publishing metadata in STAC
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
-                items_path = layer['remote'] if hostname != 'localhost' else layer['path']
-                col_id = stac.publish_collection(data=layer_metadata, 
-                                                 template='health', 
-                                                 root_data_path=root_data_path, 
-                                                 asset_names=ASSET_NAMES, 
-                                                 del_output_file=False, 
-                                                 items_path=items_path, **args)
-                col_ids.append(col_id)
-    if not all(col_ids):
-        return "Error: Something went wrong in publishing metadata in STAC!"
+                # Publishing metadata in STAC
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
+                    items_path = layer['remote'] if hostname != 'localhost' else layer['path']
+                    col_id = stac.publish_collection(data=layer_metadata, 
+                                                     template='health', 
+                                                     root_data_path=root_data_path, 
+                                                     asset_names=ASSET_NAMES, 
+                                                     del_output_file=False, 
+                                                     items_path=items_path,
+                                                     workspace=workspace, **args)
+                    col_ids.append(col_id)
+        if not all(col_ids):
+            return "Error: Something went wrong in publishing metadata in STAC!"
 
-    if hasattr(stac, 'connection'):
-        response = stac.close_connection()
+        if hasattr(stac, 'connection'):
+            response = stac.close_connection()
 
     if remove_temp_files:
         if os.path.exists(json_file):
@@ -1535,4 +1570,5 @@ def publish_data(layers: List[Dict[str, str]],
             os.remove(geojson_file)        
 
     print("... Done")
+
     return col_ids
