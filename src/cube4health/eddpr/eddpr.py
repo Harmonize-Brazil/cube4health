@@ -66,8 +66,7 @@ local_path = os.path.dirname(os.path.abspath(__file__))
 gdal.UseExceptions()  # this allows GDAL to throw Python Exceptions
 Image.MAX_IMAGE_PIXELS = None #to prevent the problem of size image
 num_workers = int(cpu_count() - (cpu_count() * 0.20)) # using about 80% of cores
-total_ram_mb = psutil.virtual_memory().total // (1024 * 1024)
-warp_memory_limit = int(total_ram_mb * 0.4)
+warp_memory_limit = int(psutil.virtual_memory().total * 0.2) # set 20% of memory
 tf = TimezoneFinder()  # reuse
 bands_name = {'NIR':'NIR', 'RE':'RED EDGE', 'R':'RED','G':'GREEN','NDVI':'NDVI'}
 template_view = ['R','NIR','G']
