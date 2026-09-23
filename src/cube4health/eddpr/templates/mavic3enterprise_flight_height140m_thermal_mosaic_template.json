@@ -33,7 +33,7 @@
                       },
         "wms": {
                 "url": "http://localhost:10190/geoserver/harmonize_drone/wms",
-                "layerName": "harmonize_drone:Mavic3Enterprise-FlightHeight140m-Thermal-Mosaic"
+                "layerName": "harmonize_drone:Mavic3Enterprise_FlightHeight140m_Thermal_Mosaic"
                 },
         "sources": [{
                     "name": "Mavic3Enterprise_FlightHeight120m_Thermal_Mosaic",

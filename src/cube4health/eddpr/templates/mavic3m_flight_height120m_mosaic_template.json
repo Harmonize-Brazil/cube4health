@@ -33,7 +33,7 @@
                     },
         "wms": {
                 "url": "http://localhost:10190/geoserver/harmonize_drone/wms",
-                "layerName": "harmonize_drone:Mavic3M-FlightHeight120m-Mosaic"
+                "layerName": "harmonize_drone:Mavic3M_FlightHeight120m_Mosaic"
                 },
         "sources": [{
                     "name": "Mavic3M_FlightHeight120m_Mosaic",
