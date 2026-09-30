@@ -796,12 +796,14 @@ class GeoServer:
             return False
 
 
-    def _add_tile_cache(self, 
-                        name: str, 
-                        time_regex: str, 
-                        path: str, 
-                        workspace: Optional[str]=None, 
-                        is_vector: Optional[bool]=False) -> int:
+    def _add_tile_cache(
+        self, 
+        name: str, 
+        time_regex: str, 
+        path: str, 
+        workspace: Optional[str]=None, 
+        is_vector: Optional[bool]=False
+    ) -> int:
         """
             Add tile cache.
 

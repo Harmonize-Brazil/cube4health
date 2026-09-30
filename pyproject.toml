@@ -89,6 +89,8 @@ dependencies = [
   "kiwisolver",
   "lxml",
   "markupsafe",
+  "mosqlient",
+  "dotenv",
   "multiurl",
   "natsort",
   "netcdf4",
