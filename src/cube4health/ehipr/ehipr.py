@@ -1131,12 +1131,13 @@ def spatialize_data(indicators: List[str],
                     time_column = "time_agg"
 
                     # Renomeando as colunas para 'nome_mun' e 'uf_mun'
+                    gdf = gdf.drop(data_columns["cod"], axis=1)
                     gdf.rename(
                         columns={
                             # Grid Columns
                             grid_info["name"]: "name_mun",
                             # grid_info["uf"]: "uf_mun",
-                            grid_info["cod"]: "code_mun",
+                            grid_info["cod"]: "cod_mun",
                             # Data Columns
                             data_columns["value"]: "value",
                             data_columns["spt_agg"]: "spatial_agg",
@@ -1148,11 +1149,11 @@ def spatialize_data(indicators: List[str],
                     )
 
                     gdf["data_source"] = provider
-                    gdf = gdf.drop(data_columns["cod"], axis=1)
+                    
 
                     gdf = gdf[
                         [
-                            "code_mun", "name_mun", "uf_mun", "data_source",
+                            "cod_mun", "name_mun", "uf_mun", "data_source",
                             "name_indicator", name_date_number_col, name_date_col,
                             "time_agg", "spatial_agg", "value", "geometry"
                         ]
@@ -1237,8 +1238,8 @@ def spatialize_data(indicators: List[str],
             keywords = [
                 {"lang": "en", "subject": "Health"},
                 {"lang": "en", "subject": provider},
-                {"lang": "en", "subject": df_indi['info']['disease']},
-                {"lang": "en", "subject": df_indi['info']['description']},
+                {"lang": "en", "subject": df_indi['info']['disease'].title()},
+                {"lang": "en", "subject": df_indi['info']['title'].title()},
                 {"lang": "en", "subject": "Vector"},
                 {"lang": "en", "subject": agg_spt.title()},
                 {"lang": "en", "subject": agg_time.title()},
@@ -1454,9 +1455,15 @@ def publish_data(layers: List[Dict[str, str]],
 
         # Making thumbnails in GeoServer
         try:
+            
+            # TODO: REMOVER AS LINHAS ANTES DE MAKE-THUMBANAIL
+            temp_reg = time_regex
+            if 'lis' in layers[0].get('name'):
+                temp_reg = 'regex=[0-9]{8}_[0-9]{8}'
+
             geo.make_thumbnail(url=gs_service_url, 
-                            layers=layers, 
-                            time_regex=time_regex)
+                                layers=layers, 
+                                time_regex=temp_reg)
         except GeoserverException:
             return "Error: Something went wrong in making thumbnails in GeoServer!"
 

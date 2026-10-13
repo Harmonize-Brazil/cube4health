@@ -147,16 +147,18 @@ def _insert_data(gdf: GeoDataFrame,
         return False
 
 
-def save_data_db(gdf: GeoDataFrame, 
-                 name: str, 
-                 schema: str, 
-                 db_columns = List[str],
-                 hostname: Optional[str] = 'localhost',
-                 port : Optional[str] = '5432',
-                 db: Optional[str] = 'harmonize', 
-                 user: Optional[str] = 'postgres', 
-                 password: Optional[str] = 'postgres',
-                 replace_table: Optional[bool] = False) -> bool:
+def save_data_db(
+    gdf: GeoDataFrame, 
+    name: str, 
+    schema: str, 
+    db_columns = List[str],
+    hostname: Optional[str] = 'localhost',
+    port : Optional[str] = '5432',
+    db: Optional[str] = 'harmonize', 
+    user: Optional[str] = 'postgres', 
+    password: Optional[str] = 'postgres',
+    replace_table: Optional[bool] = False
+) -> bool:
 
     host = hostname if hostname != 'localhost' else get_ip_container_db()
     port = port if port != 5432 else get_ports_container_db()
@@ -232,7 +234,7 @@ def save_data_db(gdf: GeoDataFrame,
             }
 
             tipo_por_coluna = {
-                "code_mun": "VARCHAR(8) NOT NULL",
+                "cod_mun": "VARCHAR(8) NOT NULL",
                 "name_mun": "VARCHAR(50) NOT NULL",
                 "uf_mun": "VARCHAR(2) NOT NULL",
                 "data_source": "VARCHAR(50) NOT NULL",
@@ -248,7 +250,7 @@ def save_data_db(gdf: GeoDataFrame,
             campos_formatados = [("id", "SERIAL PRIMARY KEY")]
             for col in db_columns:
                 tipo_logico = mapeamento_coluna_para_tipo_logico.get(col, col)
-                tipo_sql = tipo_por_coluna[tipo_logico]
+                tipo_sql = tipo_por_coluna.get(tipo_logico)
                 campos_formatados.append((col, tipo_sql))
 
             campos_sql = sql.SQL(", ").join([

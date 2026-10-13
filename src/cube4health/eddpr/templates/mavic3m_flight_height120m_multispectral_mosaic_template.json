@@ -1,6 +1,6 @@
 {
-    "name": "Mavic3M-FlightHeight120m-MS-Mosaic",
-    "title": "Mavic3M-120m-MS",
+    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
+    "title": "Mavic3M_120m_MS",
     "description": "Collection of mosaics from drone DJI Mavic 3M based on Multispectral Lens (NIR, RE, R and G) images produced with OpenDroneMap.",
     "temporal_composition_schema": null,
     "composition_function": null,
@@ -34,11 +34,11 @@
                     },
         "wms": {
                 "url": "http://localhost:10190/geoserver/harmonize_drone/wms",
-                "layerName": "harmonize_drone:Mavic3M-FlightHeight120m-MS-Mosaic"
+                "layerName": "harmonize_drone:Mavic3M_FlightHeight120m_MS_Mosaic"
                 },
         "sources": [{
-                    "name": "Mavic3M-FlightHeight120m-MS-Mosaic",
-                    "stacUri": "http://localhost:8080/collections/Mavic3M-FlightHeight120m-MS-Mosaic-1",
+                    "name": "Mavic3M_FlightHeight120m_MS_Mosaic",
+                    "stacUri": "http://localhost:8080/collections/Mavic3M_FlightHeight120m_MS_Mosaic-1",
                     "descriptionUri": null
                     }
                 ]

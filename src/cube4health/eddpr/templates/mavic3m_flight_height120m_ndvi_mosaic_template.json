@@ -61,15 +61,11 @@
             "scale": 1,
             "data_type": "float32",
             "mime_type": "image/tiff; application=geotiff; profile=cloud-optimized",
-            "metadata": {
-                "eo": {
-                    "resolution_x": 0.052964517032209,
-                    "resolution_y": 0.052964517032209,
-                    "center_wavelength": null,
-                    "full_width_half_max": null,
-                    "resolution_unit": "Meter"
-                }
-            }   
+            "resolution_x": 0.052964517032209,
+            "resolution_y": 0.052964517032209,
+            "center_wavelength": null,
+            "full_width_half_max": null,
+            "resolution_unit": "Meter"
         }
     ]    
 }
